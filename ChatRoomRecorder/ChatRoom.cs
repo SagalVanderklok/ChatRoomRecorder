@@ -57,7 +57,7 @@ namespace ChatRoomRecorder
                 {
                     while (!_cancellationToken.IsCancellationRequested)
                     {
-                        await Task.Delay(TimeSpan.FromSeconds((double)((new Random()).Next(45) + 45)), _cancellationToken);
+                        await Task.Delay(TimeSpan.FromSeconds((double)(_random.Next(60) + 30)), _cancellationToken);
                         await UpdateAsync();
                     }
                 }, _cancellationToken);
@@ -371,6 +371,7 @@ namespace ChatRoomRecorder
         private Task _task;
         private bool _disposed;
 
+        private static Random _random = new Random();
         private static HttpClient _httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
     }
 }
