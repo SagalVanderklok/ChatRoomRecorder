@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Nodes;
+using System.Threading;
 
 namespace ChatRoomRecorder
 {
@@ -21,11 +22,12 @@ namespace ChatRoomRecorder
             this.Text = asm.GetName().Name + " " + asm.GetName().Version.ToString(3);
 
             ChatRoomsDataGridView.Columns["IndexColumn"].ValueType = typeof(int);
+            ChatRoomsDataGridView.Columns["WebsiteColumn"].ValueType = typeof(ChatRoomWebsite);
             ChatRoomsDataGridView.Columns["NameColumn"].ValueType = typeof(string);
             ChatRoomsDataGridView.Columns["ActionColumn"].ValueType = typeof(ChatRoomAction);
             ChatRoomsDataGridView.Columns["StatusColumn"].ValueType = typeof(ChatRoomStatus);
             ChatRoomsDataGridView.Columns["ResolutionColumn"].ValueType = typeof(string);
-            
+
             try
             {
                 JsonNode rootNode = JsonNode.Parse(File.ReadAllText(_configDir + Path.DirectorySeparatorChar + _configFile));
@@ -70,15 +72,23 @@ namespace ChatRoomRecorder
                 OutputDirectoryTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
                 FFmpegPathTextBox.Text = (new FileInfo(Process.GetCurrentProcess().MainModule.FileName)).Directory.FullName + Path.DirectorySeparatorChar + "ffmpeg.exe";
             }
-            
+
             DataGridViewUpdateTimer.Enabled = true;
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             foreach (ChatRoom chatRoom in _chatRooms)
-            {
                 chatRoom.Dispose();
+
+            bool all_disposed = false;
+            for (int i = 0; i < 20 && !all_disposed; i++)
+            {
+                all_disposed = true;
+                foreach (ChatRoom chatRoom in _chatRooms)
+                    all_disposed = all_disposed && chatRoom.IsDisposed;
+                if (!all_disposed)
+                    Thread.Sleep(250);
             }
         }
 
@@ -87,7 +97,7 @@ namespace ChatRoomRecorder
             Assembly asm = Assembly.GetEntryAssembly();
             string msg =
                 asm.GetName().Name + " " + asm.GetName().Version.ToString(3) + "\n\n" +
-                ((AssemblyCopyrightAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(asm, typeof(AssemblyCopyrightAttribute))).Copyright + "\n\n" +
+                ((AssemblyCopyrightAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(asm, typeof(AssemblyCopyrightAttribute))).Copyright + " | " +
                 ((AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(asm, typeof(AssemblyDescriptionAttribute))).Description + "\n\n" +
                 "This program is free software: you can redistribute it and/or modify\n" +
                 "it under the terms of the GNU General Public License as published by\n" +
@@ -124,7 +134,7 @@ namespace ChatRoomRecorder
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Unable to add a chat room! Make sure the link looks like https://chaturbate.com/*", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("The URL is incorrect! Supported websites are Chaturbate and BongaCams!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -143,9 +153,7 @@ namespace ChatRoomRecorder
                     for (int i = 0; i < ChatRoomsDataGridView.Rows.Count; i++)
                     {
                         if ((int)ChatRoomsDataGridView.Rows[i].Cells[columnIndex].Value > chatRoomIndex)
-                        {
                             ChatRoomsDataGridView.Rows[i].Cells[columnIndex].Value = (int)ChatRoomsDataGridView.Rows[i].Cells[columnIndex].Value - 1;
-                        }
                     }
 
                     ChatRoom chatRoom = _chatRooms[chatRoomIndex - 1];
@@ -351,6 +359,7 @@ namespace ChatRoomRecorder
             DataGridViewRow row = new DataGridViewRow();
             row.CreateCells(ChatRoomsDataGridView);
             row.Cells[ChatRoomsDataGridView.Columns["IndexColumn"].Index].Value = index;
+            row.Cells[ChatRoomsDataGridView.Columns["WebsiteColumn"].Index].Value = chatRoom.Website;
             row.Cells[ChatRoomsDataGridView.Columns["NameColumn"].Index].Value = chatRoom.Name;
             DataGridViewComboBoxCell actionCell = (DataGridViewComboBoxCell)row.Cells[ChatRoomsDataGridView.Columns["ActionColumn"].Index];
             actionCell.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };

@@ -33,6 +33,12 @@
             this.PlusButton = new System.Windows.Forms.Button();
             this.MinusButton = new System.Windows.Forms.Button();
             this.ChatRoomsDataGridView = new System.Windows.Forms.DataGridView();
+            this.IndexColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ActionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.StatusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ResolutionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.DataGridViewUpdateTimer = new System.Windows.Forms.Timer(this.components);
             this.OutputDirectoryLabel = new System.Windows.Forms.Label();
             this.FFmpegPathLabel = new System.Windows.Forms.Label();
@@ -40,11 +46,6 @@
             this.FFmpegPathTextBox = new System.Windows.Forms.TextBox();
             this.UpButton = new System.Windows.Forms.Button();
             this.DownButton = new System.Windows.Forms.Button();
-            this.IndexColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ActionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.StatusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ResolutionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.ChatRoomsDataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -54,15 +55,15 @@
             this.URLTextBox.Location = new System.Drawing.Point(10, 10);
             this.URLTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.URLTextBox.Name = "URLTextBox";
-            this.URLTextBox.Size = new System.Drawing.Size(406, 20);
+            this.URLTextBox.Size = new System.Drawing.Size(423, 20);
             this.URLTextBox.TabIndex = 0;
             // 
             // PlusButton
             // 
             this.PlusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.PlusButton.Location = new System.Drawing.Point(421, 9);
+            this.PlusButton.Location = new System.Drawing.Point(440, 9);
             this.PlusButton.Name = "PlusButton";
-            this.PlusButton.Size = new System.Drawing.Size(44, 22);
+            this.PlusButton.Size = new System.Drawing.Size(39, 22);
             this.PlusButton.TabIndex = 1;
             this.PlusButton.Text = "+";
             this.PlusButton.UseVisualStyleBackColor = true;
@@ -71,9 +72,9 @@
             // MinusButton
             // 
             this.MinusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.MinusButton.Location = new System.Drawing.Point(471, 9);
+            this.MinusButton.Location = new System.Drawing.Point(485, 9);
             this.MinusButton.Name = "MinusButton";
-            this.MinusButton.Size = new System.Drawing.Size(44, 22);
+            this.MinusButton.Size = new System.Drawing.Size(39, 22);
             this.MinusButton.TabIndex = 3;
             this.MinusButton.Text = "-";
             this.MinusButton.UseVisualStyleBackColor = true;
@@ -83,9 +84,11 @@
             // 
             this.ChatRoomsDataGridView.AllowUserToAddRows = false;
             this.ChatRoomsDataGridView.AllowUserToDeleteRows = false;
+            this.ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.IndexColumn,
+            this.WebsiteColumn,
             this.NameColumn,
             this.ActionColumn,
             this.StatusColumn,
@@ -98,6 +101,58 @@
             this.ChatRoomsDataGridView.TabIndex = 6;
             this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
             this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
+            // 
+            // IndexColumn
+            // 
+            this.IndexColumn.HeaderText = "#";
+            this.IndexColumn.Name = "IndexColumn";
+            this.IndexColumn.ReadOnly = true;
+            this.IndexColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.IndexColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.IndexColumn.Width = 40;
+            // 
+            // WebsiteColumn
+            // 
+            this.WebsiteColumn.HeaderText = "Website";
+            this.WebsiteColumn.Name = "WebsiteColumn";
+            this.WebsiteColumn.ReadOnly = true;
+            this.WebsiteColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.WebsiteColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.WebsiteColumn.Width = 80;
+            // 
+            // NameColumn
+            // 
+            this.NameColumn.HeaderText = "Name";
+            this.NameColumn.Name = "NameColumn";
+            this.NameColumn.ReadOnly = true;
+            this.NameColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.NameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.NameColumn.Width = 178;
+            // 
+            // ActionColumn
+            // 
+            this.ActionColumn.HeaderText = "Action";
+            this.ActionColumn.Name = "ActionColumn";
+            this.ActionColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.ActionColumn.Width = 82;
+            // 
+            // StatusColumn
+            // 
+            this.StatusColumn.HeaderText = "Status";
+            this.StatusColumn.Name = "StatusColumn";
+            this.StatusColumn.ReadOnly = true;
+            this.StatusColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.StatusColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.StatusColumn.Width = 82;
+            // 
+            // ResolutionColumn
+            // 
+            this.ResolutionColumn.HeaderText = "Resolution";
+            this.ResolutionColumn.Name = "ResolutionColumn";
+            this.ResolutionColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.ResolutionColumn.Width = 82;
             // 
             // DataGridViewUpdateTimer
             // 
@@ -124,28 +179,28 @@
             // 
             // OutputDirectoryTextBox
             // 
-            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(95, 380);
+            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(91, 380);
             this.OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
             this.OutputDirectoryTextBox.ReadOnly = true;
-            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(520, 20);
+            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(524, 20);
             this.OutputDirectoryTextBox.TabIndex = 9;
             this.OutputDirectoryTextBox.Enter += new System.EventHandler(this.OutputDirectoryTextBox_Enter);
             // 
             // FFmpegPathTextBox
             // 
-            this.FFmpegPathTextBox.Location = new System.Drawing.Point(95, 410);
+            this.FFmpegPathTextBox.Location = new System.Drawing.Point(91, 410);
             this.FFmpegPathTextBox.Name = "FFmpegPathTextBox";
             this.FFmpegPathTextBox.ReadOnly = true;
-            this.FFmpegPathTextBox.Size = new System.Drawing.Size(520, 20);
+            this.FFmpegPathTextBox.Size = new System.Drawing.Size(524, 20);
             this.FFmpegPathTextBox.TabIndex = 10;
             this.FFmpegPathTextBox.Enter += new System.EventHandler(this.FFmpegPathTextBox_Enter);
             // 
             // UpButton
             // 
             this.UpButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.UpButton.Location = new System.Drawing.Point(521, 9);
+            this.UpButton.Location = new System.Drawing.Point(530, 9);
             this.UpButton.Name = "UpButton";
-            this.UpButton.Size = new System.Drawing.Size(44, 22);
+            this.UpButton.Size = new System.Drawing.Size(39, 22);
             this.UpButton.TabIndex = 11;
             this.UpButton.Text = "↑";
             this.UpButton.UseVisualStyleBackColor = true;
@@ -154,51 +209,13 @@
             // DownButton
             // 
             this.DownButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.DownButton.Location = new System.Drawing.Point(571, 9);
+            this.DownButton.Location = new System.Drawing.Point(575, 9);
             this.DownButton.Name = "DownButton";
-            this.DownButton.Size = new System.Drawing.Size(44, 22);
+            this.DownButton.Size = new System.Drawing.Size(39, 22);
             this.DownButton.TabIndex = 12;
             this.DownButton.Text = "↓";
             this.DownButton.UseVisualStyleBackColor = true;
             this.DownButton.Click += new System.EventHandler(this.DownButton_Click);
-            // 
-            // IndexColumn
-            // 
-            this.IndexColumn.HeaderText = "#";
-            this.IndexColumn.Name = "IndexColumn";
-            this.IndexColumn.ReadOnly = true;
-            this.IndexColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.IndexColumn.Width = 40;
-            // 
-            // NameColumn
-            // 
-            this.NameColumn.HeaderText = "Name";
-            this.NameColumn.Name = "NameColumn";
-            this.NameColumn.ReadOnly = true;
-            this.NameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.NameColumn.Width = 260;
-            // 
-            // ActionColumn
-            // 
-            this.ActionColumn.HeaderText = "Action";
-            this.ActionColumn.Name = "ActionColumn";
-            this.ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.ActionColumn.Width = 80;
-            // 
-            // StatusColumn
-            // 
-            this.StatusColumn.HeaderText = "Status";
-            this.StatusColumn.Name = "StatusColumn";
-            this.StatusColumn.ReadOnly = true;
-            this.StatusColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.StatusColumn.Width = 80;
-            // 
-            // ResolutionColumn
-            // 
-            this.ResolutionColumn.HeaderText = "Resolution";
-            this.ResolutionColumn.Name = "ResolutionColumn";
-            this.ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.ResolutionColumn.Width = 80;
             // 
             // MainForm
             // 
@@ -244,6 +261,7 @@
         private System.Windows.Forms.Button UpButton;
         private System.Windows.Forms.Button DownButton;
         private System.Windows.Forms.DataGridViewTextBoxColumn IndexColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn WebsiteColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn ActionColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
