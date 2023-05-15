@@ -9,6 +9,9 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using System.Threading;
+using PuppeteerSharp;
+using System.Threading.Tasks;
+using System.Drawing;
 
 namespace ChatRoomRecorder
 {
@@ -31,14 +34,36 @@ namespace ChatRoomRecorder
             try
             {
                 JsonNode rootNode = JsonNode.Parse(File.ReadAllText(_configDir + Path.DirectorySeparatorChar + _configFile));
+
+                string chromeExecutablePath = (string)rootNode["ChromeExecutablePath"];
+                string chromeDataDirectory = (string)rootNode["ChromeDataDirectory"];
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
+                        {
+                            ExecutablePath = chromeExecutablePath,
+                            UserDataDir = chromeDataDirectory,
+                            Args = new string[] { "--headless=new" }
+                        });
+                        await _browser.NewPageAsync();
+                    }
+                    catch (Exception)
+                    {
+                        _browser = null;
+                    }
+                }).Wait();
                 string outputDirectory = (string)rootNode["OutputDirectory"];
                 string ffmpegPath = (string)rootNode["FFmpegPath"];
                 JsonArray arrayNode = (JsonArray)rootNode["ChatRooms"];
+
                 foreach (JsonNode chatRoomNode in arrayNode)
                 {
                     ChatRoom chatRoom = new ChatRoom((string)chatRoomNode["RoomUrl"]);
                     chatRoom.Action = (ChatRoomAction)Enum.Parse(typeof(ChatRoomAction), (string)chatRoomNode["Action"]);
                     chatRoom.PreferredResolution = (string)chatRoomNode["PreferredResolution"];
+                    chatRoom.Browser = _browser;
                     chatRoom.OutputDirectory = outputDirectory;
                     chatRoom.FFmpegPath = ffmpegPath;
                     _chatRooms.Add(chatRoom);
@@ -53,6 +78,8 @@ namespace ChatRoomRecorder
                 ChatRoomsDataGridView.Sort(sortColumn, (ListSortDirection)Enum.Parse(typeof(ListSortDirection), sortDirection));
                 sortColumn.HeaderCell.SortGlyphDirection = (SortOrder)Enum.Parse(typeof(SortOrder), sortDirection);
 
+                ChromeExecutablePathTextBox.Text = chromeExecutablePath;
+                ChromeDataDirectoryTextBox.Text = chromeDataDirectory;
                 OutputDirectoryTextBox.Text = outputDirectory;
                 FFmpegPathTextBox.Text = ffmpegPath;
             }
@@ -64,11 +91,35 @@ namespace ChatRoomRecorder
                 }
                 _chatRooms.Clear();
 
+                string chromeExecutablePath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + Path.DirectorySeparatorChar +
+                    "Google" + Path.DirectorySeparatorChar + "Chrome" + Path.DirectorySeparatorChar + "Application" + Path.DirectorySeparatorChar + "Chrome.exe";
+                string chromeDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + Path.DirectorySeparatorChar +
+                    "Google" + Path.DirectorySeparatorChar + "Chrome" + Path.DirectorySeparatorChar + "User Data";
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        if (_browser != null) await _browser.CloseAsync();
+                        _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
+                        {
+                            ExecutablePath = chromeExecutablePath,
+                            UserDataDir = chromeDataDirectory,
+                            Args = new string[] { "--headless=new" }
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        _browser = null;
+                    }
+                }).Wait();
+
                 ChatRoomsDataGridView.Rows.Clear();
                 DataGridViewColumn sortColumn = ChatRoomsDataGridView.Columns["IndexColumn"];
                 ChatRoomsDataGridView.Sort(sortColumn, ListSortDirection.Ascending);
                 sortColumn.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
 
+                ChromeExecutablePathTextBox.Text = chromeExecutablePath;
+                ChromeDataDirectoryTextBox.Text = chromeDataDirectory;
                 OutputDirectoryTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
                 FFmpegPathTextBox.Text = (new FileInfo(Process.GetCurrentProcess().MainModule.FileName)).Directory.FullName + Path.DirectorySeparatorChar + "ffmpeg.exe";
             }
@@ -78,6 +129,8 @@ namespace ChatRoomRecorder
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            SaveConfig();
+
             foreach (ChatRoom chatRoom in _chatRooms)
                 chatRoom.Dispose();
 
@@ -90,6 +143,11 @@ namespace ChatRoomRecorder
                 if (!all_disposed)
                     Thread.Sleep(250);
             }
+
+            Task.Run(async () =>
+            {
+                if (_browser != null) await _browser.CloseAsync();
+            }).Wait();
         }
 
         private void MainForm_HelpButtonClicked(object sender, CancelEventArgs e)
@@ -120,6 +178,7 @@ namespace ChatRoomRecorder
                 try
                 {
                     ChatRoom chatRoom = new ChatRoom(URLTextBox.Text);
+                    chatRoom.Browser = _browser;
                     chatRoom.OutputDirectory = OutputDirectoryTextBox.Text;
                     chatRoom.FFmpegPath = FFmpegPathTextBox.Text;
                     _chatRooms.Add(chatRoom);
@@ -324,6 +383,16 @@ namespace ChatRoomRecorder
             }
         }
 
+        private void ChromeExecutablePathTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (ChromeExecutablePathTextBox.Focused) ChromeExecutablePathTextBox.BackColor = Color.FromKnownColor(KnownColor.LightYellow);
+        }
+
+        private void ChromeDataDirectoryTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (ChromeDataDirectoryTextBox.Focused) ChromeDataDirectoryTextBox.BackColor = Color.FromKnownColor(KnownColor.LightYellow);
+        }
+
         private void OutputDirectoryTextBox_Enter(object sender, EventArgs e)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
@@ -391,6 +460,8 @@ namespace ChatRoomRecorder
                 writer.WriteStartObject();
                 writer.WriteString("SortColumn", ChatRoomsDataGridView.SortedColumn.Name);
                 writer.WriteString("SortDirection", ChatRoomsDataGridView.SortOrder.ToString());
+                writer.WriteString("ChromeExecutablePath", ChromeExecutablePathTextBox.Text);
+                writer.WriteString("ChromeDataDirectory", ChromeDataDirectoryTextBox.Text);
                 writer.WriteString("OutputDirectory", OutputDirectoryTextBox.Text);
                 writer.WriteString("FFmpegPath", FFmpegPathTextBox.Text);
                 writer.WriteStartArray("ChatRooms");
@@ -418,6 +489,7 @@ namespace ChatRoomRecorder
         }
 
         private List<ChatRoom> _chatRooms = new List<ChatRoom>();
+        private IBrowser _browser = null;
         private Object _chatRoomsDataGridViewLock = new object();
         private string _configDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + Assembly.GetEntryAssembly().GetName().Name;
         private string _configFile = "config.json";

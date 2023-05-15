@@ -46,6 +46,10 @@
             this.FFmpegPathTextBox = new System.Windows.Forms.TextBox();
             this.UpButton = new System.Windows.Forms.Button();
             this.DownButton = new System.Windows.Forms.Button();
+            this.ChromeExecutablePathLabel = new System.Windows.Forms.Label();
+            this.ChromeDataDirectoryLabel = new System.Windows.Forms.Label();
+            this.ChromeExecutablePathTextBox = new System.Windows.Forms.TextBox();
+            this.ChromeDataDirectoryTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ChatRoomsDataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -97,7 +101,7 @@
             this.ChatRoomsDataGridView.MultiSelect = false;
             this.ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
             this.ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.ChatRoomsDataGridView.Size = new System.Drawing.Size(605, 330);
+            this.ChatRoomsDataGridView.Size = new System.Drawing.Size(605, 271);
             this.ChatRoomsDataGridView.TabIndex = 6;
             this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
             this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
@@ -179,19 +183,19 @@
             // 
             // OutputDirectoryTextBox
             // 
-            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(91, 380);
+            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(137, 380);
             this.OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
             this.OutputDirectoryTextBox.ReadOnly = true;
-            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(524, 20);
+            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(477, 20);
             this.OutputDirectoryTextBox.TabIndex = 9;
             this.OutputDirectoryTextBox.Enter += new System.EventHandler(this.OutputDirectoryTextBox_Enter);
             // 
             // FFmpegPathTextBox
             // 
-            this.FFmpegPathTextBox.Location = new System.Drawing.Point(91, 410);
+            this.FFmpegPathTextBox.Location = new System.Drawing.Point(137, 410);
             this.FFmpegPathTextBox.Name = "FFmpegPathTextBox";
             this.FFmpegPathTextBox.ReadOnly = true;
-            this.FFmpegPathTextBox.Size = new System.Drawing.Size(524, 20);
+            this.FFmpegPathTextBox.Size = new System.Drawing.Size(477, 20);
             this.FFmpegPathTextBox.TabIndex = 10;
             this.FFmpegPathTextBox.Enter += new System.EventHandler(this.FFmpegPathTextBox_Enter);
             // 
@@ -217,11 +221,49 @@
             this.DownButton.UseVisualStyleBackColor = true;
             this.DownButton.Click += new System.EventHandler(this.DownButton_Click);
             // 
+            // ChromeExecutablePathLabel
+            // 
+            this.ChromeExecutablePathLabel.AutoSize = true;
+            this.ChromeExecutablePathLabel.Location = new System.Drawing.Point(7, 323);
+            this.ChromeExecutablePathLabel.Name = "ChromeExecutablePathLabel";
+            this.ChromeExecutablePathLabel.Size = new System.Drawing.Size(122, 13);
+            this.ChromeExecutablePathLabel.TabIndex = 13;
+            this.ChromeExecutablePathLabel.Text = "Chrome executable path";
+            // 
+            // ChromeDataDirectoryLabel
+            // 
+            this.ChromeDataDirectoryLabel.AutoSize = true;
+            this.ChromeDataDirectoryLabel.Location = new System.Drawing.Point(7, 353);
+            this.ChromeDataDirectoryLabel.Name = "ChromeDataDirectoryLabel";
+            this.ChromeDataDirectoryLabel.Size = new System.Drawing.Size(110, 13);
+            this.ChromeDataDirectoryLabel.TabIndex = 14;
+            this.ChromeDataDirectoryLabel.Text = "Chrome data directory";
+            // 
+            // ChromeExecutablePathTextBox
+            // 
+            this.ChromeExecutablePathTextBox.Location = new System.Drawing.Point(137, 320);
+            this.ChromeExecutablePathTextBox.Name = "ChromeExecutablePathTextBox";
+            this.ChromeExecutablePathTextBox.Size = new System.Drawing.Size(478, 20);
+            this.ChromeExecutablePathTextBox.TabIndex = 15;
+            this.ChromeExecutablePathTextBox.TextChanged += new System.EventHandler(this.ChromeExecutablePathTextBox_TextChanged);
+            // 
+            // ChromeDataDirectoryTextBox
+            // 
+            this.ChromeDataDirectoryTextBox.Location = new System.Drawing.Point(137, 350);
+            this.ChromeDataDirectoryTextBox.Name = "ChromeDataDirectoryTextBox";
+            this.ChromeDataDirectoryTextBox.Size = new System.Drawing.Size(477, 20);
+            this.ChromeDataDirectoryTextBox.TabIndex = 16;
+            this.ChromeDataDirectoryTextBox.TextChanged += new System.EventHandler(this.ChromeDataDirectoryTextBox_TextChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 441);
+            this.Controls.Add(this.ChromeDataDirectoryTextBox);
+            this.Controls.Add(this.ChromeExecutablePathTextBox);
+            this.Controls.Add(this.ChromeDataDirectoryLabel);
+            this.Controls.Add(this.ChromeExecutablePathLabel);
             this.Controls.Add(this.DownButton);
             this.Controls.Add(this.UpButton);
             this.Controls.Add(this.FFmpegPathTextBox);
@@ -266,6 +308,10 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn ActionColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
+        private System.Windows.Forms.Label ChromeExecutablePathLabel;
+        private System.Windows.Forms.Label ChromeDataDirectoryLabel;
+        private System.Windows.Forms.TextBox ChromeExecutablePathTextBox;
+        private System.Windows.Forms.TextBox ChromeDataDirectoryTextBox;
     }
 }
 

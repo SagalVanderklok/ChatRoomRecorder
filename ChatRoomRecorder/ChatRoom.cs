@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Diagnostics;
 using System.Threading;
 using System.Text.Json.Nodes;
+using PuppeteerSharp;
 
 namespace ChatRoomRecorder
 {
@@ -49,6 +50,7 @@ namespace ChatRoomRecorder
             else
                 throw new ArgumentException();
 
+            _browser = null;
             _name = matches[0].Groups[1].Value;
             _status = ChatRoomStatus.Unknown;
             _action = ChatRoomAction.None;
@@ -201,37 +203,54 @@ namespace ChatRoomRecorder
 
             JsonDocument doc = null;
 
-            try
+            if (_browser != null)
             {
-                HttpRequestMessage reqMsg = new HttpRequestMessage(HttpMethod.Post, "https://chaturbate.com/get_edge_hls_url_ajax/");
-                reqMsg.Headers.Add("X-Requested-With", "XMLHttpRequest");
-                Dictionary<string, string> reqCont = new Dictionary<string, string> { { "room_slug", _name } };
-                reqMsg.Content = new FormUrlEncodedContent(reqCont);
-                HttpResponseMessage respMsg = await _httpClient.SendAsync(reqMsg, _cancellationToken);
-                string respStr = await respMsg.Content.ReadAsStringAsync();
-                doc = JsonDocument.Parse(respStr);
-                switch (doc.RootElement.GetProperty("room_status").GetString())
+                try
                 {
-                    case "public":
-                        status = ChatRoomStatus.Public;
-                        break;
-                    case "private":
-                        status = ChatRoomStatus.Private;
-                        break;
-                    case "hidden":
-                        status = ChatRoomStatus.Hidden;
-                        break;
-                    case "away":
-                        status = ChatRoomStatus.Away;
-                        break;
-                    case "offline":
-                        status = ChatRoomStatus.Offline;
-                        break;
+                    IPage page = await _browser.NewPageAsync();
+                    await page.SetRequestInterceptionAsync(true);
+                    page.Request += async (sender, e) =>
+                    {
+                        Payload payload = new Payload()
+                        {
+                            Method = HttpMethod.Post,
+                            Headers = new Dictionary<string, string>
+                            {
+                            { "X-Requested-With", "XMLHttpRequest" },
+                            { "Content-Type", "application/x-www-form-urlencoded" }
+                            },
+                            PostData = "room_slug=" + _name
+                        };
+                        await e.Request.ContinueAsync(payload);
+                    };
+                    IResponse response = await page.GoToAsync("https://chaturbate.com/get_edge_hls_url_ajax/");
+                    string respStr = await response.TextAsync();
+                    await page.CloseAsync();
+
+                    doc = JsonDocument.Parse(respStr);
+                    switch (doc.RootElement.GetProperty("room_status").GetString())
+                    {
+                        case "public":
+                            status = ChatRoomStatus.Public;
+                            break;
+                        case "private":
+                            status = ChatRoomStatus.Private;
+                            break;
+                        case "hidden":
+                            status = ChatRoomStatus.Hidden;
+                            break;
+                        case "away":
+                            status = ChatRoomStatus.Away;
+                            break;
+                        case "offline":
+                            status = ChatRoomStatus.Offline;
+                            break;
+                    }
                 }
-            }
-            catch (Exception)
-            {
-                status = ChatRoomStatus.Error;
+                catch (Exception)
+                {
+                    status = ChatRoomStatus.Error;
+                }
             }
 
             if (status == ChatRoomStatus.Public)
@@ -319,6 +338,20 @@ namespace ChatRoomRecorder
             catch (Exception)
             {
                 return Tuple.Create(ChatRoomStatus.Error, (string)null, (List<string>)null);
+            }
+        }
+
+        public IBrowser Browser
+        {
+            set
+            {
+                if (_disposing_started) throw new InvalidOperationException();
+                _browser = value;
+            }
+            get
+            {
+                if (_disposing_started) throw new InvalidOperationException();
+                return _browser;
             }
         }
 
@@ -443,6 +476,7 @@ namespace ChatRoomRecorder
             }
         }
 
+        private IBrowser _browser;
         private string _name;
         private ChatRoomWebsite _website;
         private ChatRoomStatus _status;
