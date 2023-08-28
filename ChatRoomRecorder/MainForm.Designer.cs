@@ -50,6 +50,10 @@
             this.ChromeDataDirectoryLabel = new System.Windows.Forms.Label();
             this.ChromeExecutablePathTextBox = new System.Windows.Forms.TextBox();
             this.ChromeDataDirectoryTextBox = new System.Windows.Forms.TextBox();
+            this.ChromeExecutablePathButton = new System.Windows.Forms.Button();
+            this.ChromeDataDirectoryButton = new System.Windows.Forms.Button();
+            this.FFmpegPathButton = new System.Windows.Forms.Button();
+            this.OutputDirectoryButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ChatRoomsDataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -79,7 +83,7 @@
             this.MinusButton.Location = new System.Drawing.Point(485, 9);
             this.MinusButton.Name = "MinusButton";
             this.MinusButton.Size = new System.Drawing.Size(39, 22);
-            this.MinusButton.TabIndex = 3;
+            this.MinusButton.TabIndex = 2;
             this.MinusButton.Text = "-";
             this.MinusButton.UseVisualStyleBackColor = true;
             this.MinusButton.Click += new System.EventHandler(this.MinusButton_Click);
@@ -102,7 +106,7 @@
             this.ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
             this.ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.ChatRoomsDataGridView.Size = new System.Drawing.Size(605, 271);
-            this.ChatRoomsDataGridView.TabIndex = 6;
+            this.ChatRoomsDataGridView.TabIndex = 5;
             this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
             this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
             // 
@@ -166,7 +170,7 @@
             // OutputDirectoryLabel
             // 
             this.OutputDirectoryLabel.AutoSize = true;
-            this.OutputDirectoryLabel.Location = new System.Drawing.Point(7, 383);
+            this.OutputDirectoryLabel.Location = new System.Drawing.Point(7, 413);
             this.OutputDirectoryLabel.Name = "OutputDirectoryLabel";
             this.OutputDirectoryLabel.Size = new System.Drawing.Size(82, 13);
             this.OutputDirectoryLabel.TabIndex = 7;
@@ -175,7 +179,7 @@
             // FFmpegPathLabel
             // 
             this.FFmpegPathLabel.AutoSize = true;
-            this.FFmpegPathLabel.Location = new System.Drawing.Point(7, 413);
+            this.FFmpegPathLabel.Location = new System.Drawing.Point(7, 383);
             this.FFmpegPathLabel.Name = "FFmpegPathLabel";
             this.FFmpegPathLabel.Size = new System.Drawing.Size(69, 13);
             this.FFmpegPathLabel.TabIndex = 8;
@@ -183,21 +187,19 @@
             // 
             // OutputDirectoryTextBox
             // 
-            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(137, 380);
+            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(137, 410);
             this.OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
             this.OutputDirectoryTextBox.ReadOnly = true;
-            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(477, 20);
+            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(432, 20);
             this.OutputDirectoryTextBox.TabIndex = 9;
-            this.OutputDirectoryTextBox.Enter += new System.EventHandler(this.OutputDirectoryTextBox_Enter);
             // 
             // FFmpegPathTextBox
             // 
-            this.FFmpegPathTextBox.Location = new System.Drawing.Point(137, 410);
+            this.FFmpegPathTextBox.Location = new System.Drawing.Point(137, 380);
             this.FFmpegPathTextBox.Name = "FFmpegPathTextBox";
             this.FFmpegPathTextBox.ReadOnly = true;
-            this.FFmpegPathTextBox.Size = new System.Drawing.Size(477, 20);
-            this.FFmpegPathTextBox.TabIndex = 10;
-            this.FFmpegPathTextBox.Enter += new System.EventHandler(this.FFmpegPathTextBox_Enter);
+            this.FFmpegPathTextBox.Size = new System.Drawing.Size(432, 20);
+            this.FFmpegPathTextBox.TabIndex = 8;
             // 
             // UpButton
             // 
@@ -205,7 +207,7 @@
             this.UpButton.Location = new System.Drawing.Point(530, 9);
             this.UpButton.Name = "UpButton";
             this.UpButton.Size = new System.Drawing.Size(39, 22);
-            this.UpButton.TabIndex = 11;
+            this.UpButton.TabIndex = 3;
             this.UpButton.Text = "↑";
             this.UpButton.UseVisualStyleBackColor = true;
             this.UpButton.Click += new System.EventHandler(this.UpButton_Click);
@@ -216,7 +218,7 @@
             this.DownButton.Location = new System.Drawing.Point(575, 9);
             this.DownButton.Name = "DownButton";
             this.DownButton.Size = new System.Drawing.Size(39, 22);
-            this.DownButton.TabIndex = 12;
+            this.DownButton.TabIndex = 4;
             this.DownButton.Text = "↓";
             this.DownButton.UseVisualStyleBackColor = true;
             this.DownButton.Click += new System.EventHandler(this.DownButton_Click);
@@ -243,23 +245,71 @@
             // 
             this.ChromeExecutablePathTextBox.Location = new System.Drawing.Point(137, 320);
             this.ChromeExecutablePathTextBox.Name = "ChromeExecutablePathTextBox";
-            this.ChromeExecutablePathTextBox.Size = new System.Drawing.Size(478, 20);
-            this.ChromeExecutablePathTextBox.TabIndex = 15;
-            this.ChromeExecutablePathTextBox.TextChanged += new System.EventHandler(this.ChromeExecutablePathTextBox_TextChanged);
+            this.ChromeExecutablePathTextBox.ReadOnly = true;
+            this.ChromeExecutablePathTextBox.Size = new System.Drawing.Size(432, 20);
+            this.ChromeExecutablePathTextBox.TabIndex = 6;
             // 
             // ChromeDataDirectoryTextBox
             // 
             this.ChromeDataDirectoryTextBox.Location = new System.Drawing.Point(137, 350);
             this.ChromeDataDirectoryTextBox.Name = "ChromeDataDirectoryTextBox";
-            this.ChromeDataDirectoryTextBox.Size = new System.Drawing.Size(477, 20);
-            this.ChromeDataDirectoryTextBox.TabIndex = 16;
-            this.ChromeDataDirectoryTextBox.TextChanged += new System.EventHandler(this.ChromeDataDirectoryTextBox_TextChanged);
+            this.ChromeDataDirectoryTextBox.ReadOnly = true;
+            this.ChromeDataDirectoryTextBox.Size = new System.Drawing.Size(432, 20);
+            this.ChromeDataDirectoryTextBox.TabIndex = 7;
+            // 
+            // ChromeExecutablePathButton
+            // 
+            this.ChromeExecutablePathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ChromeExecutablePathButton.Location = new System.Drawing.Point(576, 319);
+            this.ChromeExecutablePathButton.Name = "ChromeExecutablePathButton";
+            this.ChromeExecutablePathButton.Size = new System.Drawing.Size(39, 22);
+            this.ChromeExecutablePathButton.TabIndex = 15;
+            this.ChromeExecutablePathButton.Text = "...";
+            this.ChromeExecutablePathButton.UseVisualStyleBackColor = true;
+            this.ChromeExecutablePathButton.Click += new System.EventHandler(this.ChromeExecutablePathButton_Click);
+            // 
+            // ChromeDataDirectoryButton
+            // 
+            this.ChromeDataDirectoryButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ChromeDataDirectoryButton.Location = new System.Drawing.Point(576, 349);
+            this.ChromeDataDirectoryButton.Name = "ChromeDataDirectoryButton";
+            this.ChromeDataDirectoryButton.Size = new System.Drawing.Size(39, 22);
+            this.ChromeDataDirectoryButton.TabIndex = 16;
+            this.ChromeDataDirectoryButton.Text = "...";
+            this.ChromeDataDirectoryButton.UseVisualStyleBackColor = true;
+            this.ChromeDataDirectoryButton.Click += new System.EventHandler(this.ChromeDataDirectoryButton_Click);
+            // 
+            // FFmpegPathButton
+            // 
+            this.FFmpegPathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.FFmpegPathButton.Location = new System.Drawing.Point(576, 379);
+            this.FFmpegPathButton.Name = "FFmpegPathButton";
+            this.FFmpegPathButton.Size = new System.Drawing.Size(39, 22);
+            this.FFmpegPathButton.TabIndex = 17;
+            this.FFmpegPathButton.Text = "...";
+            this.FFmpegPathButton.UseVisualStyleBackColor = true;
+            this.FFmpegPathButton.Click += new System.EventHandler(this.FFmpegPathButton_Click);
+            // 
+            // OutputDirectoryButton
+            // 
+            this.OutputDirectoryButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.OutputDirectoryButton.Location = new System.Drawing.Point(576, 409);
+            this.OutputDirectoryButton.Name = "OutputDirectoryButton";
+            this.OutputDirectoryButton.Size = new System.Drawing.Size(39, 22);
+            this.OutputDirectoryButton.TabIndex = 18;
+            this.OutputDirectoryButton.Text = "...";
+            this.OutputDirectoryButton.UseVisualStyleBackColor = true;
+            this.OutputDirectoryButton.Click += new System.EventHandler(this.OutputDirectoryButton_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 441);
+            this.Controls.Add(this.OutputDirectoryButton);
+            this.Controls.Add(this.FFmpegPathButton);
+            this.Controls.Add(this.ChromeDataDirectoryButton);
+            this.Controls.Add(this.ChromeExecutablePathButton);
             this.Controls.Add(this.ChromeDataDirectoryTextBox);
             this.Controls.Add(this.ChromeExecutablePathTextBox);
             this.Controls.Add(this.ChromeDataDirectoryLabel);
@@ -312,6 +362,10 @@
         private System.Windows.Forms.Label ChromeDataDirectoryLabel;
         private System.Windows.Forms.TextBox ChromeExecutablePathTextBox;
         private System.Windows.Forms.TextBox ChromeDataDirectoryTextBox;
+        private System.Windows.Forms.Button ChromeExecutablePathButton;
+        private System.Windows.Forms.Button ChromeDataDirectoryButton;
+        private System.Windows.Forms.Button FFmpegPathButton;
+        private System.Windows.Forms.Button OutputDirectoryButton;
     }
 }
 

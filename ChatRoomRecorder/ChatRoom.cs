@@ -21,14 +21,14 @@ namespace ChatRoomRecorder
 
     public enum ChatRoomStatus
     {
-        Record,
-        Public,
-        Private,
-        Hidden,
-        Away,
-        Offline,
+        Unknown,
         Error,
-        Unknown
+        Offline,
+        Away,
+        Hidden,
+        Private,
+        Public,
+        Record
     }
 
     public enum ChatRoomAction
@@ -42,16 +42,14 @@ namespace ChatRoomRecorder
     {
         public ChatRoom(string aUrl)
         {
-            MatchCollection matches = null;
-            if ((matches = Regex.Matches(aUrl, "^https://chaturbate.com/([^/]*)/?$", RegexOptions.IgnoreCase)).Count > 0)
-                _website = ChatRoomWebsite.Chaturbate;
-            else if ((matches = Regex.Matches(aUrl, "^https://[^/.]*.bongacams[0-9]*.com/([^/]*)/?$", RegexOptions.IgnoreCase)).Count > 0)
-                _website = ChatRoomWebsite.BongaCams;
-            else
-                throw new ArgumentException();
+            aUrl = aUrl.ToLower();
 
+            Tuple<ChatRoomWebsite, string> parsed_url = ParseUrl(aUrl);
+            if (parsed_url == null) throw new ArgumentException();
+
+            _website = parsed_url.Item1;
+            _name = parsed_url.Item2;
             _browser = null;
-            _name = matches[0].Groups[1].Value;
             _status = ChatRoomStatus.Unknown;
             _action = ChatRoomAction.None;
             _roomUrl = aUrl;
@@ -299,17 +297,21 @@ namespace ChatRoomRecorder
                 string respStr = await respMsg.Content.ReadAsStringAsync();
 
                 JsonNode rootNode = JsonNode.Parse(respStr);
-                
-                if ((int)rootNode["total_count"] != 1)
-                    return Tuple.Create(ChatRoomStatus.Error, (string)null, (List<string>)null);
 
-                if ((int)rootNode["online_count"] != 1)
-                    return Tuple.Create(ChatRoomStatus.Offline, (string)null, (List<string>)null);
-
-                JsonNode modelNode = ((JsonArray)rootNode["models"])[0];
-
-                string username = (string)modelNode["username"];
-                if (username == null)
+                JsonNode modelNode = null;
+                string username = string.Empty;
+                for (int i = 0; i < (int)rootNode["total_count"]; i++)
+                {
+                    JsonNode node = ((JsonArray)rootNode["models"])[i];
+                    string name= (string)node["username"];
+                    if (name != null && name.ToLower() == _name)
+                    {
+                        modelNode = node;
+                        username = name;
+                        break;
+                    }
+                }
+                if (modelNode == null)
                     return Tuple.Create(ChatRoomStatus.Error, (string)null, (List<string>)null);
 
                 string esid = (string)modelNode["esid"];
@@ -320,7 +322,7 @@ namespace ChatRoomRecorder
                 reqMsg = new HttpRequestMessage(HttpMethod.Get, playlistUrl);
                 respMsg = await _httpClient.SendAsync(reqMsg, _cancellationToken);
                 if (!respMsg.IsSuccessStatusCode) 
-                    return Tuple.Create(ChatRoomStatus.Private, (string)null, (List<string>)null);
+                    return Tuple.Create(ChatRoomStatus.Offline, (string)null, (List<string>)null);
 
                 string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
                 List<string> availableResolutions = new List<string>();
@@ -473,6 +475,28 @@ namespace ChatRoomRecorder
             get
             {
                 return _disposing_finished;
+            }
+        }
+
+        public static Tuple<ChatRoomWebsite, string> ParseUrl(string aUrl)
+        {
+            aUrl = aUrl.ToLower();
+
+            MatchCollection matches = null;
+            if ((matches = Regex.Matches(aUrl, "^https://chaturbate.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(aUrl, "^chaturbate[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+
+            {
+                return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value);
+            }
+            else if ((matches = Regex.Matches(aUrl, "^https://[^/.]+.bongacams[0-9]*.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(aUrl, "^bongacams[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+            {
+                return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value);
+            }
+            else
+            {
+                return null;
             }
         }
 

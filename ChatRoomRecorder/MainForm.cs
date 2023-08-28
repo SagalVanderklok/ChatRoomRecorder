@@ -21,8 +21,7 @@ namespace ChatRoomRecorder
         {
             InitializeComponent();
 
-            Assembly asm = Assembly.GetEntryAssembly();
-            this.Text = asm.GetName().Name + " " + asm.GetName().Version.ToString(3);
+            this.Text = Assembly.GetEntryAssembly().GetName().Name + " " + Assembly.GetEntryAssembly().GetName().Version.ToString(3);
 
             ChatRoomsDataGridView.Columns["IndexColumn"].ValueType = typeof(int);
             ChatRoomsDataGridView.Columns["WebsiteColumn"].ValueType = typeof(ChatRoomWebsite);
@@ -175,26 +174,38 @@ namespace ChatRoomRecorder
         {
             lock (_chatRoomsDataGridViewLock)
             {
-                try
-                {
-                    ChatRoom chatRoom = new ChatRoom(URLTextBox.Text);
-                    chatRoom.Browser = _browser;
-                    chatRoom.OutputDirectory = OutputDirectoryTextBox.Text;
-                    chatRoom.FFmpegPath = FFmpegPathTextBox.Text;
-                    _chatRooms.Add(chatRoom);
-
-                    URLTextBox.Clear();
-
-                    AddDataGridViewRow(chatRoom, _chatRooms.Count);
-
-                    SortDataGridView();
-
-                    SaveConfig();
-                }
-                catch (Exception)
+                Tuple<ChatRoomWebsite, string> parsed_url = ChatRoom.ParseUrl(URLTextBox.Text);
+                
+                if (parsed_url == null)
                 {
                     MessageBox.Show("The URL is incorrect! Supported websites are Chaturbate and BongaCams!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
+
+                ChatRoomWebsite website = parsed_url.Item1;
+                string name = parsed_url.Item2;
+                for (int i = 0; i < _chatRooms.Count; i++)
+                {
+                    if (_chatRooms[i].Website == website && _chatRooms[i].Name == name)
+                    {
+                        MessageBox.Show("The chat room is already in the list!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                ChatRoom chatRoom = new ChatRoom(URLTextBox.Text);
+                chatRoom.Browser = _browser;
+                chatRoom.OutputDirectory = OutputDirectoryTextBox.Text;
+                chatRoom.FFmpegPath = FFmpegPathTextBox.Text;
+                _chatRooms.Add(chatRoom);
+
+                URLTextBox.Clear();
+
+                AddDataGridViewRow(chatRoom, _chatRooms.Count);
+
+                SortDataGridView();
+
+                SaveConfig();
             }
         }
 
@@ -383,17 +394,31 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void ChromeExecutablePathTextBox_TextChanged(object sender, EventArgs e)
+        private void ChromeExecutablePathButton_Click(object sender, EventArgs e)
         {
-            if (ChromeExecutablePathTextBox.Focused) ChromeExecutablePathTextBox.BackColor = Color.FromKnownColor(KnownColor.LightYellow);
+            OpenFileDialog ofd = new OpenFileDialog() { Multiselect = false, Filter = "chrome.exe | chrome.exe" };
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                ChromeExecutablePathTextBox.Text = ofd.FileName;
+                ChromeExecutablePathTextBox.BackColor = Color.FromKnownColor(KnownColor.LightYellow);
+
+                SaveConfig();
+            }
         }
 
-        private void ChromeDataDirectoryTextBox_TextChanged(object sender, EventArgs e)
+        private void ChromeDataDirectoryButton_Click(object sender, EventArgs e)
         {
-            if (ChromeDataDirectoryTextBox.Focused) ChromeDataDirectoryTextBox.BackColor = Color.FromKnownColor(KnownColor.LightYellow);
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                ChromeDataDirectoryTextBox.Text = fbd.SelectedPath;
+                ChromeDataDirectoryTextBox.BackColor = Color.FromKnownColor(KnownColor.LightYellow);
+
+                SaveConfig();
+            }
         }
 
-        private void OutputDirectoryTextBox_Enter(object sender, EventArgs e)
+        private void OutputDirectoryButton_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() == DialogResult.OK)
@@ -408,9 +433,9 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void FFmpegPathTextBox_Enter(object sender, EventArgs e)
+        private void FFmpegPathButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog() { Multiselect = false };
+            OpenFileDialog ofd = new OpenFileDialog() { Multiselect = false, Filter = "ffmpeg.exe | ffmpeg.exe" };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 FFmpegPathTextBox.Text = ofd.FileName;
