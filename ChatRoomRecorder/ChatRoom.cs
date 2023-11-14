@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Diagnostics;
-using System.Threading;
 using System.Text.Json.Nodes;
-using PuppeteerSharp;
+using Microsoft.Web.WebView2.WinForms;
+using Microsoft.Web.WebView2.Core;
+using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace ChatRoomRecorder
 {
@@ -43,13 +45,11 @@ namespace ChatRoomRecorder
         public ChatRoom(string aUrl)
         {
             aUrl = aUrl.ToLower();
-
             Tuple<ChatRoomWebsite, string> parsed_url = ParseUrl(aUrl);
             if (parsed_url == null) throw new ArgumentException();
 
             _website = parsed_url.Item1;
             _name = parsed_url.Item2;
-            _browser = null;
             _status = ChatRoomStatus.Unknown;
             _action = ChatRoomAction.None;
             _roomUrl = aUrl;
@@ -61,18 +61,23 @@ namespace ChatRoomRecorder
             _ffmpegProcess = null;
             _fileName = string.Empty;
             _fileSize = -1;
-            _cancellationTokenSource = new CancellationTokenSource();
-            _cancellationToken = _cancellationTokenSource.Token;
+            _pause = 0;
+            _isUpdating = false;
             _disposing_started = false;
             _disposing_finished = false;
-            _task = Task.Run(async () =>
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationToken = _cancellationTokenSource.Token;
+            _browser = new WebView2();
+            switch (_website)
             {
-                while (!_cancellationToken.IsCancellationRequested)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds((double)(_random.Next(60) + 30)), _cancellationToken);
-                    await UpdateAsync();
-                }
-            }, _cancellationToken);
+                case ChatRoomWebsite.Chaturbate:
+                    _browser.CoreWebView2InitializationCompleted += Chaturbate_CoreWebView2InitializationCompleted;
+                    break;
+                case ChatRoomWebsite.BongaCams:
+                    _browser.CoreWebView2InitializationCompleted += BongaCams_CoreWebView2InitializationCompleted;
+                    break;
+            }
+            _browser.Source = new Uri("about:blank", UriKind.Absolute);
         }
 
         public void Dispose()
@@ -81,8 +86,13 @@ namespace ChatRoomRecorder
 
             _disposing_started = true;
             _cancellationTokenSource.Cancel();
-            _task.ContinueWith(_task =>
+
+            Task.Run(() =>
             {
+                while (_isUpdating)
+                {
+                    Thread.Sleep(1000);
+                }
                 if (_ffmpegProcess != null)
                 {
                     if (_ffmpegProcess.HasExited == false)
@@ -92,14 +102,41 @@ namespace ChatRoomRecorder
                     }
                     _ffmpegProcess.Close();
                 }
-                _cancellationTokenSource.Dispose();
                 _disposing_finished = true;
             });
         }
 
-        private async Task UpdateAsync()
+        public static Tuple<ChatRoomWebsite, string> ParseUrl(string aUrl)
         {
-            //we're recording and that's what we want, so just return
+            aUrl = aUrl.ToLower();
+            MatchCollection matches = null;
+            if ((matches = Regex.Matches(aUrl, "^https://chaturbate.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(aUrl, "^chaturbate[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+
+            {
+                return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value);
+            }
+            else if ((matches = Regex.Matches(aUrl, "^https://[^/.]+.bongacams[0-9]*.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(aUrl, "^bongacams[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+            {
+                return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public void Update(int aPause)
+        {
+            if (_disposing_started) throw new InvalidOperationException();
+
+            if (_isUpdating) return;
+
+            _isUpdating= true;
+            _pause = (double)aPause;
+
+            //we're recording and that's what we want - return, otherwise - continue
 
             if (_action == ChatRoomAction.Record && _status == ChatRoomStatus.Record && _ffmpegProcess != null && _ffmpegProcess.HasExited == false)
             {
@@ -109,6 +146,7 @@ namespace ChatRoomRecorder
                     if (fi.Length > _fileSize)
                     {
                         _fileSize = fi.Length;
+                        _isUpdating = false;
                         return;
                     }
                 }
@@ -137,47 +175,25 @@ namespace ChatRoomRecorder
                 _status = ChatRoomStatus.Unknown;
                 _playlistUrl = String.Empty;
                 _availableResolutions.Clear();
+                _isUpdating = false;
                 return;
             }
 
             //update room's info
 
-            Tuple<ChatRoomStatus, string, List<string>> statusTuple = null;
             switch (_website)
             {
                 case ChatRoomWebsite.Chaturbate:
-                    statusTuple = await GetStatusChaturbateAsync();
+                    UpdateStatusChaturbate();
                     break;
                 case ChatRoomWebsite.BongaCams:
-                    statusTuple = await GetStatusBongaCamsAsync();
+                    UpdateStatusBongaCams();
                     break;
             }
-            ChatRoomStatus status = statusTuple.Item1;
-            string playlistUrl = statusTuple.Item2;
-            List<string> availableResolutions = statusTuple.Item3;
+        }
 
-            if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
-            {
-                _status = ChatRoomStatus.Record;
-            }
-            else
-            {
-                _status = status;
-            }
-
-            if (_status == ChatRoomStatus.Public || _status == ChatRoomStatus.Record)
-            {
-                _playlistUrl = playlistUrl;
-                _availableResolutions = availableResolutions;
-            }
-            else
-            {
-                _playlistUrl = String.Empty;
-                _availableResolutions.Clear();
-            }
-
-            //start recording, if we need it
-
+        private void Record()
+        {
             if (_status == ChatRoomStatus.Record)
             {
                 _fileName = (_outputDirectory + Path.DirectorySeparatorChar + _website + " " + _name + " " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".ts").ToLower();
@@ -193,62 +209,54 @@ namespace ChatRoomRecorder
             }
         }
 
-        private async Task<Tuple<ChatRoomStatus, string, List<string>>> GetStatusChaturbateAsync()
+        private void UpdateStatusChaturbate()
+        {
+            string postData = "room_slug=" + _name;
+            CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                "https://chaturbate.com/get_edge_hls_url_ajax/",
+                "POST",
+                new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+            _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+        }
+
+        private async void Chaturbate_WebResourceResponseReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
             ChatRoomStatus status = ChatRoomStatus.Unknown;
             string playlistUrl = null;
             List<string> availableResolutions = null;
-
             JsonDocument doc = null;
 
-            if (_browser != null)
+            try
             {
-                try
-                {
-                    IPage page = await _browser.NewPageAsync();
-                    await page.SetRequestInterceptionAsync(true);
-                    page.Request += async (sender, e) =>
-                    {
-                        Payload payload = new Payload()
-                        {
-                            Method = HttpMethod.Post,
-                            Headers = new Dictionary<string, string>
-                            {
-                            { "X-Requested-With", "XMLHttpRequest" },
-                            { "Content-Type", "application/x-www-form-urlencoded" }
-                            },
-                            PostData = "room_slug=" + _name
-                        };
-                        await e.Request.ContinueAsync(payload);
-                    };
-                    IResponse response = await page.GoToAsync("https://chaturbate.com/get_edge_hls_url_ajax/");
-                    string respStr = await response.TextAsync();
-                    await page.CloseAsync();
+                StreamReader reader = new StreamReader(await e.Response.GetContentAsync());
+                string respStr = reader.ReadToEnd();
 
-                    doc = JsonDocument.Parse(respStr);
-                    switch (doc.RootElement.GetProperty("room_status").GetString())
-                    {
-                        case "public":
-                            status = ChatRoomStatus.Public;
-                            break;
-                        case "private":
-                            status = ChatRoomStatus.Private;
-                            break;
-                        case "hidden":
-                            status = ChatRoomStatus.Hidden;
-                            break;
-                        case "away":
-                            status = ChatRoomStatus.Away;
-                            break;
-                        case "offline":
-                            status = ChatRoomStatus.Offline;
-                            break;
-                    }
-                }
-                catch (Exception)
+                await Task.Delay(TimeSpan.FromSeconds(_pause), _cancellationToken);
+
+                doc = JsonDocument.Parse(respStr);
+                switch (doc.RootElement.GetProperty("room_status").GetString())
                 {
-                    status = ChatRoomStatus.Error;
+                    case "public":
+                        status = ChatRoomStatus.Public;
+                        break;
+                    case "private":
+                        status = ChatRoomStatus.Private;
+                        break;
+                    case "hidden":
+                        status = ChatRoomStatus.Hidden;
+                        break;
+                    case "away":
+                        status = ChatRoomStatus.Away;
+                        break;
+                    case "offline":
+                        status = ChatRoomStatus.Offline;
+                        break;
                 }
+            }
+            catch (Exception)
+            {
+                status = ChatRoomStatus.Error;
             }
 
             if (status == ChatRoomStatus.Public)
@@ -281,20 +289,54 @@ namespace ChatRoomRecorder
                 }
             }
 
-            return Tuple.Create(status, playlistUrl, availableResolutions);
+            if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
+            {
+                _status = ChatRoomStatus.Record;
+            }
+            else
+            {
+                _status = status;
+            }
+            if (_status == ChatRoomStatus.Public || _status == ChatRoomStatus.Record)
+            {
+                _playlistUrl = playlistUrl;
+                _availableResolutions = availableResolutions;
+            }
+            else
+            {
+                _playlistUrl = String.Empty;
+                _availableResolutions.Clear();
+            }
+
+            Record();
+
+            _isUpdating = false;
         }
 
-        private async Task<Tuple<ChatRoomStatus, string, List<string>>> GetStatusBongaCamsAsync()
+        private void Chaturbate_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
+        {
+            _browser.CoreWebView2.WebResourceResponseReceived += Chaturbate_WebResourceResponseReceived;
+        }
+
+        private void UpdateStatusBongaCams()
+        {
+            string postData = "model_search[display_name]=" + _name;
+            CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                "https://bongacams.com/tools/listing_v3.php",
+                "POST",
+                new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+            _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+        }
+
+        private async void BongaCams_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
             try
             {
-                HttpRequestMessage reqMsg = new HttpRequestMessage(HttpMethod.Post, "https://bongacams.com/tools/listing_v3.php");
-                reqMsg.Headers.Add("X-Requested-With", "XMLHttpRequest");
-                Dictionary<string, string> reqCont = new Dictionary<string, string>();
-                reqCont.Add("model_search[display_name]", _name);
-                reqMsg.Content = new FormUrlEncodedContent(reqCont);
-                HttpResponseMessage respMsg = await _httpClient.SendAsync(reqMsg, _cancellationToken);
-                string respStr = await respMsg.Content.ReadAsStringAsync();
+                StreamReader reader = new StreamReader(await e.Response.GetContentAsync());
+                string respStr = reader.ReadToEnd();
+
+                await Task.Delay(TimeSpan.FromSeconds(_pause), _cancellationToken);
 
                 JsonNode rootNode = JsonNode.Parse(respStr);
 
@@ -303,7 +345,7 @@ namespace ChatRoomRecorder
                 for (int i = 0; i < (int)rootNode["total_count"]; i++)
                 {
                     JsonNode node = ((JsonArray)rootNode["models"])[i];
-                    string name= (string)node["username"];
+                    string name = (string)node["username"];
                     if (name != null && name.ToLower() == _name)
                     {
                         modelNode = node;
@@ -311,50 +353,64 @@ namespace ChatRoomRecorder
                         break;
                     }
                 }
-                if (modelNode == null)
-                    return Tuple.Create(ChatRoomStatus.Error, (string)null, (List<string>)null);
+                if (modelNode == null) throw new ArgumentException();
 
                 string esid = (string)modelNode["esid"];
-                if (esid == null) 
-                    return Tuple.Create(ChatRoomStatus.Error, (string)null, (List<string>)null);
+                if (esid == null) throw new ArgumentException();
 
                 string playlistUrl = String.Format("https://{0}.bcvcdn.com/hls/stream_{1}/playlist.m3u8", esid, username);
-                reqMsg = new HttpRequestMessage(HttpMethod.Get, playlistUrl);
-                respMsg = await _httpClient.SendAsync(reqMsg, _cancellationToken);
-                if (!respMsg.IsSuccessStatusCode) 
-                    return Tuple.Create(ChatRoomStatus.Offline, (string)null, (List<string>)null);
-
-                string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
-                List<string> availableResolutions = new List<string>();
-                for (int i = 0; i < playlist.Length; i++)
+                HttpRequestMessage reqMsg = new HttpRequestMessage(HttpMethod.Get, playlistUrl);
+                HttpResponseMessage respMsg = await _httpClient.SendAsync(reqMsg, _cancellationToken);
+                if (!respMsg.IsSuccessStatusCode)
                 {
-                    MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
-                    if (matches.Count > 0)
-                        availableResolutions.Add(matches[0].Groups[1].Value);
+                    _status = ChatRoomStatus.Offline;
+                    _playlistUrl = String.Empty;
+                    _availableResolutions.Clear();
                 }
-                if (availableResolutions.Count > 0)
-                    return Tuple.Create(ChatRoomStatus.Public, playlistUrl, availableResolutions);
                 else
-                    return Tuple.Create(ChatRoomStatus.Error, (string)null, (List<string>)null);
+                {
+                    string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
+                    List<string> availableResolutions = new List<string>();
+                    for (int i = 0; i < playlist.Length; i++)
+                    {
+                        MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
+                        if (matches.Count > 0)
+                            availableResolutions.Add(matches[0].Groups[1].Value);
+                    }
+                    if (availableResolutions.Count > 0)
+                    {
+                        if (_action == ChatRoomAction.Record)
+                        {
+                            _status = ChatRoomStatus.Record;
+                        }
+                        else
+                        {
+                            _status = ChatRoomStatus.Public;
+                        }
+                        _playlistUrl = playlistUrl;
+                        _availableResolutions = availableResolutions;
+                    }
+                    else
+                    {
+                        throw new ArgumentException();
+                    }
+                }
             }
             catch (Exception)
             {
-                return Tuple.Create(ChatRoomStatus.Error, (string)null, (List<string>)null);
+                _status = ChatRoomStatus.Error;
+                _playlistUrl = String.Empty;
+                _availableResolutions.Clear();
             }
+
+            Record();
+
+            _isUpdating = false;
         }
 
-        public IBrowser Browser
+        private void BongaCams_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
-            set
-            {
-                if (_disposing_started) throw new InvalidOperationException();
-                _browser = value;
-            }
-            get
-            {
-                if (_disposing_started) throw new InvalidOperationException();
-                return _browser;
-            }
+            _browser.CoreWebView2.WebResourceResponseReceived += BongaCams_WebResourceResponseReceived;
         }
 
         public string Name
@@ -478,29 +534,6 @@ namespace ChatRoomRecorder
             }
         }
 
-        public static Tuple<ChatRoomWebsite, string> ParseUrl(string aUrl)
-        {
-            aUrl = aUrl.ToLower();
-
-            MatchCollection matches = null;
-            if ((matches = Regex.Matches(aUrl, "^https://chaturbate.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(aUrl, "^chaturbate[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
-
-            {
-                return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value);
-            }
-            else if ((matches = Regex.Matches(aUrl, "^https://[^/.]+.bongacams[0-9]*.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(aUrl, "^bongacams[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
-            {
-                return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private IBrowser _browser;
         private string _name;
         private ChatRoomWebsite _website;
         private ChatRoomStatus _status;
@@ -514,13 +547,14 @@ namespace ChatRoomRecorder
         private Process _ffmpegProcess;
         private string _fileName;
         private long _fileSize;
-        private CancellationTokenSource _cancellationTokenSource;
-        private CancellationToken _cancellationToken;
-        private Task _task;
+        private double _pause;
+        private bool _isUpdating;
         private bool _disposing_started;
         private bool _disposing_finished;
+        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationToken _cancellationToken;
+        private WebView2 _browser;
 
-        private static Random _random = new Random();
         private static HttpClient _httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
     }
 }
