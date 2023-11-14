@@ -7,15 +7,16 @@
 - Automatic recording - Automatically starts recording when streams are online
 - Open source - Released under GNU GPLv3
 
-### Installation instructions
+### Usage instructions
 
-1. Download and install [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472) and [Google Chrome](https://www.google.com/intl/en_en/chrome/)
-2. Download and unpack [FFmpeg](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip) and [ChatRoomRecorder](https://github.com/SagalVanderklok/ChatRoomRecorder/releases)
-3. Start ChatRoomRecorder and specify the necessary settings
+1. Download and install/unpack [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472), [FFmpeg](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip) and [ChatRoomRecorder](https://github.com/SagalVanderklok/ChatRoomRecorder/releases)
+2. Start ChatRoomRecorder
+3. Open "Settings" tab and specify an ffmpeg binary location and an output directory for downloads
+4. Open "Web browser" tab, visit desired web sites and pass bot protection
+5. Open "Chat rooms" tab, add links and start recording
 
-NOTE: Chaturbate streams capturing is functioning upon Google Chrome, so before running ChatRoomRecorder you should visit https://chaturbate.com, pass bot protection and then close the browser
+NOTE: The application uses Microsoft Edge fuctionality so the minimum supported operating system is Windows 10
 
 ### Visit our website
 
 Check out our website [right here](https://chatroomrecorder.com)
-
