@@ -62,6 +62,7 @@ namespace ChatRoomRecorder
             _fileName = string.Empty;
             _fileSize = -1;
             _pause = 0;
+            _lastUpdate = DateTime.MinValue;
             _isUpdating = false;
             _disposing_started = false;
             _disposing_finished = false;
@@ -133,6 +134,8 @@ namespace ChatRoomRecorder
 
             if (_isUpdating) return;
 
+            if (_lastUpdate != DateTime.MinValue && (DateTime.Now - _lastUpdate).TotalSeconds < 30) return;
+
             _isUpdating= true;
             _pause = (double)aPause;
 
@@ -199,11 +202,12 @@ namespace ChatRoomRecorder
                 _fileName = (_outputDirectory + Path.DirectorySeparatorChar + _website + " " + _name + " " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".ts").ToLower();
                 _fileSize = 0;
                 int streamIndex = _availableResolutions.Contains(_preferredResolution) ? _availableResolutions.IndexOf(_preferredResolution) : _availableResolutions.Count - 1;
-                string ffmpegArgs = String.Format("-i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", _playlistUrl, streamIndex, _fileName);
+                string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", _playlistUrl, streamIndex, _fileName);
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = _ffmpegPath;
                 psi.Arguments = ffmpegArgs;
                 psi.UseShellExecute = false;
+                psi.LoadUserProfile = false;
                 psi.CreateNoWindow = true;
                 _ffmpegProcess = Process.Start(psi);
             }
@@ -310,6 +314,7 @@ namespace ChatRoomRecorder
 
             Record();
 
+            _lastUpdate = DateTime.Now;
             _isUpdating = false;
         }
 
@@ -405,6 +410,7 @@ namespace ChatRoomRecorder
 
             Record();
 
+            _lastUpdate = DateTime.Now;
             _isUpdating = false;
         }
 
@@ -548,6 +554,7 @@ namespace ChatRoomRecorder
         private string _fileName;
         private long _fileSize;
         private double _pause;
+        private DateTime _lastUpdate;
         private bool _isUpdating;
         private bool _disposing_started;
         private bool _disposing_finished;

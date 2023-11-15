@@ -78,7 +78,7 @@ namespace ChatRoomRecorder
                 }
                 foreach (ChatRoom chatRoom in _chatRooms)
                 {
-                    chatRoom.Update(_random.Next(count * 2 + 30));
+                    chatRoom.Update(30 + _random.Next(count * 2 + 30));
                 }
             }
         }
