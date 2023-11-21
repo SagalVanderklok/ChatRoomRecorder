@@ -33,11 +33,14 @@
             this.DataGridViewUpdateTimer = new System.Windows.Forms.Timer(this.components);
             this.TabControl = new System.Windows.Forms.TabControl();
             this.WebBrowserTabPage = new System.Windows.Forms.TabPage();
+            this.StopButton = new System.Windows.Forms.Button();
+            this.ForwardButton = new System.Windows.Forms.Button();
+            this.BackButton = new System.Windows.Forms.Button();
+            this.WebViewPanel = new System.Windows.Forms.Panel();
+            this.WebView = new Microsoft.Web.WebView2.WinForms.WebView2();
             this.GoButton = new System.Windows.Forms.Button();
             this.AddressTextBox = new System.Windows.Forms.TextBox();
             this.ChatRoomsTabPage = new System.Windows.Forms.TabPage();
-            this.DownButton = new System.Windows.Forms.Button();
-            this.UpButton = new System.Windows.Forms.Button();
             this.ChatRoomsDataGridView = new System.Windows.Forms.DataGridView();
             this.IndexColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -49,6 +52,7 @@
             this.PlusButton = new System.Windows.Forms.Button();
             this.URLTextBox = new System.Windows.Forms.TextBox();
             this.SettingsTabPage = new System.Windows.Forms.TabPage();
+            this.FFmpegPathLabel = new System.Windows.Forms.Label();
             this.OutputDirectoryButton = new System.Windows.Forms.Button();
             this.FFmpegPathButton = new System.Windows.Forms.Button();
             this.FFmpegPathTextBox = new System.Windows.Forms.TextBox();
@@ -57,21 +61,14 @@
             this.AboutTabPage = new System.Windows.Forms.TabPage();
             this.LicenseTextBox = new System.Windows.Forms.TextBox();
             this.ChatRoomsTimer = new System.Windows.Forms.Timer(this.components);
-            this.WebViewPanel = new System.Windows.Forms.Panel();
-            this.WebView = new Microsoft.Web.WebView2.WinForms.WebView2();
-            this.BackButton = new System.Windows.Forms.Button();
-            this.ForwardButton = new System.Windows.Forms.Button();
-            this.StopButton = new System.Windows.Forms.Button();
-            this.ReloadButton = new System.Windows.Forms.Button();
-            this.FFmpegPathLabel = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.WebBrowserTabPage.SuspendLayout();
+            this.WebViewPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.WebView)).BeginInit();
             this.ChatRoomsTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChatRoomsDataGridView)).BeginInit();
             this.SettingsTabPage.SuspendLayout();
             this.AboutTabPage.SuspendLayout();
-            this.WebViewPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.WebView)).BeginInit();
             this.SuspendLayout();
             // 
             // DataGridViewUpdateTimer
@@ -94,7 +91,6 @@
             // 
             // WebBrowserTabPage
             // 
-            this.WebBrowserTabPage.Controls.Add(this.ReloadButton);
             this.WebBrowserTabPage.Controls.Add(this.StopButton);
             this.WebBrowserTabPage.Controls.Add(this.ForwardButton);
             this.WebBrowserTabPage.Controls.Add(this.BackButton);
@@ -109,14 +105,76 @@
             this.WebBrowserTabPage.Text = "Web browser";
             this.WebBrowserTabPage.UseVisualStyleBackColor = true;
             // 
+            // StopButton
+            // 
+            this.StopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.StopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.StopButton.Location = new System.Drawing.Point(570, 3);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(44, 22);
+            this.StopButton.TabIndex = 5;
+            this.StopButton.Text = "⤬";
+            this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
+            // 
+            // ForwardButton
+            // 
+            this.ForwardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ForwardButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ForwardButton.Location = new System.Drawing.Point(524, 3);
+            this.ForwardButton.Name = "ForwardButton";
+            this.ForwardButton.Size = new System.Drawing.Size(44, 22);
+            this.ForwardButton.TabIndex = 4;
+            this.ForwardButton.Text = "→";
+            this.ForwardButton.UseVisualStyleBackColor = true;
+            this.ForwardButton.Click += new System.EventHandler(this.ForwardButton_Click);
+            // 
+            // BackButton
+            // 
+            this.BackButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BackButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.BackButton.Location = new System.Drawing.Point(478, 3);
+            this.BackButton.Name = "BackButton";
+            this.BackButton.Size = new System.Drawing.Size(44, 22);
+            this.BackButton.TabIndex = 3;
+            this.BackButton.Text = "←";
+            this.BackButton.UseVisualStyleBackColor = true;
+            this.BackButton.Click += new System.EventHandler(this.BackButton_Click);
+            // 
+            // WebViewPanel
+            // 
+            this.WebViewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.WebViewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.WebViewPanel.Controls.Add(this.WebView);
+            this.WebViewPanel.Location = new System.Drawing.Point(0, 28);
+            this.WebViewPanel.Name = "WebViewPanel";
+            this.WebViewPanel.Size = new System.Drawing.Size(614, 386);
+            this.WebViewPanel.TabIndex = 2;
+            // 
+            // WebView
+            // 
+            this.WebView.AllowExternalDrop = true;
+            this.WebView.CreationProperties = null;
+            this.WebView.DefaultBackgroundColor = System.Drawing.Color.White;
+            this.WebView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.WebView.Location = new System.Drawing.Point(0, 0);
+            this.WebView.Name = "WebView";
+            this.WebView.Size = new System.Drawing.Size(612, 384);
+            this.WebView.Source = new System.Uri("about:blank", System.UriKind.Absolute);
+            this.WebView.TabIndex = 0;
+            this.WebView.ZoomFactor = 1D;
+            // 
             // GoButton
             // 
             this.GoButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.GoButton.Location = new System.Drawing.Point(386, 3);
+            this.GoButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.GoButton.Location = new System.Drawing.Point(432, 3);
             this.GoButton.Name = "GoButton";
             this.GoButton.Size = new System.Drawing.Size(44, 22);
             this.GoButton.TabIndex = 1;
-            this.GoButton.Text = "Go";
+            this.GoButton.Text = "GO";
             this.GoButton.UseVisualStyleBackColor = true;
             this.GoButton.Click += new System.EventHandler(this.GoButton_Click);
             // 
@@ -128,13 +186,11 @@
             this.AddressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F);
             this.AddressTextBox.Location = new System.Drawing.Point(0, 4);
             this.AddressTextBox.Name = "AddressTextBox";
-            this.AddressTextBox.Size = new System.Drawing.Size(383, 20);
+            this.AddressTextBox.Size = new System.Drawing.Size(429, 20);
             this.AddressTextBox.TabIndex = 0;
             // 
             // ChatRoomsTabPage
             // 
-            this.ChatRoomsTabPage.Controls.Add(this.DownButton);
-            this.ChatRoomsTabPage.Controls.Add(this.UpButton);
             this.ChatRoomsTabPage.Controls.Add(this.ChatRoomsDataGridView);
             this.ChatRoomsTabPage.Controls.Add(this.MinusButton);
             this.ChatRoomsTabPage.Controls.Add(this.PlusButton);
@@ -147,30 +203,6 @@
             this.ChatRoomsTabPage.Text = "Chat rooms";
             this.ChatRoomsTabPage.UseVisualStyleBackColor = true;
             // 
-            // DownButton
-            // 
-            this.DownButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.DownButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.DownButton.Location = new System.Drawing.Point(570, 3);
-            this.DownButton.Name = "DownButton";
-            this.DownButton.Size = new System.Drawing.Size(44, 22);
-            this.DownButton.TabIndex = 10;
-            this.DownButton.Text = "↓";
-            this.DownButton.UseVisualStyleBackColor = true;
-            this.DownButton.Click += new System.EventHandler(this.DownButton_Click);
-            // 
-            // UpButton
-            // 
-            this.UpButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.UpButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.UpButton.Location = new System.Drawing.Point(524, 3);
-            this.UpButton.Name = "UpButton";
-            this.UpButton.Size = new System.Drawing.Size(44, 22);
-            this.UpButton.TabIndex = 9;
-            this.UpButton.Text = "↑";
-            this.UpButton.UseVisualStyleBackColor = true;
-            this.UpButton.Click += new System.EventHandler(this.UpButton_Click);
-            // 
             // ChatRoomsDataGridView
             // 
             this.ChatRoomsDataGridView.AllowUserToAddRows = false;
@@ -178,6 +210,7 @@
             this.ChatRoomsDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.ChatRoomsDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -193,60 +226,60 @@
             this.ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.ChatRoomsDataGridView.Size = new System.Drawing.Size(614, 386);
             this.ChatRoomsDataGridView.TabIndex = 11;
+            this.ChatRoomsDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.ChatRoomsDataGridView_CellValidating);
             this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
             this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
             // 
             // IndexColumn
             // 
+            this.IndexColumn.FillWeight = 45.52008F;
             this.IndexColumn.HeaderText = "#";
             this.IndexColumn.Name = "IndexColumn";
-            this.IndexColumn.ReadOnly = true;
             this.IndexColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.IndexColumn.Width = 40;
             // 
             // WebsiteColumn
             // 
+            this.WebsiteColumn.FillWeight = 109.6447F;
             this.WebsiteColumn.HeaderText = "Website";
             this.WebsiteColumn.Name = "WebsiteColumn";
             this.WebsiteColumn.ReadOnly = true;
             this.WebsiteColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.WebsiteColumn.Width = 80;
             // 
             // NameColumn
             // 
+            this.NameColumn.FillWeight = 110.1998F;
             this.NameColumn.HeaderText = "Name";
             this.NameColumn.Name = "NameColumn";
             this.NameColumn.ReadOnly = true;
             this.NameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.NameColumn.Width = 178;
             // 
             // ActionColumn
             // 
+            this.ActionColumn.FillWeight = 108.9239F;
             this.ActionColumn.HeaderText = "Action";
             this.ActionColumn.Name = "ActionColumn";
             this.ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.ActionColumn.Width = 82;
             // 
             // StatusColumn
             // 
+            this.StatusColumn.FillWeight = 113.1455F;
             this.StatusColumn.HeaderText = "Status";
             this.StatusColumn.Name = "StatusColumn";
             this.StatusColumn.ReadOnly = true;
             this.StatusColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.StatusColumn.Width = 82;
             // 
             // ResolutionColumn
             // 
+            this.ResolutionColumn.FillWeight = 112.5661F;
             this.ResolutionColumn.HeaderText = "Resolution";
             this.ResolutionColumn.Name = "ResolutionColumn";
             this.ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.ResolutionColumn.Width = 82;
             // 
             // MinusButton
             // 
             this.MinusButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.MinusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.MinusButton.Location = new System.Drawing.Point(478, 3);
+            this.MinusButton.Location = new System.Drawing.Point(570, 3);
             this.MinusButton.Name = "MinusButton";
             this.MinusButton.Size = new System.Drawing.Size(44, 22);
             this.MinusButton.TabIndex = 8;
@@ -258,7 +291,7 @@
             // 
             this.PlusButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.PlusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.PlusButton.Location = new System.Drawing.Point(432, 3);
+            this.PlusButton.Location = new System.Drawing.Point(524, 3);
             this.PlusButton.Name = "PlusButton";
             this.PlusButton.Size = new System.Drawing.Size(44, 22);
             this.PlusButton.TabIndex = 7;
@@ -274,7 +307,7 @@
             this.URLTextBox.Location = new System.Drawing.Point(0, 4);
             this.URLTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.URLTextBox.Name = "URLTextBox";
-            this.URLTextBox.Size = new System.Drawing.Size(429, 20);
+            this.URLTextBox.Size = new System.Drawing.Size(521, 20);
             this.URLTextBox.TabIndex = 6;
             // 
             // SettingsTabPage
@@ -291,6 +324,15 @@
             this.SettingsTabPage.TabIndex = 2;
             this.SettingsTabPage.Text = "Settings";
             this.SettingsTabPage.UseVisualStyleBackColor = true;
+            // 
+            // FFmpegPathLabel
+            // 
+            this.FFmpegPathLabel.AutoSize = true;
+            this.FFmpegPathLabel.Location = new System.Drawing.Point(-3, 8);
+            this.FFmpegPathLabel.Name = "FFmpegPathLabel";
+            this.FFmpegPathLabel.Size = new System.Drawing.Size(69, 13);
+            this.FFmpegPathLabel.TabIndex = 32;
+            this.FFmpegPathLabel.Text = "FFmpeg path";
             // 
             // OutputDirectoryButton
             // 
@@ -372,84 +414,6 @@
             this.ChatRoomsTimer.Interval = 30000;
             this.ChatRoomsTimer.Tick += new System.EventHandler(this.ChatRoomsTimer_Tick);
             // 
-            // WebViewPanel
-            // 
-            this.WebViewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.WebViewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.WebViewPanel.Controls.Add(this.WebView);
-            this.WebViewPanel.Location = new System.Drawing.Point(0, 28);
-            this.WebViewPanel.Name = "WebViewPanel";
-            this.WebViewPanel.Size = new System.Drawing.Size(614, 386);
-            this.WebViewPanel.TabIndex = 2;
-            // 
-            // WebView
-            // 
-            this.WebView.AllowExternalDrop = true;
-            this.WebView.CreationProperties = null;
-            this.WebView.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.WebView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WebView.Location = new System.Drawing.Point(0, 0);
-            this.WebView.Name = "WebView";
-            this.WebView.Size = new System.Drawing.Size(612, 384);
-            this.WebView.Source = new System.Uri("about:blank", System.UriKind.Absolute);
-            this.WebView.TabIndex = 0;
-            this.WebView.ZoomFactor = 1D;
-            // 
-            // BackButton
-            // 
-            this.BackButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BackButton.Location = new System.Drawing.Point(432, 3);
-            this.BackButton.Name = "BackButton";
-            this.BackButton.Size = new System.Drawing.Size(44, 22);
-            this.BackButton.TabIndex = 3;
-            this.BackButton.Text = "Bck";
-            this.BackButton.UseVisualStyleBackColor = true;
-            this.BackButton.Click += new System.EventHandler(this.BackButton_Click);
-            // 
-            // ForwardButton
-            // 
-            this.ForwardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ForwardButton.Location = new System.Drawing.Point(478, 3);
-            this.ForwardButton.Name = "ForwardButton";
-            this.ForwardButton.Size = new System.Drawing.Size(44, 22);
-            this.ForwardButton.TabIndex = 4;
-            this.ForwardButton.Text = "Fwd";
-            this.ForwardButton.UseVisualStyleBackColor = true;
-            this.ForwardButton.Click += new System.EventHandler(this.ForwardButton_Click);
-            // 
-            // StopButton
-            // 
-            this.StopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.StopButton.Location = new System.Drawing.Point(524, 3);
-            this.StopButton.Name = "StopButton";
-            this.StopButton.Size = new System.Drawing.Size(44, 22);
-            this.StopButton.TabIndex = 5;
-            this.StopButton.Text = "Stp";
-            this.StopButton.UseVisualStyleBackColor = true;
-            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
-            // 
-            // ReloadButton
-            // 
-            this.ReloadButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ReloadButton.Location = new System.Drawing.Point(570, 3);
-            this.ReloadButton.Name = "ReloadButton";
-            this.ReloadButton.Size = new System.Drawing.Size(44, 22);
-            this.ReloadButton.TabIndex = 6;
-            this.ReloadButton.Text = "Rld";
-            this.ReloadButton.UseVisualStyleBackColor = true;
-            this.ReloadButton.Click += new System.EventHandler(this.ReloadButton_Click);
-            // 
-            // FFmpegPathLabel
-            // 
-            this.FFmpegPathLabel.AutoSize = true;
-            this.FFmpegPathLabel.Location = new System.Drawing.Point(-3, 8);
-            this.FFmpegPathLabel.Name = "FFmpegPathLabel";
-            this.FFmpegPathLabel.Size = new System.Drawing.Size(69, 13);
-            this.FFmpegPathLabel.TabIndex = 32;
-            this.FFmpegPathLabel.Text = "FFmpeg path";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -464,6 +428,8 @@
             this.TabControl.ResumeLayout(false);
             this.WebBrowserTabPage.ResumeLayout(false);
             this.WebBrowserTabPage.PerformLayout();
+            this.WebViewPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.WebView)).EndInit();
             this.ChatRoomsTabPage.ResumeLayout(false);
             this.ChatRoomsTabPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChatRoomsDataGridView)).EndInit();
@@ -471,8 +437,6 @@
             this.SettingsTabPage.PerformLayout();
             this.AboutTabPage.ResumeLayout(false);
             this.AboutTabPage.PerformLayout();
-            this.WebViewPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.WebView)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -483,8 +447,6 @@
         private System.Windows.Forms.TabPage WebBrowserTabPage;
         private System.Windows.Forms.TabPage ChatRoomsTabPage;
         private System.Windows.Forms.TabPage SettingsTabPage;
-        private System.Windows.Forms.Button DownButton;
-        private System.Windows.Forms.Button UpButton;
         private System.Windows.Forms.DataGridView ChatRoomsDataGridView;
         private System.Windows.Forms.Button MinusButton;
         private System.Windows.Forms.Button PlusButton;
@@ -496,12 +458,6 @@
         private System.Windows.Forms.Label OutputDirectoryLabel;
         private System.Windows.Forms.TabPage AboutTabPage;
         private System.Windows.Forms.TextBox LicenseTextBox;
-        private System.Windows.Forms.DataGridViewTextBoxColumn IndexColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn WebsiteColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn ActionColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
         private System.Windows.Forms.Button GoButton;
         private System.Windows.Forms.TextBox AddressTextBox;
         private System.Windows.Forms.Timer ChatRoomsTimer;
@@ -510,8 +466,13 @@
         private System.Windows.Forms.Button BackButton;
         private System.Windows.Forms.Button StopButton;
         private System.Windows.Forms.Button ForwardButton;
-        private System.Windows.Forms.Button ReloadButton;
         private System.Windows.Forms.Label FFmpegPathLabel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IndexColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn WebsiteColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn ActionColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
     }
 }
 

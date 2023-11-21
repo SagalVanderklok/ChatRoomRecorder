@@ -69,15 +69,7 @@ namespace ChatRoomRecorder
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
             _browser = new WebView2();
-            switch (_website)
-            {
-                case ChatRoomWebsite.Chaturbate:
-                    _browser.CoreWebView2InitializationCompleted += Chaturbate_CoreWebView2InitializationCompleted;
-                    break;
-                case ChatRoomWebsite.BongaCams:
-                    _browser.CoreWebView2InitializationCompleted += BongaCams_CoreWebView2InitializationCompleted;
-                    break;
-            }
+            _browser.CoreWebView2InitializationCompleted += _browser_CoreWebView2InitializationCompleted;
             _browser.Source = new Uri("about:blank", UriKind.Absolute);
         }
 
@@ -195,21 +187,16 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void Record()
+        private void _browser_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
-            if (_status == ChatRoomStatus.Record)
+            switch (_website)
             {
-                _fileName = (_outputDirectory + Path.DirectorySeparatorChar + _website + " " + _name + " " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".ts").ToLower();
-                _fileSize = 0;
-                int streamIndex = _availableResolutions.Contains(_preferredResolution) ? _availableResolutions.IndexOf(_preferredResolution) : _availableResolutions.Count - 1;
-                string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", _playlistUrl, streamIndex, _fileName);
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = _ffmpegPath;
-                psi.Arguments = ffmpegArgs;
-                psi.UseShellExecute = false;
-                psi.LoadUserProfile = false;
-                psi.CreateNoWindow = true;
-                _ffmpegProcess = Process.Start(psi);
+                case ChatRoomWebsite.Chaturbate:
+                    _browser.CoreWebView2.WebResourceResponseReceived += Chaturbate_WebResourceResponseReceived;
+                    break;
+                case ChatRoomWebsite.BongaCams:
+                    _browser.CoreWebView2.WebResourceResponseReceived += BongaCams_WebResourceResponseReceived;
+                    break;
             }
         }
 
@@ -318,11 +305,6 @@ namespace ChatRoomRecorder
             _isUpdating = false;
         }
 
-        private void Chaturbate_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
-        {
-            _browser.CoreWebView2.WebResourceResponseReceived += Chaturbate_WebResourceResponseReceived;
-        }
-
         private void UpdateStatusBongaCams()
         {
             string postData = "model_search[display_name]=" + _name;
@@ -414,9 +396,22 @@ namespace ChatRoomRecorder
             _isUpdating = false;
         }
 
-        private void BongaCams_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        private void Record()
         {
-            _browser.CoreWebView2.WebResourceResponseReceived += BongaCams_WebResourceResponseReceived;
+            if (_status == ChatRoomStatus.Record)
+            {
+                _fileName = (_outputDirectory + Path.DirectorySeparatorChar + _website + " " + _name + " " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".ts").ToLower();
+                _fileSize = 0;
+                int streamIndex = _availableResolutions.Contains(_preferredResolution) ? _availableResolutions.IndexOf(_preferredResolution) : _availableResolutions.Count - 1;
+                string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", _playlistUrl, streamIndex, _fileName);
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = _ffmpegPath;
+                psi.Arguments = ffmpegArgs;
+                psi.UseShellExecute = false;
+                psi.LoadUserProfile = false;
+                psi.CreateNoWindow = true;
+                _ffmpegProcess = Process.Start(psi);
+            }
         }
 
         public string Name

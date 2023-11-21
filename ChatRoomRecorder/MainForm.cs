@@ -69,6 +69,8 @@ namespace ChatRoomRecorder
 
         private void ChatRoomsTimer_Tick(object sender, EventArgs e)
         {
+            if (ChatRoomsDataGridView.IsCurrentCellInEditMode) return;
+
             lock (_chatRoomsLock)
             {
                 int count = 0;
@@ -85,10 +87,10 @@ namespace ChatRoomRecorder
 
         private void DataGridViewUpdateTimer_Tick(object sender, EventArgs e)
         {
+            if (ChatRoomsDataGridView.IsCurrentCellInEditMode) return;
+
             lock (_chatRoomsLock)
             {
-                if (ChatRoomsDataGridView.IsCurrentCellInEditMode) return;
-
                 foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
                 {
                     ChatRoom chatRoom = _chatRooms[(int)row.Cells[ChatRoomsDataGridView.Columns["IndexColumn"].Index].Value - 1];
@@ -160,9 +162,16 @@ namespace ChatRoomRecorder
             {
                 if (ChatRoomsDataGridView.SelectedRows.Count > 0)
                 {
+                    ChatRoomsDataGridView.CellValidating -= ChatRoomsDataGridView_CellValidating;
+                    ChatRoomsDataGridView.CellValueChanged -= ChatRoomsDataGridView_CellValueChanged;
+
                     DataGridViewRow row = ChatRoomsDataGridView.SelectedRows[0];
                     int columnIndex = ChatRoomsDataGridView.Columns["IndexColumn"].Index;
                     int chatRoomIndex = (int)row.Cells[columnIndex].Value;
+
+                    ChatRoom chatRoom = _chatRooms[chatRoomIndex - 1];
+                    _chatRooms.Remove(chatRoom);
+                    chatRoom.Dispose();
 
                     ChatRoomsDataGridView.Rows.Remove(row);
                     for (int i = 0; i < ChatRoomsDataGridView.Rows.Count; i++)
@@ -171,80 +180,25 @@ namespace ChatRoomRecorder
                             ChatRoomsDataGridView.Rows[i].Cells[columnIndex].Value = (int)ChatRoomsDataGridView.Rows[i].Cells[columnIndex].Value - 1;
                     }
 
-                    ChatRoom chatRoom = _chatRooms[chatRoomIndex - 1];
-                    _chatRooms.Remove(chatRoom);
-                    chatRoom.Dispose();
+                    ChatRoomsDataGridView.CellValidating += ChatRoomsDataGridView_CellValidating;
+                    ChatRoomsDataGridView.CellValueChanged += ChatRoomsDataGridView_CellValueChanged;
 
                     WriteConfig();
                 }
             }
         }
 
-        private void UpButton_Click(object sender, EventArgs e)
+        private void ChatRoomsDataGridView_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
             lock (_chatRoomsLock)
             {
-                if (ChatRoomsDataGridView.SelectedRows.Count > 0)
+                if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && ChatRoomsDataGridView.Columns[e.ColumnIndex].Name == "IndexColumn")
                 {
-                    int columnIndex = ChatRoomsDataGridView.Columns["IndexColumn"].Index;
-                    DataGridViewRow selRow = ChatRoomsDataGridView.SelectedRows[0];
-                    DataGridViewRow prevRow = null;
-                    foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
-                    {
-                        if ((int)selRow.Cells[columnIndex].Value == (int)row.Cells[columnIndex].Value + 1)
-                        {
-                            prevRow = row;
-                            break;
-                        }
-                    }
-
-                    if (prevRow == null) return;
-
-                    ChatRoom tmp = _chatRooms[(int)prevRow.Cells[columnIndex].Value - 1];
-                    _chatRooms[(int)prevRow.Cells[columnIndex].Value - 1] = _chatRooms[(int)selRow.Cells[columnIndex].Value - 1];
-                    _chatRooms[(int)selRow.Cells[columnIndex].Value - 1] = tmp;
-
-                    selRow.Cells[columnIndex].Value = (int)selRow.Cells[columnIndex].Value - 1;
-                    prevRow.Cells[columnIndex].Value = (int)prevRow.Cells[columnIndex].Value + 1;
-
-                    SortDataGridView();
-
-                    WriteConfig();
+                    int index;
+                    if (!int.TryParse((string)e.FormattedValue, out index) || (index < 1) || (index > _chatRooms.Count))
+                        e.Cancel = true;
                 }
-            }
-        }
 
-        private void DownButton_Click(object sender, EventArgs e)
-        {
-            lock (_chatRoomsLock)
-            {
-                if (ChatRoomsDataGridView.SelectedRows.Count > 0)
-                {
-                    int columnIndex = ChatRoomsDataGridView.Columns["IndexColumn"].Index;
-                    DataGridViewRow selRow = ChatRoomsDataGridView.SelectedRows[0];
-                    DataGridViewRow nextRow = null;
-                    foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
-                    {
-                        if ((int)selRow.Cells[columnIndex].Value == (int)row.Cells[columnIndex].Value - 1)
-                        {
-                            nextRow = row;
-                            break;
-                        }
-                    }
-
-                    if (nextRow == null) return;
-
-                    ChatRoom tmp = _chatRooms[(int)nextRow.Cells[columnIndex].Value - 1];
-                    _chatRooms[(int)nextRow.Cells[columnIndex].Value - 1] = _chatRooms[(int)selRow.Cells[columnIndex].Value - 1];
-                    _chatRooms[(int)selRow.Cells[columnIndex].Value - 1] = tmp;
-
-                    selRow.Cells[columnIndex].Value = (int)selRow.Cells[columnIndex].Value + 1;
-                    nextRow.Cells[columnIndex].Value = (int)nextRow.Cells[columnIndex].Value - 1;
-
-                    SortDataGridView();
-
-                    WriteConfig();
-                }
             }
         }
 
@@ -256,7 +210,7 @@ namespace ChatRoomRecorder
                 {
                     DataGridViewRow row = ChatRoomsDataGridView.Rows[e.RowIndex];
                     DataGridViewCell cell = row.Cells[e.ColumnIndex];
-                    ChatRoom chatRoom = _chatRooms[(int)row.Cells[ChatRoomsDataGridView.Columns["IndexColumn"].Index].Value - 1];
+                    ChatRoom chatRoom = (ChatRoom)row.Tag;
                     switch (ChatRoomsDataGridView.Columns[e.ColumnIndex].Name)
                     {
                         case "ActionColumn":
@@ -264,6 +218,50 @@ namespace ChatRoomRecorder
                             break;
                         case "ResolutionColumn":
                             chatRoom.PreferredResolution = cell.Value == null ? string.Empty : (string)cell.Value;
+                            break;
+                        case "IndexColumn":
+                            ChatRoomsDataGridView.CellValidating -= ChatRoomsDataGridView_CellValidating;
+                            ChatRoomsDataGridView.CellValueChanged -= ChatRoomsDataGridView_CellValueChanged;
+
+                            int colIndex = ChatRoomsDataGridView.Columns["IndexColumn"].Index;
+                            int oldIndex = _chatRooms.IndexOf(chatRoom) + 1;
+                            int newIndex = (int)cell.Value;
+
+                            if (newIndex > oldIndex)
+                            {
+                                for (int i = oldIndex; i < newIndex; i++)
+                                {
+                                    _chatRooms[i - 1] = _chatRooms[i];
+                                }
+                                foreach (DataGridViewRow curRow in ChatRoomsDataGridView.Rows)
+                                {
+                                    DataGridViewCell curCell = curRow.Cells[colIndex];
+                                    if ((int)curCell.Value > oldIndex && (int)curCell.Value <= newIndex)
+                                    {
+                                        curCell.Value = (int)curCell.Value - 1;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                for (int i = oldIndex - 1; i >= newIndex; i--)
+                                {
+                                    _chatRooms[i] = _chatRooms[i - 1];
+                                }
+                                foreach (DataGridViewRow curRow in ChatRoomsDataGridView.Rows)
+                                {
+                                    DataGridViewCell curCell = curRow.Cells[colIndex];
+                                    if ((int)curCell.Value >= newIndex && (int)curCell.Value < oldIndex)
+                                    {
+                                        curCell.Value = (int)curCell.Value + 1;
+                                    }
+                                }
+                            }
+                            _chatRooms[newIndex - 1] = chatRoom;
+                            cell.Value = newIndex;
+
+                            ChatRoomsDataGridView.CellValidating += ChatRoomsDataGridView_CellValidating;
+                            ChatRoomsDataGridView.CellValueChanged += ChatRoomsDataGridView_CellValueChanged;
                             break;
                     }
 
@@ -369,14 +367,10 @@ namespace ChatRoomRecorder
             WebView.CoreWebView2.Stop();
         }
 
-        private void ReloadButton_Click(object sender, EventArgs e)
-        {
-            WebView.CoreWebView2.Reload();
-        }
-
         private void AddDataGridViewRow(ChatRoom chatRoom, int index)
         {
             DataGridViewRow row = new DataGridViewRow();
+            row.Tag = chatRoom;
             row.CreateCells(ChatRoomsDataGridView);
             row.Cells[ChatRoomsDataGridView.Columns["IndexColumn"].Index].Value = index;
             row.Cells[ChatRoomsDataGridView.Columns["WebsiteColumn"].Index].Value = chatRoom.Website;
