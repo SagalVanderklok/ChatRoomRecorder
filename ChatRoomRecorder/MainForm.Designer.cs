@@ -410,8 +410,7 @@
             // 
             // ChatRoomsTimer
             // 
-            this.ChatRoomsTimer.Enabled = true;
-            this.ChatRoomsTimer.Interval = 30000;
+            this.ChatRoomsTimer.Interval = 5000;
             this.ChatRoomsTimer.Tick += new System.EventHandler(this.ChatRoomsTimer_Tick);
             // 
             // MainForm

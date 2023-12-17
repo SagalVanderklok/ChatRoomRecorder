@@ -18,16 +18,6 @@ namespace ChatRoomRecorder
         public MainForm()
         {
             InitializeComponent();
-            
-            ChatRoomsDataGridView.Columns["IndexColumn"].ValueType = typeof(int);
-            ChatRoomsDataGridView.Columns["WebsiteColumn"].ValueType = typeof(ChatRoomWebsite);
-            ChatRoomsDataGridView.Columns["NameColumn"].ValueType = typeof(string);
-            ChatRoomsDataGridView.Columns["ActionColumn"].ValueType = typeof(ChatRoomAction);
-            ChatRoomsDataGridView.Columns["StatusColumn"].ValueType = typeof(ChatRoomStatus);
-            ChatRoomsDataGridView.Columns["ResolutionColumn"].ValueType = typeof(string);
-            DataGridViewColumn sortColumn = ChatRoomsDataGridView.Columns["IndexColumn"];
-            ChatRoomsDataGridView.Sort(sortColumn, ListSortDirection.Ascending);
-            sortColumn.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
 
             this.Text = Assembly.GetEntryAssembly().GetName().Name + " " + Assembly.GetEntryAssembly().GetName().Version.ToString(3);
             Assembly asm = Assembly.GetEntryAssembly();
@@ -38,8 +28,16 @@ namespace ChatRoomRecorder
                 "\r\n\r\n" +
                 LicenseTextBox.Text;
 
+            ChatRoomsDataGridView.Columns["IndexColumn"].ValueType = typeof(int);
+            ChatRoomsDataGridView.Columns["WebsiteColumn"].ValueType = typeof(ChatRoomWebsite);
+            ChatRoomsDataGridView.Columns["NameColumn"].ValueType = typeof(string);
+            ChatRoomsDataGridView.Columns["ActionColumn"].ValueType = typeof(ChatRoomAction);
+            ChatRoomsDataGridView.Columns["StatusColumn"].ValueType = typeof(ChatRoomStatus);
+            ChatRoomsDataGridView.Columns["ResolutionColumn"].ValueType = typeof(string);
+
             ReadConfig();
 
+            ChatRoomsTimer.Start();
             DataGridViewUpdateTimer.Start();
         }
 
@@ -69,28 +67,40 @@ namespace ChatRoomRecorder
 
         private void ChatRoomsTimer_Tick(object sender, EventArgs e)
         {
-            if (ChatRoomsDataGridView.IsCurrentCellInEditMode) return;
-
             lock (_chatRoomsLock)
             {
-                int count = 0;
-                foreach (ChatRoom chatRoom in _chatRooms)
+                if (ChatRoomsDataGridView.IsCurrentCellInEditMode) return;
+
+                bool atLeastOneUpdated = false;
+                foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
                 {
-                    if (chatRoom.Action != ChatRoomAction.None) count++;
+                    ChatRoom chatRoom = (ChatRoom)row.Tag;
+                    if (chatRoom.Action != ChatRoomAction.None)
+                    {
+                        if (!atLeastOneUpdated && chatRoom.LastUpdate < _lastUpdate)
+                        {
+                            chatRoom.Update();
+                            atLeastOneUpdated = true;
+                        }
+                    }
+                    else
+                    {
+                        chatRoom.Update();
+                    }
                 }
-                foreach (ChatRoom chatRoom in _chatRooms)
+                if (!atLeastOneUpdated)
                 {
-                    chatRoom.Update(30 + _random.Next(count * 2 + 30));
+                    _lastUpdate = DateTime.Now;
                 }
             }
         }
 
         private void DataGridViewUpdateTimer_Tick(object sender, EventArgs e)
         {
-            if (ChatRoomsDataGridView.IsCurrentCellInEditMode) return;
-
             lock (_chatRoomsLock)
             {
+                if (ChatRoomsDataGridView.IsCurrentCellInEditMode) return;
+
                 foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
                 {
                     ChatRoom chatRoom = _chatRooms[(int)row.Cells[ChatRoomsDataGridView.Columns["IndexColumn"].Index].Value - 1];
@@ -481,11 +491,10 @@ namespace ChatRoomRecorder
             }
         }
 
-        private List<ChatRoom> _chatRooms = new List<ChatRoom>();
         private string _configDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + Assembly.GetEntryAssembly().GetName().Name;
         private string _configFile = "config.json";
+        private List<ChatRoom> _chatRooms = new List<ChatRoom>();
+        private DateTime _lastUpdate = DateTime.Now;
         private Object _chatRoomsLock = new object();
-
-        private static Random _random = new Random();
     }
 }

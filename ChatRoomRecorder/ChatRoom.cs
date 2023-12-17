@@ -42,63 +42,6 @@ namespace ChatRoomRecorder
 
     public class ChatRoom : IDisposable
     {
-        public ChatRoom(string aUrl)
-        {
-            aUrl = aUrl.ToLower();
-            Tuple<ChatRoomWebsite, string> parsed_url = ParseUrl(aUrl);
-            if (parsed_url == null) throw new ArgumentException();
-
-            _website = parsed_url.Item1;
-            _name = parsed_url.Item2;
-            _status = ChatRoomStatus.Unknown;
-            _action = ChatRoomAction.None;
-            _roomUrl = aUrl;
-            _playlistUrl = String.Empty;
-            _availableResolutions = new List<string>();
-            _preferredResolution = String.Empty;
-            _outputDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-            _ffmpegPath = (new FileInfo(Process.GetCurrentProcess().MainModule.FileName)).Directory.FullName + Path.DirectorySeparatorChar + "ffmpeg.exe";
-            _ffmpegProcess = null;
-            _fileName = string.Empty;
-            _fileSize = -1;
-            _pause = 0;
-            _lastUpdate = DateTime.MinValue;
-            _isUpdating = false;
-            _disposing_started = false;
-            _disposing_finished = false;
-            _cancellationTokenSource = new CancellationTokenSource();
-            _cancellationToken = _cancellationTokenSource.Token;
-            _browser = new WebView2();
-            _browser.CoreWebView2InitializationCompleted += _browser_CoreWebView2InitializationCompleted;
-            _browser.Source = new Uri("about:blank", UriKind.Absolute);
-        }
-
-        public void Dispose()
-        {
-            if (_disposing_started) return;
-
-            _disposing_started = true;
-            _cancellationTokenSource.Cancel();
-
-            Task.Run(() =>
-            {
-                while (_isUpdating)
-                {
-                    Thread.Sleep(1000);
-                }
-                if (_ffmpegProcess != null)
-                {
-                    if (_ffmpegProcess.HasExited == false)
-                    {
-                        _ffmpegProcess.Kill();
-                        _ffmpegProcess.WaitForExit();
-                    }
-                    _ffmpegProcess.Close();
-                }
-                _disposing_finished = true;
-            });
-        }
-
         public static Tuple<ChatRoomWebsite, string> ParseUrl(string aUrl)
         {
             aUrl = aUrl.ToLower();
@@ -120,16 +63,72 @@ namespace ChatRoomRecorder
             }
         }
 
-        public void Update(int aPause)
+        private static HttpClient _httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
+
+        public ChatRoom(string aUrl)
         {
-            if (_disposing_started) throw new InvalidOperationException();
+            aUrl = aUrl.ToLower();
+            Tuple<ChatRoomWebsite, string> parsed_url = ParseUrl(aUrl);
+            if (parsed_url == null) throw new ArgumentException();
+
+            _website = parsed_url.Item1;
+            _name = parsed_url.Item2;
+            _status = ChatRoomStatus.Unknown;
+            _action = ChatRoomAction.None;
+            _roomUrl = aUrl;
+            _playlistUrl = String.Empty;
+            _availableResolutions = new List<string>();
+            _preferredResolution = String.Empty;
+            _outputDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+            _ffmpegPath = (new FileInfo(Process.GetCurrentProcess().MainModule.FileName)).Directory.FullName + Path.DirectorySeparatorChar + "ffmpeg.exe";
+            _ffmpegProcess = null;
+            _fileName = string.Empty;
+            _fileSize = -1;
+            _lastUpdate = DateTime.Now;
+            _isUpdating = false;
+            _disposingStarted = false;
+            _disposingFinished = false;
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationToken = _cancellationTokenSource.Token;
+            _browser = null;
+        }
+
+        public void Dispose()
+        {
+            if (_disposingStarted) return;
+
+            _disposingStarted = true;
+            _cancellationTokenSource.Cancel();
+
+            Task.Run(() =>
+            {
+                while (_isUpdating)
+                {
+                    Thread.Sleep(1000);
+                }
+                if (_ffmpegProcess != null)
+                {
+                    if (_ffmpegProcess.HasExited == false)
+                    {
+                        _ffmpegProcess.Kill();
+                        _ffmpegProcess.WaitForExit();
+                    }
+                    _ffmpegProcess.Close();
+                }
+                _disposingFinished = true;
+            });
+        }
+
+        public void Update()
+        {
+            if (_disposingStarted) throw new InvalidOperationException();
 
             if (_isUpdating) return;
 
-            if (_lastUpdate != DateTime.MinValue && (DateTime.Now - _lastUpdate).TotalSeconds < 30) return;
+            if ((DateTime.Now - _lastUpdate).TotalSeconds < 30) return;
 
-            _isUpdating= true;
-            _pause = (double)aPause;
+            _isUpdating = true;
+            _lastUpdate = DateTime.Now;
 
             //we're recording and that's what we want - return, otherwise - continue
 
@@ -170,6 +169,11 @@ namespace ChatRoomRecorder
                 _status = ChatRoomStatus.Unknown;
                 _playlistUrl = String.Empty;
                 _availableResolutions.Clear();
+                if (_browser != null)
+                {
+                    _browser.Dispose();
+                    _browser = null;
+                }
                 _isUpdating = false;
                 return;
             }
@@ -208,7 +212,8 @@ namespace ChatRoomRecorder
                 "POST",
                 new MemoryStream(Encoding.UTF8.GetBytes(postData)),
                 "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-            _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+            if (_browser != null && _browser.CoreWebView2 != null)
+                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
         }
 
         private async void Chaturbate_WebResourceResponseReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceResponseReceivedEventArgs e)
@@ -222,8 +227,6 @@ namespace ChatRoomRecorder
             {
                 StreamReader reader = new StreamReader(await e.Response.GetContentAsync());
                 string respStr = reader.ReadToEnd();
-
-                await Task.Delay(TimeSpan.FromSeconds(_pause), _cancellationToken);
 
                 doc = JsonDocument.Parse(respStr);
                 switch (doc.RootElement.GetProperty("room_status").GetString())
@@ -301,7 +304,6 @@ namespace ChatRoomRecorder
 
             Record();
 
-            _lastUpdate = DateTime.Now;
             _isUpdating = false;
         }
 
@@ -313,7 +315,8 @@ namespace ChatRoomRecorder
                 "POST",
                 new MemoryStream(Encoding.UTF8.GetBytes(postData)),
                 "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-            _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+            if (_browser!= null && _browser.CoreWebView2 != null)
+                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
         }
 
         private async void BongaCams_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
@@ -322,8 +325,6 @@ namespace ChatRoomRecorder
             {
                 StreamReader reader = new StreamReader(await e.Response.GetContentAsync());
                 string respStr = reader.ReadToEnd();
-
-                await Task.Delay(TimeSpan.FromSeconds(_pause), _cancellationToken);
 
                 JsonNode rootNode = JsonNode.Parse(respStr);
 
@@ -392,7 +393,6 @@ namespace ChatRoomRecorder
 
             Record();
 
-            _lastUpdate = DateTime.Now;
             _isUpdating = false;
         }
 
@@ -418,7 +418,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _name;
             }
         }
@@ -427,7 +427,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _website;
             }
         }
@@ -436,7 +436,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _status;
             }
         }
@@ -445,12 +445,19 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
+                _lastUpdate = DateTime.Now;
                 _action = value;
+                if (_action != ChatRoomAction.None && _browser == null)
+                {
+                    _browser = new WebView2();
+                    _browser.CoreWebView2InitializationCompleted += _browser_CoreWebView2InitializationCompleted;
+                    _browser.Source = new Uri("about:blank", UriKind.Absolute);
+                }
             }
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _action;
             }
         }
@@ -459,7 +466,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _roomUrl;
             }
         }
@@ -468,7 +475,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _playlistUrl;
             }
         }
@@ -477,7 +484,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _availableResolutions.ToArray();
             }
         }
@@ -486,13 +493,13 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 if (value == null) throw new ArgumentException();
                 _preferredResolution = value;
             }
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _preferredResolution;
             }
         }
@@ -501,13 +508,13 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 if (value == null) throw new ArgumentException();
                 _outputDirectory = value;
             }
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _outputDirectory;
             }
         }
@@ -516,14 +523,22 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 if (value == null) throw new ArgumentException();
                 _ffmpegPath = value;
             }
             get
             {
-                if (_disposing_started) throw new InvalidOperationException();
+                if (_disposingStarted) throw new InvalidOperationException();
                 return _ffmpegPath;
+            }
+        }
+
+        public DateTime LastUpdate
+        {
+            get
+            {
+                return _lastUpdate;
             }
         }
 
@@ -531,7 +546,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                return _disposing_finished;
+                return _disposingFinished;
             }
         }
 
@@ -548,15 +563,12 @@ namespace ChatRoomRecorder
         private Process _ffmpegProcess;
         private string _fileName;
         private long _fileSize;
-        private double _pause;
         private DateTime _lastUpdate;
         private bool _isUpdating;
-        private bool _disposing_started;
-        private bool _disposing_finished;
+        private bool _disposingStarted;
+        private bool _disposingFinished;
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
         private WebView2 _browser;
-
-        private static HttpClient _httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
     }
 }
