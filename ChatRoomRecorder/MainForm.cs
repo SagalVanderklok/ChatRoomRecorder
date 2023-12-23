@@ -34,6 +34,7 @@ namespace ChatRoomRecorder
             ChatRoomsDataGridView.Columns["ActionColumn"].ValueType = typeof(ChatRoomAction);
             ChatRoomsDataGridView.Columns["StatusColumn"].ValueType = typeof(ChatRoomStatus);
             ChatRoomsDataGridView.Columns["ResolutionColumn"].ValueType = typeof(string);
+            ChatRoomsDataGridView.Columns["LastUpdateColumn"].ValueType = typeof(string);
 
             ReadConfig();
 
@@ -43,24 +44,27 @@ namespace ChatRoomRecorder
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            WriteConfig();
-
-            foreach (ChatRoom chatRoom in _chatRooms)
+            lock (_chatRoomsLock)
             {
-                chatRoom.Dispose();
-            }
+                WriteConfig();
 
-            bool all_disposed = false;
-            for (int i = 0; i < 300 && !all_disposed; i++)
-            {
-                all_disposed = true;
-                for (int j = 0; j < _chatRooms.Count && !all_disposed; j++)
+                foreach (ChatRoom chatRoom in _chatRooms)
                 {
-                    all_disposed = all_disposed && _chatRooms[j].IsDisposed;
+                    chatRoom.Dispose();
                 }
-                if (!all_disposed)
+
+                bool all_disposed = false;
+                while (!all_disposed)
                 {
-                    Thread.Sleep(1000);
+                    all_disposed = true;
+                    for (int j = 0; j < _chatRooms.Count && !all_disposed; j++)
+                    {
+                        all_disposed = all_disposed && _chatRooms[j].IsDisposed;
+                    }
+                    if (!all_disposed)
+                    {
+                        Thread.Sleep(500);
+                    }
                 }
             }
         }
@@ -122,6 +126,8 @@ namespace ChatRoomRecorder
                         resolutionCell.DataSource = new string[] { string.Empty };
                         resolutionCell.Value = string.Empty;
                     }
+                    DataGridViewTextBoxCell lastUpdateCell = (DataGridViewTextBoxCell)row.Cells[ChatRoomsDataGridView.Columns["LastUpdateColumn"].Index];
+                    lastUpdateCell.Value = chatRoom.LastUpdate.ToString();
                 }
 
                 SortDataGridView();
@@ -392,6 +398,7 @@ namespace ChatRoomRecorder
             DataGridViewComboBoxCell resolutionCell = (DataGridViewComboBoxCell)row.Cells[ChatRoomsDataGridView.Columns["ResolutionColumn"].Index];
             resolutionCell.DataSource = new string[] { string.Empty };
             resolutionCell.Value = string.Empty;
+            row.Cells[ChatRoomsDataGridView.Columns["LastUpdateColumn"].Index].Value = chatRoom.LastUpdate.ToString();
             ChatRoomsDataGridView.Rows.Add(row);
         }
 

@@ -10,7 +10,6 @@ using System.Text.Json.Nodes;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 
 namespace ChatRoomRecorder
@@ -99,24 +98,24 @@ namespace ChatRoomRecorder
 
             _disposingStarted = true;
             _cancellationTokenSource.Cancel();
-
-            Task.Run(() =>
+            while (_isUpdating)
             {
-                while (_isUpdating)
+                Thread.Sleep(100);
+            }
+            if (_ffmpegProcess != null)
+            {
+                if (_ffmpegProcess.HasExited == false)
                 {
-                    Thread.Sleep(1000);
+                    _ffmpegProcess.Kill();
+                    _ffmpegProcess.WaitForExit();
                 }
-                if (_ffmpegProcess != null)
-                {
-                    if (_ffmpegProcess.HasExited == false)
-                    {
-                        _ffmpegProcess.Kill();
-                        _ffmpegProcess.WaitForExit();
-                    }
-                    _ffmpegProcess.Close();
-                }
-                _disposingFinished = true;
-            });
+                _ffmpegProcess.Close();
+            }
+            if (_browser != null)
+            {
+                _browser.Dispose();
+            }
+            _disposingFinished = true;
         }
 
         public void Update()
@@ -125,7 +124,7 @@ namespace ChatRoomRecorder
 
             if (_isUpdating) return;
 
-            if ((DateTime.Now - _lastUpdate).TotalSeconds < 30) return;
+            if ((DateTime.Now - _lastUpdate).TotalSeconds < 15) return;
 
             _isUpdating = true;
             _lastUpdate = DateTime.Now;
@@ -180,6 +179,13 @@ namespace ChatRoomRecorder
 
             //update room's info
 
+            if (_browser == null)
+            {
+                _browser = new WebView2();
+                _browser.CoreWebView2InitializationCompleted += _browser_CoreWebView2InitializationCompleted;
+                _browser.Source = new Uri("about:blank", UriKind.Absolute);
+            }
+
             switch (_website)
             {
                 case ChatRoomWebsite.Chaturbate:
@@ -202,18 +208,44 @@ namespace ChatRoomRecorder
                     _browser.CoreWebView2.WebResourceResponseReceived += BongaCams_WebResourceResponseReceived;
                     break;
             }
+            _browser.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
+            _isUpdating = false;
         }
 
         private void UpdateStatusChaturbate()
         {
-            string postData = "room_slug=" + _name;
-            CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                "https://chaturbate.com/get_edge_hls_url_ajax/",
-                "POST",
-                new MemoryStream(Encoding.UTF8.GetBytes(postData)),
-                "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
             if (_browser != null && _browser.CoreWebView2 != null)
+            {
+                string postData = "room_slug=" + _name;
+                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                    "https://chaturbate.com/get_edge_hls_url_ajax/",
+                    "POST",
+                    new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
                 _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+            }
+            else
+            {
+                _isUpdating = false;
+            }
+        }
+
+        private void UpdateStatusBongaCams()
+        {
+            if (_browser != null && _browser.CoreWebView2 != null)
+            {
+                string postData = "model_search[display_name]=" + _name;
+                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                    "https://bongacams.com/tools/listing_v3.php",
+                    "POST",
+                    new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+            }
+            else
+            {
+                _isUpdating = false;
+            }
         }
 
         private async void Chaturbate_WebResourceResponseReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceResponseReceivedEventArgs e)
@@ -307,18 +339,6 @@ namespace ChatRoomRecorder
             _isUpdating = false;
         }
 
-        private void UpdateStatusBongaCams()
-        {
-            string postData = "model_search[display_name]=" + _name;
-            CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                "https://bongacams.com/tools/listing_v3.php",
-                "POST",
-                new MemoryStream(Encoding.UTF8.GetBytes(postData)),
-                "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-            if (_browser!= null && _browser.CoreWebView2 != null)
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
-        }
-
         private async void BongaCams_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
             try
@@ -400,18 +420,32 @@ namespace ChatRoomRecorder
         {
             if (_status == ChatRoomStatus.Record)
             {
-                _fileName = (_outputDirectory + Path.DirectorySeparatorChar + _website + " " + _name + " " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".ts").ToLower();
-                _fileSize = 0;
-                int streamIndex = _availableResolutions.Contains(_preferredResolution) ? _availableResolutions.IndexOf(_preferredResolution) : _availableResolutions.Count - 1;
-                string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", _playlistUrl, streamIndex, _fileName);
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = _ffmpegPath;
-                psi.Arguments = ffmpegArgs;
-                psi.UseShellExecute = false;
-                psi.LoadUserProfile = false;
-                psi.CreateNoWindow = true;
-                _ffmpegProcess = Process.Start(psi);
+                try
+                {
+                    _fileName = (_outputDirectory + Path.DirectorySeparatorChar + _website + " " + _name + " " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".ts").ToLower();
+                    _fileSize = 0;
+                    int streamIndex = _availableResolutions.Contains(_preferredResolution) ? _availableResolutions.IndexOf(_preferredResolution) : _availableResolutions.Count - 1;
+                    string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", _playlistUrl, streamIndex, _fileName);
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.FileName = _ffmpegPath;
+                    psi.Arguments = ffmpegArgs;
+                    psi.UseShellExecute = false;
+                    psi.LoadUserProfile = false;
+                    psi.CreateNoWindow = true;
+                    _ffmpegProcess = Process.Start(psi);
+                }
+                catch (Exception)
+                {
+                    _status = ChatRoomStatus.Error;
+                    _playlistUrl = String.Empty;
+                    _availableResolutions.Clear();
+                }
             }
+        }
+
+        private void CoreWebView2_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            if (!e.IsSuccess) _isUpdating = false;
         }
 
         public string Name
@@ -446,14 +480,7 @@ namespace ChatRoomRecorder
             set
             {
                 if (_disposingStarted) throw new InvalidOperationException();
-                _lastUpdate = DateTime.Now;
                 _action = value;
-                if (_action != ChatRoomAction.None && _browser == null)
-                {
-                    _browser = new WebView2();
-                    _browser.CoreWebView2InitializationCompleted += _browser_CoreWebView2InitializationCompleted;
-                    _browser.Source = new Uri("about:blank", UriKind.Absolute);
-                }
             }
             get
             {

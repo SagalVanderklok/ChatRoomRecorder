@@ -48,6 +48,7 @@
             this.ActionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.StatusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ResolutionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.LastUpdateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MinusButton = new System.Windows.Forms.Button();
             this.PlusButton = new System.Windows.Forms.Button();
             this.URLTextBox = new System.Windows.Forms.TextBox();
@@ -86,7 +87,7 @@
             this.TabControl.Location = new System.Drawing.Point(0, 0);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(624, 441);
+            this.TabControl.Size = new System.Drawing.Size(784, 561);
             this.TabControl.TabIndex = 19;
             // 
             // WebBrowserTabPage
@@ -100,7 +101,7 @@
             this.WebBrowserTabPage.Location = new System.Drawing.Point(4, 22);
             this.WebBrowserTabPage.Name = "WebBrowserTabPage";
             this.WebBrowserTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.WebBrowserTabPage.Size = new System.Drawing.Size(616, 415);
+            this.WebBrowserTabPage.Size = new System.Drawing.Size(776, 535);
             this.WebBrowserTabPage.TabIndex = 0;
             this.WebBrowserTabPage.Text = "Web browser";
             this.WebBrowserTabPage.UseVisualStyleBackColor = true;
@@ -109,7 +110,7 @@
             // 
             this.StopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.StopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.StopButton.Location = new System.Drawing.Point(570, 3);
+            this.StopButton.Location = new System.Drawing.Point(730, 3);
             this.StopButton.Name = "StopButton";
             this.StopButton.Size = new System.Drawing.Size(44, 22);
             this.StopButton.TabIndex = 5;
@@ -121,7 +122,7 @@
             // 
             this.ForwardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ForwardButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.ForwardButton.Location = new System.Drawing.Point(524, 3);
+            this.ForwardButton.Location = new System.Drawing.Point(684, 3);
             this.ForwardButton.Name = "ForwardButton";
             this.ForwardButton.Size = new System.Drawing.Size(44, 22);
             this.ForwardButton.TabIndex = 4;
@@ -133,7 +134,7 @@
             // 
             this.BackButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BackButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.BackButton.Location = new System.Drawing.Point(478, 3);
+            this.BackButton.Location = new System.Drawing.Point(638, 3);
             this.BackButton.Name = "BackButton";
             this.BackButton.Size = new System.Drawing.Size(44, 22);
             this.BackButton.TabIndex = 3;
@@ -150,7 +151,7 @@
             this.WebViewPanel.Controls.Add(this.WebView);
             this.WebViewPanel.Location = new System.Drawing.Point(0, 28);
             this.WebViewPanel.Name = "WebViewPanel";
-            this.WebViewPanel.Size = new System.Drawing.Size(614, 386);
+            this.WebViewPanel.Size = new System.Drawing.Size(774, 507);
             this.WebViewPanel.TabIndex = 2;
             // 
             // WebView
@@ -161,7 +162,7 @@
             this.WebView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.WebView.Location = new System.Drawing.Point(0, 0);
             this.WebView.Name = "WebView";
-            this.WebView.Size = new System.Drawing.Size(612, 384);
+            this.WebView.Size = new System.Drawing.Size(772, 505);
             this.WebView.Source = new System.Uri("about:blank", System.UriKind.Absolute);
             this.WebView.TabIndex = 0;
             this.WebView.ZoomFactor = 1D;
@@ -170,7 +171,7 @@
             // 
             this.GoButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.GoButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.GoButton.Location = new System.Drawing.Point(432, 3);
+            this.GoButton.Location = new System.Drawing.Point(592, 3);
             this.GoButton.Name = "GoButton";
             this.GoButton.Size = new System.Drawing.Size(44, 22);
             this.GoButton.TabIndex = 1;
@@ -186,7 +187,7 @@
             this.AddressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F);
             this.AddressTextBox.Location = new System.Drawing.Point(0, 4);
             this.AddressTextBox.Name = "AddressTextBox";
-            this.AddressTextBox.Size = new System.Drawing.Size(429, 20);
+            this.AddressTextBox.Size = new System.Drawing.Size(589, 20);
             this.AddressTextBox.TabIndex = 0;
             // 
             // ChatRoomsTabPage
@@ -198,7 +199,7 @@
             this.ChatRoomsTabPage.Location = new System.Drawing.Point(4, 22);
             this.ChatRoomsTabPage.Name = "ChatRoomsTabPage";
             this.ChatRoomsTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.ChatRoomsTabPage.Size = new System.Drawing.Size(616, 415);
+            this.ChatRoomsTabPage.Size = new System.Drawing.Size(776, 535);
             this.ChatRoomsTabPage.TabIndex = 1;
             this.ChatRoomsTabPage.Text = "Chat rooms";
             this.ChatRoomsTabPage.UseVisualStyleBackColor = true;
@@ -219,12 +220,13 @@
             this.NameColumn,
             this.ActionColumn,
             this.StatusColumn,
-            this.ResolutionColumn});
+            this.ResolutionColumn,
+            this.LastUpdateColumn});
             this.ChatRoomsDataGridView.Location = new System.Drawing.Point(0, 28);
             this.ChatRoomsDataGridView.MultiSelect = false;
             this.ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
             this.ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.ChatRoomsDataGridView.Size = new System.Drawing.Size(614, 386);
+            this.ChatRoomsDataGridView.Size = new System.Drawing.Size(774, 506);
             this.ChatRoomsDataGridView.TabIndex = 11;
             this.ChatRoomsDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.ChatRoomsDataGridView_CellValidating);
             this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
@@ -232,14 +234,14 @@
             // 
             // IndexColumn
             // 
-            this.IndexColumn.FillWeight = 45.52008F;
+            this.IndexColumn.FillWeight = 57.46263F;
             this.IndexColumn.HeaderText = "#";
             this.IndexColumn.Name = "IndexColumn";
             this.IndexColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
             // WebsiteColumn
             // 
-            this.WebsiteColumn.FillWeight = 109.6447F;
+            this.WebsiteColumn.FillWeight = 110.095F;
             this.WebsiteColumn.HeaderText = "Website";
             this.WebsiteColumn.Name = "WebsiteColumn";
             this.WebsiteColumn.ReadOnly = true;
@@ -247,7 +249,7 @@
             // 
             // NameColumn
             // 
-            this.NameColumn.FillWeight = 110.1998F;
+            this.NameColumn.FillWeight = 106.1234F;
             this.NameColumn.HeaderText = "Name";
             this.NameColumn.Name = "NameColumn";
             this.NameColumn.ReadOnly = true;
@@ -255,14 +257,15 @@
             // 
             // ActionColumn
             // 
-            this.ActionColumn.FillWeight = 108.9239F;
+            this.ActionColumn.FillWeight = 107.7252F;
             this.ActionColumn.HeaderText = "Action";
+            this.ActionColumn.MaxDropDownItems = 16;
             this.ActionColumn.Name = "ActionColumn";
             this.ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
             // StatusColumn
             // 
-            this.StatusColumn.FillWeight = 113.1455F;
+            this.StatusColumn.FillWeight = 106.692F;
             this.StatusColumn.HeaderText = "Status";
             this.StatusColumn.Name = "StatusColumn";
             this.StatusColumn.ReadOnly = true;
@@ -270,16 +273,25 @@
             // 
             // ResolutionColumn
             // 
-            this.ResolutionColumn.FillWeight = 112.5661F;
+            this.ResolutionColumn.FillWeight = 105.3025F;
             this.ResolutionColumn.HeaderText = "Resolution";
+            this.ResolutionColumn.MaxDropDownItems = 16;
             this.ResolutionColumn.Name = "ResolutionColumn";
             this.ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // LastUpdateColumn
+            // 
+            this.LastUpdateColumn.FillWeight = 106.5989F;
+            this.LastUpdateColumn.HeaderText = "Last update";
+            this.LastUpdateColumn.Name = "LastUpdateColumn";
+            this.LastUpdateColumn.ReadOnly = true;
+            this.LastUpdateColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
             // MinusButton
             // 
             this.MinusButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.MinusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.MinusButton.Location = new System.Drawing.Point(570, 3);
+            this.MinusButton.Location = new System.Drawing.Point(730, 3);
             this.MinusButton.Name = "MinusButton";
             this.MinusButton.Size = new System.Drawing.Size(44, 22);
             this.MinusButton.TabIndex = 8;
@@ -291,7 +303,7 @@
             // 
             this.PlusButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.PlusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.PlusButton.Location = new System.Drawing.Point(524, 3);
+            this.PlusButton.Location = new System.Drawing.Point(684, 3);
             this.PlusButton.Name = "PlusButton";
             this.PlusButton.Size = new System.Drawing.Size(44, 22);
             this.PlusButton.TabIndex = 7;
@@ -307,7 +319,7 @@
             this.URLTextBox.Location = new System.Drawing.Point(0, 4);
             this.URLTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.URLTextBox.Name = "URLTextBox";
-            this.URLTextBox.Size = new System.Drawing.Size(521, 20);
+            this.URLTextBox.Size = new System.Drawing.Size(681, 20);
             this.URLTextBox.TabIndex = 6;
             // 
             // SettingsTabPage
@@ -320,7 +332,7 @@
             this.SettingsTabPage.Controls.Add(this.OutputDirectoryLabel);
             this.SettingsTabPage.Location = new System.Drawing.Point(4, 22);
             this.SettingsTabPage.Name = "SettingsTabPage";
-            this.SettingsTabPage.Size = new System.Drawing.Size(616, 415);
+            this.SettingsTabPage.Size = new System.Drawing.Size(776, 535);
             this.SettingsTabPage.TabIndex = 2;
             this.SettingsTabPage.Text = "Settings";
             this.SettingsTabPage.UseVisualStyleBackColor = true;
@@ -338,7 +350,7 @@
             // 
             this.OutputDirectoryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.OutputDirectoryButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.OutputDirectoryButton.Location = new System.Drawing.Point(570, 28);
+            this.OutputDirectoryButton.Location = new System.Drawing.Point(730, 28);
             this.OutputDirectoryButton.Name = "OutputDirectoryButton";
             this.OutputDirectoryButton.Size = new System.Drawing.Size(44, 22);
             this.OutputDirectoryButton.TabIndex = 30;
@@ -350,7 +362,7 @@
             // 
             this.FFmpegPathButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.FFmpegPathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.FFmpegPathButton.Location = new System.Drawing.Point(570, 3);
+            this.FFmpegPathButton.Location = new System.Drawing.Point(730, 3);
             this.FFmpegPathButton.Name = "FFmpegPathButton";
             this.FFmpegPathButton.Size = new System.Drawing.Size(44, 22);
             this.FFmpegPathButton.TabIndex = 29;
@@ -365,7 +377,7 @@
             this.FFmpegPathTextBox.Location = new System.Drawing.Point(78, 4);
             this.FFmpegPathTextBox.Name = "FFmpegPathTextBox";
             this.FFmpegPathTextBox.ReadOnly = true;
-            this.FFmpegPathTextBox.Size = new System.Drawing.Size(489, 20);
+            this.FFmpegPathTextBox.Size = new System.Drawing.Size(649, 20);
             this.FFmpegPathTextBox.TabIndex = 22;
             // 
             // OutputDirectoryTextBox
@@ -375,7 +387,7 @@
             this.OutputDirectoryTextBox.Location = new System.Drawing.Point(78, 29);
             this.OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
             this.OutputDirectoryTextBox.ReadOnly = true;
-            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(489, 20);
+            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(649, 20);
             this.OutputDirectoryTextBox.TabIndex = 24;
             // 
             // OutputDirectoryLabel
@@ -392,7 +404,7 @@
             this.AboutTabPage.Controls.Add(this.LicenseTextBox);
             this.AboutTabPage.Location = new System.Drawing.Point(4, 22);
             this.AboutTabPage.Name = "AboutTabPage";
-            this.AboutTabPage.Size = new System.Drawing.Size(616, 415);
+            this.AboutTabPage.Size = new System.Drawing.Size(776, 535);
             this.AboutTabPage.TabIndex = 3;
             this.AboutTabPage.Text = "About";
             this.AboutTabPage.UseVisualStyleBackColor = true;
@@ -404,7 +416,7 @@
             this.LicenseTextBox.Location = new System.Drawing.Point(0, 0);
             this.LicenseTextBox.Multiline = true;
             this.LicenseTextBox.Name = "LicenseTextBox";
-            this.LicenseTextBox.Size = new System.Drawing.Size(616, 415);
+            this.LicenseTextBox.Size = new System.Drawing.Size(776, 535);
             this.LicenseTextBox.TabIndex = 2;
             this.LicenseTextBox.Text = resources.GetString("LicenseTextBox.Text");
             // 
@@ -417,10 +429,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(624, 441);
+            this.ClientSize = new System.Drawing.Size(784, 561);
             this.Controls.Add(this.TabControl);
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.MinimumSize = new System.Drawing.Size(640, 480);
+            this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
@@ -472,6 +484,7 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn ActionColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LastUpdateColumn;
     }
 }
 
