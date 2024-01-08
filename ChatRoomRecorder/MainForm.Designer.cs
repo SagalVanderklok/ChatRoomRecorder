@@ -61,7 +61,8 @@
             this.OutputDirectoryLabel = new System.Windows.Forms.Label();
             this.AboutTabPage = new System.Windows.Forms.TabPage();
             this.LicenseTextBox = new System.Windows.Forms.TextBox();
-            this.ChatRoomsTimer = new System.Windows.Forms.Timer(this.components);
+            this.ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(this.components);
+            this.FormCloseTimer = new System.Windows.Forms.Timer(this.components);
             this.TabControl.SuspendLayout();
             this.WebBrowserTabPage.SuspendLayout();
             this.WebViewPanel.SuspendLayout();
@@ -420,10 +421,15 @@
             this.LicenseTextBox.TabIndex = 2;
             this.LicenseTextBox.Text = resources.GetString("LicenseTextBox.Text");
             // 
-            // ChatRoomsTimer
+            // ChatRoomsUpdateTimer
             // 
-            this.ChatRoomsTimer.Interval = 5000;
-            this.ChatRoomsTimer.Tick += new System.EventHandler(this.ChatRoomsTimer_Tick);
+            this.ChatRoomsUpdateTimer.Interval = 5000;
+            this.ChatRoomsUpdateTimer.Tick += new System.EventHandler(this.ChatRoomsUpdateTimer_Tick);
+            // 
+            // FormCloseTimer
+            // 
+            this.FormCloseTimer.Interval = 1000;
+            this.FormCloseTimer.Tick += new System.EventHandler(this.FormCloseTimer_Tick);
             // 
             // MainForm
             // 
@@ -435,7 +441,7 @@
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.TabControl.ResumeLayout(false);
             this.WebBrowserTabPage.ResumeLayout(false);
             this.WebBrowserTabPage.PerformLayout();
@@ -471,7 +477,7 @@
         private System.Windows.Forms.TextBox LicenseTextBox;
         private System.Windows.Forms.Button GoButton;
         private System.Windows.Forms.TextBox AddressTextBox;
-        private System.Windows.Forms.Timer ChatRoomsTimer;
+        private System.Windows.Forms.Timer ChatRoomsUpdateTimer;
         private System.Windows.Forms.Panel WebViewPanel;
         private Microsoft.Web.WebView2.WinForms.WebView2 WebView;
         private System.Windows.Forms.Button BackButton;
@@ -485,6 +491,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn LastUpdateColumn;
+        private System.Windows.Forms.Timer FormCloseTimer;
     }
 }
 

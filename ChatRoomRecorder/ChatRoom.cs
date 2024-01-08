@@ -41,29 +41,6 @@ namespace ChatRoomRecorder
 
     public class ChatRoom : IDisposable
     {
-        public static Tuple<ChatRoomWebsite, string> ParseUrl(string aUrl)
-        {
-            aUrl = aUrl.ToLower();
-            MatchCollection matches = null;
-            if ((matches = Regex.Matches(aUrl, "^https://chaturbate.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(aUrl, "^chaturbate[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
-
-            {
-                return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value);
-            }
-            else if ((matches = Regex.Matches(aUrl, "^https://[^/.]+.bongacams[0-9]*.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(aUrl, "^bongacams[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
-            {
-                return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private static HttpClient _httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
-
         public ChatRoom(string aUrl)
         {
             aUrl = aUrl.ToLower();
@@ -83,173 +60,222 @@ namespace ChatRoomRecorder
             _ffmpegProcess = null;
             _fileName = string.Empty;
             _fileSize = -1;
-            _lastUpdate = DateTime.Now;
+            _lastUpdate = DateTime.MinValue;
             _isUpdating = false;
             _disposingStarted = false;
             _disposingFinished = false;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
             _browser = null;
+            _browserInitialized = false;
+            _timer = new System.Windows.Forms.Timer();
+            _timer.Interval = 250;
+            _timer.Tick += _timer_Tick;
+            _semaphore = new SemaphoreSlim(1, 1);
+            Interlocked.Increment(ref _totalCount);
         }
 
         public void Dispose()
         {
-            if (_disposingStarted) return;
+            try
+            {
+                _semaphore.Wait();
 
-            _disposingStarted = true;
-            _cancellationTokenSource.Cancel();
-            while (_isUpdating)
-            {
-                Thread.Sleep(100);
-            }
-            if (_ffmpegProcess != null)
-            {
-                if (_ffmpegProcess.HasExited == false)
+                if (!_disposingStarted)
                 {
-                    _ffmpegProcess.Kill();
-                    _ffmpegProcess.WaitForExit();
+                    _disposingStarted = true;
+                    _cancellationTokenSource.Cancel();
+                    _timer.Start();
                 }
-                _ffmpegProcess.Close();
             }
-            if (_browser != null)
+            finally
             {
-                _browser.Dispose();
+                _semaphore.Release();
             }
-            _disposingFinished = true;
+        }
+
+        private void _timer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                _semaphore.Wait();
+
+                if (!_isUpdating && !_disposingFinished && _timer.Enabled)
+                {
+                    _timer.Stop();
+
+                    if (_ffmpegProcess != null)
+                    {
+                        if (_ffmpegProcess.HasExited == false)
+                        {
+                            _ffmpegProcess.Kill();
+                            _ffmpegProcess.WaitForExit();
+                        }
+                        _ffmpegProcess.Close();
+                    }
+
+                    if (_browserInitialized)
+                    {
+                        _browser.Dispose();
+                    }
+
+                    _disposingFinished = true;
+                    Interlocked.Decrement(ref _totalCount);
+                }
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         public void Update()
         {
-            if (_disposingStarted) throw new InvalidOperationException();
-
-            if (_isUpdating) return;
-
-            if ((DateTime.Now - _lastUpdate).TotalSeconds < 15) return;
-
-            _isUpdating = true;
-            _lastUpdate = DateTime.Now;
-
-            //we're recording and that's what we want - return, otherwise - continue
-
-            if (_action == ChatRoomAction.Record && _status == ChatRoomStatus.Record && _ffmpegProcess != null && _ffmpegProcess.HasExited == false)
+            try
             {
-                try
+                _semaphore.Wait();
+
+                if (_disposingStarted || _isUpdating || (DateTime.Now - _lastUpdate).TotalSeconds < 60) return;
+
+                _isUpdating = true;
+                _lastUpdate = DateTime.Now;
+
+                //we're recording and that's what we want - return, otherwise - continue
+
+                if (_action == ChatRoomAction.Record && _status == ChatRoomStatus.Record && _ffmpegProcess != null && _ffmpegProcess.HasExited == false)
                 {
-                    FileInfo fi = new FileInfo(_fileName);
-                    if (fi.Length > _fileSize)
+                    try
                     {
-                        _fileSize = fi.Length;
-                        _isUpdating = false;
-                        return;
+                        FileInfo fi = new FileInfo(_fileName);
+                        if (fi.Length > _fileSize)
+                        {
+                            _fileSize = fi.Length;
+                            _isUpdating = false;
+                            return;
+                        }
                     }
+                    catch (Exception) { }
                 }
-                catch (Exception) { }
-            }
 
-            //stop any recording (if we need to restart it, we'll do it later)
+                //stop any recording (if we need to restart it, we'll do it later)
 
-            if (_ffmpegProcess != null)
-            {
-                if (_ffmpegProcess.HasExited == false)
+                if (_ffmpegProcess != null)
                 {
-                    _ffmpegProcess.Kill();
-                    _ffmpegProcess.WaitForExit();
+                    if (_ffmpegProcess.HasExited == false)
+                    {
+                        _ffmpegProcess.Kill();
+                        _ffmpegProcess.WaitForExit();
+                    }
+                    _ffmpegProcess.Close();
+                    _ffmpegProcess = null;
                 }
-                _ffmpegProcess.Close();
-                _ffmpegProcess = null;
-            }
-            _fileName = string.Empty;
-            _fileSize = -1;
+                _fileName = string.Empty;
+                _fileSize = -1;
 
-            //we don't want to monitor or record, so clear data and return
+                //we don't want to monitor or record, so clear data and return
 
-            if (_action == ChatRoomAction.None)
-            {
-                _status = ChatRoomStatus.Unknown;
-                _playlistUrl = String.Empty;
-                _availableResolutions.Clear();
-                if (_browser != null)
+                if (_action == ChatRoomAction.None)
                 {
-                    _browser.Dispose();
-                    _browser = null;
+                    _status = ChatRoomStatus.Unknown;
+                    _playlistUrl = String.Empty;
+                    _availableResolutions.Clear();
+                    if (_browserInitialized)
+                    {
+                        _browser.Dispose(); 
+                        _browser = null;
+                        _browserInitialized = false;
+                    }
+                    _isUpdating = false;
+                    return;
                 }
-                _isUpdating = false;
-                return;
+
+                //initialize the browser, if it's not ready
+
+                if (!_browserInitialized)
+                {
+                    _browser = new WebView2();
+                    _browser.CoreWebView2InitializationCompleted += _browser_CoreWebView2InitializationCompleted;
+                    _browser.Source = new Uri("about:blank", UriKind.Absolute);
+                    return;
+                }
+
+                //update room's info
+
+                switch (_website)
+                {
+                    case ChatRoomWebsite.Chaturbate:
+                        UpdateStatusChaturbate();
+                        break;
+                    case ChatRoomWebsite.BongaCams:
+                        UpdateStatusBongaCams();
+                        break;
+                }
             }
-
-            //update room's info
-
-            if (_browser == null)
+            finally
             {
-                _browser = new WebView2();
-                _browser.CoreWebView2InitializationCompleted += _browser_CoreWebView2InitializationCompleted;
-                _browser.Source = new Uri("about:blank", UriKind.Absolute);
-            }
-
-            switch (_website)
-            {
-                case ChatRoomWebsite.Chaturbate:
-                    UpdateStatusChaturbate();
-                    break;
-                case ChatRoomWebsite.BongaCams:
-                    UpdateStatusBongaCams();
-                    break;
+                _semaphore.Release();
             }
         }
 
         private void _browser_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
-            switch (_website)
+            try
             {
-                case ChatRoomWebsite.Chaturbate:
-                    _browser.CoreWebView2.WebResourceResponseReceived += Chaturbate_WebResourceResponseReceived;
-                    break;
-                case ChatRoomWebsite.BongaCams:
-                    _browser.CoreWebView2.WebResourceResponseReceived += BongaCams_WebResourceResponseReceived;
-                    break;
+                _semaphore.Wait();
+
+                switch (_website)
+                {
+                    case ChatRoomWebsite.Chaturbate:
+                        _browser.CoreWebView2.WebResourceResponseReceived += Chaturbate_WebResourceResponseReceived;
+                        break;
+                    case ChatRoomWebsite.BongaCams:
+                        _browser.CoreWebView2.WebResourceResponseReceived += BongaCams_WebResourceResponseReceived;
+                        break;
+                }
+                _browser.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
+                _browserInitialized = true;
+                _isUpdating = false;
             }
-            _browser.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
-            _isUpdating = false;
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         private void UpdateStatusChaturbate()
         {
-            if (_browser != null && _browser.CoreWebView2 != null)
-            {
-                string postData = "room_slug=" + _name;
-                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                    "https://chaturbate.com/get_edge_hls_url_ajax/",
-                    "POST",
-                    new MemoryStream(Encoding.UTF8.GetBytes(postData)),
-                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
-            }
-            else
-            {
-                _isUpdating = false;
-            }
+            string postData = "room_slug=" + _name;
+            CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                "https://chaturbate.com/get_edge_hls_url_ajax/",
+                "POST",
+                new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+            _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
         }
 
         private void UpdateStatusBongaCams()
         {
-            if (_browser != null && _browser.CoreWebView2 != null)
-            {
-                string postData = "model_search[display_name]=" + _name;
-                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                    "https://bongacams.com/tools/listing_v3.php",
-                    "POST",
-                    new MemoryStream(Encoding.UTF8.GetBytes(postData)),
-                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
-            }
-            else
-            {
-                _isUpdating = false;
-            }
+            string postData = "model_search[display_name]=" + _name;
+            CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                "https://bongacams.com/tools/listing_v3.php",
+                "POST",
+                new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+            _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
         }
 
         private async void Chaturbate_WebResourceResponseReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
+            try
+            {
+                await _semaphore.WaitAsync();
+                if (!_isUpdating) return;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+
             ChatRoomStatus status = ChatRoomStatus.Unknown;
             string playlistUrl = null;
             List<string> availableResolutions = null;
@@ -336,11 +362,29 @@ namespace ChatRoomRecorder
 
             Record();
 
-            _isUpdating = false;
+            try
+            {
+                await _semaphore.WaitAsync();
+                _isUpdating = false;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         private async void BongaCams_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
+            try
+            {
+                await _semaphore.WaitAsync();
+                if (!_isUpdating) return;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+
             try
             {
                 StreamReader reader = new StreamReader(await e.Response.GetContentAsync());
@@ -413,7 +457,15 @@ namespace ChatRoomRecorder
 
             Record();
 
-            _isUpdating = false;
+            try
+            {
+                await _semaphore.WaitAsync();
+                _isUpdating = false;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         private void Record()
@@ -445,14 +497,49 @@ namespace ChatRoomRecorder
 
         private void CoreWebView2_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            if (!e.IsSuccess) _isUpdating = false;
+            try
+            {
+                _semaphore.Wait();
+
+                if (_isUpdating && !e.IsSuccess)
+                {
+                    _status = ChatRoomStatus.Error;
+                    _playlistUrl = String.Empty;
+                    _availableResolutions.Clear();
+                    _isUpdating = false;
+                }
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public static Tuple<ChatRoomWebsite, string> ParseUrl(string aUrl)
+        {
+            aUrl = aUrl.ToLower();
+            MatchCollection matches = null;
+            if ((matches = Regex.Matches(aUrl, "^https://chaturbate.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(aUrl, "^chaturbate[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+
+            {
+                return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value);
+            }
+            else if ((matches = Regex.Matches(aUrl, "^https://[^/.]+.bongacams[0-9]*.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(aUrl, "^bongacams[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+            {
+                return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public string Name
         {
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _name;
             }
         }
@@ -461,7 +548,6 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _website;
             }
         }
@@ -470,7 +556,6 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _status;
             }
         }
@@ -479,12 +564,10 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 _action = value;
             }
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _action;
             }
         }
@@ -493,7 +576,6 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _roomUrl;
             }
         }
@@ -502,7 +584,6 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _playlistUrl;
             }
         }
@@ -511,7 +592,6 @@ namespace ChatRoomRecorder
         {
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _availableResolutions.ToArray();
             }
         }
@@ -520,13 +600,13 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposingStarted) throw new InvalidOperationException();
-                if (value == null) throw new ArgumentException();
-                _preferredResolution = value;
+                if (value == null)
+                    throw new ArgumentException();
+                else
+                    _preferredResolution = value;
             }
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _preferredResolution;
             }
         }
@@ -535,13 +615,13 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposingStarted) throw new InvalidOperationException();
-                if (value == null) throw new ArgumentException();
-                _outputDirectory = value;
+                if (value == null)
+                    throw new ArgumentException();
+                else
+                    _outputDirectory = value;
             }
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _outputDirectory;
             }
         }
@@ -550,13 +630,13 @@ namespace ChatRoomRecorder
         {
             set
             {
-                if (_disposingStarted) throw new InvalidOperationException();
-                if (value == null) throw new ArgumentException();
-                _ffmpegPath = value;
+                if (value == null)
+                    throw new ArgumentException();
+                else
+                    _ffmpegPath = value;
             }
             get
             {
-                if (_disposingStarted) throw new InvalidOperationException();
                 return _ffmpegPath;
             }
         }
@@ -569,11 +649,27 @@ namespace ChatRoomRecorder
             }
         }
 
-        public bool IsDisposed
+        public bool DisposingStarted
+        {
+            get
+            {
+                return _disposingStarted;
+            }
+        }
+
+        public bool DisposingFinished
         {
             get
             {
                 return _disposingFinished;
+            }
+        }
+
+        public static int TotalCount
+        {
+            get
+            {
+                return _totalCount;
             }
         }
 
@@ -597,5 +693,11 @@ namespace ChatRoomRecorder
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
         private WebView2 _browser;
+        private bool _browserInitialized;
+        private System.Windows.Forms.Timer _timer;
+        private SemaphoreSlim _semaphore;
+
+        private static HttpClient _httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
+        private static int _totalCount = 0;
     }
 }
