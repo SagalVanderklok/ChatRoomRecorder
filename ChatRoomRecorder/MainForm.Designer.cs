@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.DataGridViewUpdateTimer = new System.Windows.Forms.Timer(this.components);
             this.TabControl = new System.Windows.Forms.TabControl();
@@ -214,6 +217,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ChatRoomsDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.IndexColumn,
@@ -223,14 +234,31 @@
             this.StatusColumn,
             this.ResolutionColumn,
             this.LastUpdateColumn});
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
             this.ChatRoomsDataGridView.Location = new System.Drawing.Point(0, 28);
             this.ChatRoomsDataGridView.MultiSelect = false;
             this.ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.ChatRoomsDataGridView.Size = new System.Drawing.Size(774, 506);
             this.ChatRoomsDataGridView.TabIndex = 11;
-            this.ChatRoomsDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.ChatRoomsDataGridView_CellValidating);
-            this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
+            this.ChatRoomsDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.ChatRoomsDataGridView_CellBeginEdit);
+            this.ChatRoomsDataGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellEndEdit);
+            this.ChatRoomsDataGridView.CellLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellLeave);
             this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
             // 
             // IndexColumn
@@ -322,6 +350,7 @@
             this.URLTextBox.Name = "URLTextBox";
             this.URLTextBox.Size = new System.Drawing.Size(681, 20);
             this.URLTextBox.TabIndex = 6;
+            this.URLTextBox.TextChanged += new System.EventHandler(this.URLTextBox_TextChanged);
             // 
             // SettingsTabPage
             // 
@@ -341,7 +370,7 @@
             // FFmpegPathLabel
             // 
             this.FFmpegPathLabel.AutoSize = true;
-            this.FFmpegPathLabel.Location = new System.Drawing.Point(-3, 8);
+            this.FFmpegPathLabel.Location = new System.Drawing.Point(-3, 31);
             this.FFmpegPathLabel.Name = "FFmpegPathLabel";
             this.FFmpegPathLabel.Size = new System.Drawing.Size(69, 13);
             this.FFmpegPathLabel.TabIndex = 32;
@@ -351,7 +380,7 @@
             // 
             this.OutputDirectoryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.OutputDirectoryButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.OutputDirectoryButton.Location = new System.Drawing.Point(730, 28);
+            this.OutputDirectoryButton.Location = new System.Drawing.Point(730, 3);
             this.OutputDirectoryButton.Name = "OutputDirectoryButton";
             this.OutputDirectoryButton.Size = new System.Drawing.Size(44, 22);
             this.OutputDirectoryButton.TabIndex = 30;
@@ -363,7 +392,7 @@
             // 
             this.FFmpegPathButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.FFmpegPathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.FFmpegPathButton.Location = new System.Drawing.Point(730, 3);
+            this.FFmpegPathButton.Location = new System.Drawing.Point(730, 28);
             this.FFmpegPathButton.Name = "FFmpegPathButton";
             this.FFmpegPathButton.Size = new System.Drawing.Size(44, 22);
             this.FFmpegPathButton.TabIndex = 29;
@@ -375,7 +404,7 @@
             // 
             this.FFmpegPathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.FFmpegPathTextBox.Location = new System.Drawing.Point(78, 4);
+            this.FFmpegPathTextBox.Location = new System.Drawing.Point(78, 29);
             this.FFmpegPathTextBox.Name = "FFmpegPathTextBox";
             this.FFmpegPathTextBox.ReadOnly = true;
             this.FFmpegPathTextBox.Size = new System.Drawing.Size(649, 20);
@@ -385,7 +414,7 @@
             // 
             this.OutputDirectoryTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(78, 29);
+            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(78, 4);
             this.OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
             this.OutputDirectoryTextBox.ReadOnly = true;
             this.OutputDirectoryTextBox.Size = new System.Drawing.Size(649, 20);
@@ -394,7 +423,7 @@
             // OutputDirectoryLabel
             // 
             this.OutputDirectoryLabel.AutoSize = true;
-            this.OutputDirectoryLabel.Location = new System.Drawing.Point(-3, 31);
+            this.OutputDirectoryLabel.Location = new System.Drawing.Point(-3, 8);
             this.OutputDirectoryLabel.Name = "OutputDirectoryLabel";
             this.OutputDirectoryLabel.Size = new System.Drawing.Size(82, 13);
             this.OutputDirectoryLabel.TabIndex = 21;

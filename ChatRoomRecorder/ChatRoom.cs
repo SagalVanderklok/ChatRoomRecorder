@@ -41,17 +41,16 @@ namespace ChatRoomRecorder
 
     public class ChatRoom : IDisposable
     {
-        public ChatRoom(string aUrl)
+        public ChatRoom(string url)
         {
-            aUrl = aUrl.ToLower();
-            Tuple<ChatRoomWebsite, string> parsed_url = ParseUrl(aUrl);
-            if (parsed_url == null) throw new ArgumentException();
+            Tuple<ChatRoomWebsite, string, string> parsedUrl = ParseUrl(url);
+            if (parsedUrl == null) throw new ArgumentException();
 
-            _website = parsed_url.Item1;
-            _name = parsed_url.Item2;
+            _website = parsedUrl.Item1;
+            _name = parsedUrl.Item2;
             _status = ChatRoomStatus.Unknown;
             _action = ChatRoomAction.None;
-            _roomUrl = aUrl;
+            _roomUrl = parsedUrl.Item3;
             _playlistUrl = String.Empty;
             _availableResolutions = new List<string>();
             _preferredResolution = String.Empty;
@@ -69,7 +68,7 @@ namespace ChatRoomRecorder
             _browser = null;
             _browserInitialized = false;
             _timer = new System.Windows.Forms.Timer();
-            _timer.Interval = 250;
+            _timer.Interval = 1000;
             _timer.Tick += _timer_Tick;
             _semaphore = new SemaphoreSlim(1, 1);
             Interlocked.Increment(ref _totalCount);
@@ -96,6 +95,8 @@ namespace ChatRoomRecorder
 
         private void _timer_Tick(object sender, EventArgs e)
         {
+            if (_semaphore.CurrentCount == 0) return;
+
             try
             {
                 _semaphore.Wait();
@@ -515,20 +516,27 @@ namespace ChatRoomRecorder
             }
         }
 
-        public static Tuple<ChatRoomWebsite, string> ParseUrl(string aUrl)
+        public static Tuple<ChatRoomWebsite, string, string> ParseUrl(string url)
         {
-            aUrl = aUrl.ToLower();
+            if (url == null || url.Length == 0) return null;
+
+            url = url.ToLower();
+            if (url[url.Length - 1] != '/')
+            {
+                url = url + '/';
+            }
+            
             MatchCollection matches = null;
-            if ((matches = Regex.Matches(aUrl, "^https://chaturbate.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(aUrl, "^chaturbate[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+            if ((matches = Regex.Matches(url, @"^https://chaturbate.com/([^/]+)/$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(url, @"^chaturbate[ ]+([^ /]+).*$", RegexOptions.IgnoreCase)).Count > 0)
 
             {
-                return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value);
+                return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value, string.Format("https://chaturbate.com/{0}/", matches[0].Groups[1].Value));
             }
-            else if ((matches = Regex.Matches(aUrl, "^https://[^/.]+.bongacams[0-9]*.com/([^/]+)/?$", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(aUrl, "^bongacams[ ]([^ ]+)[ ]?.*$", RegexOptions.IgnoreCase)).Count > 0)
+            else if ((matches = Regex.Matches(url, @"^https://(?:[^/.]+.)?bongacams[0-9]*.com/([^/]+(?=#!/$)|[^/]+(?=/$))", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(url, @"^bongacams[ ]+([^ /]+).*$", RegexOptions.IgnoreCase)).Count > 0)
             {
-                return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value);
+                return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value, string.Format("https://bongacams.com/{0}/", matches[0].Groups[1].Value));
             }
             else
             {
