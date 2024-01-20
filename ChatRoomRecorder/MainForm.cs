@@ -28,13 +28,13 @@ namespace ChatRoomRecorder
                 "\r\n\r\n" +
                 LicenseTextBox.Text;
 
-            ChatRoomsDataGridView.Columns[_indexColumnIndex].ValueType = typeof(int);
-            ChatRoomsDataGridView.Columns[_websiteColumnIndex].ValueType = typeof(ChatRoomWebsite);
-            ChatRoomsDataGridView.Columns[_nameColumnIndex].ValueType = typeof(string);
-            ChatRoomsDataGridView.Columns[_actionColumnIndex].ValueType = typeof(ChatRoomAction);
-            ChatRoomsDataGridView.Columns[_statusColumnIndex].ValueType = typeof(ChatRoomStatus);
-            ChatRoomsDataGridView.Columns[_resolutionColumnIndex].ValueType = typeof(string);
-            ChatRoomsDataGridView.Columns[_lastUpdateColumnIndex].ValueType = typeof(string);
+            ChatRoomsDataGridView.Columns[c_indexColumnIndex].ValueType = typeof(int);
+            ChatRoomsDataGridView.Columns[c_websiteColumnIndex].ValueType = typeof(ChatRoomWebsite);
+            ChatRoomsDataGridView.Columns[c_nameColumnIndex].ValueType = typeof(string);
+            ChatRoomsDataGridView.Columns[c_actionColumnIndex].ValueType = typeof(ChatRoomAction);
+            ChatRoomsDataGridView.Columns[c_statusColumnIndex].ValueType = typeof(ChatRoomStatus);
+            ChatRoomsDataGridView.Columns[c_resolutionColumnIndex].ValueType = typeof(string);
+            ChatRoomsDataGridView.Columns[c_lastUpdateColumnIndex].ValueType = typeof(string);
 
             ReadConfig();
 
@@ -63,7 +63,7 @@ namespace ChatRoomRecorder
                     DataGridViewUpdateTimer.Stop();
                     FormCloseTimer.Start();
 
-                    this.Enabled = false;
+                    TabControl.Enabled = false;
                     e.Cancel = true;
                 }
                 else
@@ -129,8 +129,8 @@ namespace ChatRoomRecorder
                         if (ChatRoomsDataGridView.IsCurrentCellInEditMode && ChatRoomsDataGridView.SelectedRows.Count > 0 && ChatRoomsDataGridView.SelectedRows[0] == row) continue;
 
                         ChatRoom chatRoom = (ChatRoom)row.Tag;
-                        row.Cells[_statusColumnIndex].Value = chatRoom.Status;
-                        DataGridViewComboBoxCell resolutionCell = (DataGridViewComboBoxCell)row.Cells[_resolutionColumnIndex];
+                        row.Cells[c_statusColumnIndex].Value = chatRoom.Status;
+                        DataGridViewComboBoxCell resolutionCell = (DataGridViewComboBoxCell)row.Cells[c_resolutionColumnIndex];
                         if (chatRoom.AvailableResolutions.Length > 0)
                         {
                             resolutionCell.DataSource = (new string[] { string.Empty }).Concat(chatRoom.AvailableResolutions).ToArray();
@@ -146,7 +146,7 @@ namespace ChatRoomRecorder
                             resolutionCell.DataSource = new string[] { string.Empty };
                             resolutionCell.Value = string.Empty;
                         }
-                        row.Cells[_lastUpdateColumnIndex].Value = chatRoom.LastUpdate.ToString();
+                        row.Cells[c_lastUpdateColumnIndex].Value = chatRoom.LastUpdate.ToString();
                     }
                 }
 
@@ -177,7 +177,7 @@ namespace ChatRoomRecorder
             }
             else
             {
-                MessageBox.Show("The URL is incorrect! Only http://* and https://* URLs are supported!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(c_unsupportedUrlMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -207,8 +207,8 @@ namespace ChatRoomRecorder
                 foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
                 {
                     ChatRoom chatRoom = (ChatRoom)row.Tag;
-                    row.Visible = 
-                        chatRoom.RoomUrl.Contains(URLTextBox.Text.ToLower()) || 
+                    row.Visible =
+                        chatRoom.RoomUrl.Contains(URLTextBox.Text.ToLower()) ||
                         parsedUrl != null && chatRoom.Website == parsedUrl.Item1 && chatRoom.Name.Contains(parsedUrl.Item2);
                     if (row.Visible && firstVisibleRow == null)
                     {
@@ -218,7 +218,7 @@ namespace ChatRoomRecorder
 
                 if (firstVisibleRow != null)
                 {
-                    ChatRoomsDataGridView.CurrentCell = firstVisibleRow.Cells[_indexColumnIndex];
+                    ChatRoomsDataGridView.CurrentCell = firstVisibleRow.Cells[c_indexColumnIndex];
                 }
             }
         }
@@ -235,7 +235,7 @@ namespace ChatRoomRecorder
                 if (parsedUrl == null)
                 {
                     error = true;
-                    MessageBox.Show("The URL is incorrect! Supported websites are Chaturbate and BongaCams!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(c_unsupportedWebSiteMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 for (int i = 0; i < ChatRoomsDataGridView.Rows.Count && !error; i++)
@@ -244,7 +244,7 @@ namespace ChatRoomRecorder
                     if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
                     {
                         error = true;
-                        MessageBox.Show("The chat room is already in the list!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(c_duplicateChatRoomMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
 
@@ -275,8 +275,8 @@ namespace ChatRoomRecorder
 
                     for (int i = 0; i < ChatRoomsDataGridView.Rows.Count; i++)
                     {
-                        DataGridViewCell curCell = ChatRoomsDataGridView.Rows[i].Cells[_indexColumnIndex];
-                        DataGridViewCell delCell = row.Cells[_indexColumnIndex];
+                        DataGridViewCell curCell = ChatRoomsDataGridView.Rows[i].Cells[c_indexColumnIndex];
+                        DataGridViewCell delCell = row.Cells[c_indexColumnIndex];
                         if ((int)curCell.Value > (int)delCell.Value)
                         {
                             curCell.Value = (int)curCell.Value - 1;
@@ -307,14 +307,14 @@ namespace ChatRoomRecorder
                     {
                         case 0:  //Index
                             int newIndex;
-                            int oldIndex = (int)row.Cells[_indexColumnIndex].Value;
+                            int oldIndex = (int)row.Cells[c_indexColumnIndex].Value;
                             if (int.TryParse((string)e.FormattedValue, out newIndex) && (newIndex >= 1) && (newIndex <= ChatRoomsDataGridView.Rows.Count))
                             {
                                 if (newIndex > oldIndex)
                                 {
                                     foreach (DataGridViewRow curRow in ChatRoomsDataGridView.Rows)
                                     {
-                                        DataGridViewCell curCell = curRow.Cells[_indexColumnIndex];
+                                        DataGridViewCell curCell = curRow.Cells[c_indexColumnIndex];
                                         if ((int)curCell.Value > oldIndex && (int)curCell.Value <= newIndex)
                                         {
                                             curCell.Value = (int)curCell.Value - 1;
@@ -325,7 +325,7 @@ namespace ChatRoomRecorder
                                 {
                                     foreach (DataGridViewRow curRow in ChatRoomsDataGridView.Rows)
                                     {
-                                        DataGridViewCell curCell = curRow.Cells[_indexColumnIndex];
+                                        DataGridViewCell curCell = curRow.Cells[c_indexColumnIndex];
                                         if ((int)curCell.Value >= newIndex && (int)curCell.Value < oldIndex)
                                         {
                                             curCell.Value = (int)curCell.Value + 1;
@@ -368,27 +368,27 @@ namespace ChatRoomRecorder
             {
                 DataGridViewColumn newColumn = ChatRoomsDataGridView.Columns[e.ColumnIndex];
                 DataGridViewColumn oldColumn = ChatRoomsDataGridView.SortedColumn;
-                if (newColumn == oldColumn)
+
+                if (newColumn.HeaderCell.SortGlyphDirection == SortOrder.Ascending)
                 {
-                    if (ChatRoomsDataGridView.SortOrder == SortOrder.Descending)
-                    {
-                        ChatRoomsDataGridView.Sort(oldColumn, ListSortDirection.Ascending);
-                        oldColumn.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
-                    }
-                    else
-                    {
-                        ChatRoomsDataGridView.Sort(oldColumn, ListSortDirection.Descending);
-                        oldColumn.HeaderCell.SortGlyphDirection = SortOrder.Descending;
-                    }
+                    newColumn.HeaderCell.SortGlyphDirection = SortOrder.Descending;
+                    ChatRoomsDataGridView.Sort(newColumn, ListSortDirection.Descending);
                 }
                 else
                 {
-                    ChatRoomsDataGridView.Sort(newColumn, ListSortDirection.Ascending);
                     newColumn.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
+                    ChatRoomsDataGridView.Sort(newColumn, ListSortDirection.Ascending);
+                }
+
+                if (newColumn != oldColumn)
+                {
                     oldColumn.HeaderCell.SortGlyphDirection = SortOrder.None;
                 }
 
-                SortDataGridView();
+                if (ChatRoomsDataGridView.CurrentCell != null && ChatRoomsDataGridView.CurrentCell.Visible && !ChatRoomsDataGridView.CurrentCell.Displayed)
+                {
+                    ChatRoomsDataGridView.FirstDisplayedCell = ChatRoomsDataGridView.CurrentCell;
+                }
 
                 WriteConfig();
             }
@@ -447,7 +447,7 @@ namespace ChatRoomRecorder
 
         private void FFmpegPathButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog() { Multiselect = false, Filter = "ffmpeg.exe | ffmpeg.exe" };
+            OpenFileDialog ofd = new OpenFileDialog() { Multiselect = false, Filter = string.Format("{0}|{0}", c_ffmpegBinaryName) };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 lock (_chatRoomsDataGridViewLock)
@@ -482,39 +482,22 @@ namespace ChatRoomRecorder
             DataGridViewRow row = new DataGridViewRow();
             row.CreateCells(ChatRoomsDataGridView);
             row.Tag = chatRoom;
-            row.Cells[_indexColumnIndex].Value = index;
-            row.Cells[_websiteColumnIndex].Value = chatRoom.Website;
-            row.Cells[_nameColumnIndex].Value = chatRoom.Name;
-            DataGridViewComboBoxCell actionCell = (DataGridViewComboBoxCell)row.Cells[_actionColumnIndex];
+            row.Cells[c_indexColumnIndex].Value = index;
+            row.Cells[c_websiteColumnIndex].Value = chatRoom.Website;
+            row.Cells[c_nameColumnIndex].Value = chatRoom.Name;
+            DataGridViewComboBoxCell actionCell = (DataGridViewComboBoxCell)row.Cells[c_actionColumnIndex];
             actionCell.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
             actionCell.Value = chatRoom.Action;
-            row.Cells[_statusColumnIndex].Value = chatRoom.Status;
-            DataGridViewComboBoxCell resolutionCell = (DataGridViewComboBoxCell)row.Cells[_resolutionColumnIndex];
+            row.Cells[c_statusColumnIndex].Value = chatRoom.Status;
+            DataGridViewComboBoxCell resolutionCell = (DataGridViewComboBoxCell)row.Cells[c_resolutionColumnIndex];
             resolutionCell.DataSource = new string[] { string.Empty };
             resolutionCell.Value = string.Empty;
-            row.Cells[_lastUpdateColumnIndex].Value = chatRoom.LastUpdate.ToString();
+            row.Cells[c_lastUpdateColumnIndex].Value = chatRoom.LastUpdate.ToString();
             ChatRoomsDataGridView.Rows.Add(row);
 
             if (current)
             {
-                ChatRoomsDataGridView.CurrentCell = row.Cells[_indexColumnIndex];
-            }
-        }
-
-        private void SortDataGridView()
-        {
-            if (ChatRoomsDataGridView.SortOrder == SortOrder.Ascending)
-            {
-                ChatRoomsDataGridView.Sort(ChatRoomsDataGridView.SortedColumn, ListSortDirection.Ascending);
-            }
-            else
-            {
-                ChatRoomsDataGridView.Sort(ChatRoomsDataGridView.SortedColumn, ListSortDirection.Descending);
-            }
-
-            if (ChatRoomsDataGridView.CurrentCell != null && ChatRoomsDataGridView.CurrentCell.Visible && !ChatRoomsDataGridView.CurrentCell.Displayed)
-            {
-                ChatRoomsDataGridView.FirstDisplayedCell = ChatRoomsDataGridView.CurrentCell;
+                ChatRoomsDataGridView.CurrentCell = row.Cells[c_indexColumnIndex];
             }
         }
 
@@ -522,31 +505,51 @@ namespace ChatRoomRecorder
         {
             try
             {
-                JsonNode rootNode = JsonNode.Parse(File.ReadAllText(_configDir + Path.DirectorySeparatorChar + _configFile));
+                JsonNode rootNode = JsonNode.Parse(File.ReadAllText(_configDir + Path.DirectorySeparatorChar + c_configFileName));
 
-                OutputDirectoryTextBox.Text = (string)rootNode["OutputDirectory"];
-                FFmpegPathTextBox.Text = (string)rootNode["FFmpegPath"];
+                if (rootNode[c_outputDirectoryJsonItemName] == null ||
+                    rootNode[c_ffmpegPathJsonItemName] == null ||
+                    rootNode[c_sortColumnJsonItemName] == null ||
+                    rootNode[c_sortDirectionJsonItemName] == null ||
+                    rootNode[c_chatRoomsJsonItemName] ==null)
+                {
+                    throw new ArgumentException();
+                }
 
-                JsonArray arrayNode = (JsonArray)rootNode["ChatRooms"];
+                OutputDirectoryTextBox.Text = (string)rootNode[c_outputDirectoryJsonItemName];
+                FFmpegPathTextBox.Text = (string)rootNode[c_ffmpegPathJsonItemName];
+                DataGridViewColumn sortColumn = ChatRoomsDataGridView.Columns[(string)rootNode[c_sortColumnJsonItemName]];
+                sortColumn.HeaderCell.SortGlyphDirection = (SortOrder)Enum.Parse(typeof(SortOrder), (string)rootNode[c_sortDirectionJsonItemName]);
+
+                JsonArray arrayNode = (JsonArray)rootNode[c_chatRoomsJsonItemName];
                 for (int i = 0; i < arrayNode.Count; i++)
                 {
                     JsonNode chatRoomNode = arrayNode[i];
-                    ChatRoom chatRoom = new ChatRoom((string)chatRoomNode["RoomUrl"]);
-                    chatRoom.Action = (ChatRoomAction)Enum.Parse(typeof(ChatRoomAction), (string)chatRoomNode["Action"]);
-                    chatRoom.PreferredResolution = (string)chatRoomNode["PreferredResolution"];
-                    chatRoom.OutputDirectory = (string)rootNode["OutputDirectory"];
-                    chatRoom.FFmpegPath = (string)rootNode["FFmpegPath"];
+                    
+                    if (chatRoomNode[c_roomUrlJsonItemName] == null ||
+                        chatRoomNode[c_actionJsonItemName] == null ||
+                        chatRoomNode[c_preferredResolutionJsonItemName] == null)
+                    {
+                        throw new ArgumentException();
+                    }
+                    
+                    ChatRoom chatRoom = new ChatRoom((string)chatRoomNode[c_roomUrlJsonItemName]);
+                    chatRoom.Action = (ChatRoomAction)Enum.Parse(typeof(ChatRoomAction), (string)chatRoomNode[c_actionJsonItemName]);
+                    chatRoom.PreferredResolution = (string)chatRoomNode[c_preferredResolutionJsonItemName];
+                    chatRoom.OutputDirectory = (string)rootNode[c_outputDirectoryJsonItemName];
+                    chatRoom.FFmpegPath = (string)rootNode[c_ffmpegPathJsonItemName];
+                    
                     AddDataGridViewRow(chatRoom, i + 1, false);
                 }
 
-                DataGridViewColumn sortColumn = ChatRoomsDataGridView.Columns[(string)rootNode["SortColumn"]];
-                ChatRoomsDataGridView.Sort(sortColumn, (ListSortDirection)Enum.Parse(typeof(ListSortDirection), (string)rootNode["SortDirection"]));
-                sortColumn.HeaderCell.SortGlyphDirection = (SortOrder)Enum.Parse(typeof(SortOrder), (string)rootNode["SortDirection"]);
+                ChatRoomsDataGridView.Sort(sortColumn, (ListSortDirection)Enum.Parse(typeof(ListSortDirection), (string)rootNode[c_sortDirectionJsonItemName]));
             }
             catch (Exception)
             {
                 OutputDirectoryTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                FFmpegPathTextBox.Text = (new FileInfo(Process.GetCurrentProcess().MainModule.FileName)).Directory.FullName + Path.DirectorySeparatorChar + "ffmpeg.exe";
+                FFmpegPathTextBox.Text = (new FileInfo(Process.GetCurrentProcess().MainModule.FileName)).Directory.FullName + Path.DirectorySeparatorChar + c_ffmpegBinaryName;
+                DataGridViewColumn sortColumn = ChatRoomsDataGridView.Columns[c_indexColumnIndex];
+                sortColumn.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
 
                 foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
                 {
@@ -557,69 +560,70 @@ namespace ChatRoomRecorder
                 }
                 ChatRoomsDataGridView.Rows.Clear();
 
-                DataGridViewColumn sortColumn = ChatRoomsDataGridView.Columns[_indexColumnIndex];
                 ChatRoomsDataGridView.Sort(sortColumn, ListSortDirection.Ascending);
-                sortColumn.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
             }
         }
 
         private void WriteConfig()
         {
-            bool config_saved = true;
-            FileStream fs = null;
             try
             {
                 Directory.CreateDirectory(_configDir);
-                fs = new FileStream(_configDir + Path.DirectorySeparatorChar + _configFile, FileMode.Create);
-                Utf8JsonWriter writer = new Utf8JsonWriter(fs);
-                writer.WriteStartObject();
-                writer.WriteString("SortColumn", ChatRoomsDataGridView.SortedColumn.Name);
-                writer.WriteString("SortDirection", ChatRoomsDataGridView.SortOrder.ToString());
-                writer.WriteString("OutputDirectory", OutputDirectoryTextBox.Text);
-                writer.WriteString("FFmpegPath", FFmpegPathTextBox.Text);
-                writer.WriteStartArray("ChatRooms");
-                foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
+                using (FileStream fs = new FileStream(_configDir + Path.DirectorySeparatorChar + c_configFileName, FileMode.Create))
                 {
-                    ChatRoom chatRoom = (ChatRoom)row.Tag;
+                    Utf8JsonWriter writer = new Utf8JsonWriter(fs);
                     writer.WriteStartObject();
-                    writer.WriteString("RoomUrl", chatRoom.RoomUrl);
-                    writer.WriteString("Action", chatRoom.Action.ToString());
-                    writer.WriteString("PreferredResolution", chatRoom.PreferredResolution);
+                    writer.WriteString(c_outputDirectoryJsonItemName, OutputDirectoryTextBox.Text);
+                    writer.WriteString(c_ffmpegPathJsonItemName, FFmpegPathTextBox.Text);
+                    writer.WriteString(c_sortColumnJsonItemName, ChatRoomsDataGridView.SortedColumn.Name);
+                    writer.WriteString(c_sortDirectionJsonItemName, ChatRoomsDataGridView.SortOrder.ToString());
+                    writer.WriteStartArray(c_chatRoomsJsonItemName);
+                    foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
+                    {
+                        ChatRoom chatRoom = (ChatRoom)row.Tag;
+                        writer.WriteStartObject();
+                        writer.WriteString(c_roomUrlJsonItemName, chatRoom.RoomUrl);
+                        writer.WriteString(c_actionJsonItemName, chatRoom.Action.ToString());
+                        writer.WriteString(c_preferredResolutionJsonItemName, chatRoom.PreferredResolution);
+                        writer.WriteEndObject();
+                    }
+                    writer.WriteEndArray();
                     writer.WriteEndObject();
+                    writer.Flush();
                 }
-                writer.WriteEndArray();
-                writer.WriteEndObject();
-                writer.Flush();
             }
             catch (Exception)
             {
-                config_saved = false;
-            }
-            finally
-            {
-                if (fs != null)
-                {
-                    fs.Close();
-                }
-                if (!config_saved)
-                {
-                    File.Delete(_configDir + Path.DirectorySeparatorChar + _configFile);
-                }
             }
         }
 
         private string _configDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + Assembly.GetEntryAssembly().GetName().Name;
-        private string _configFile = "config.json";
         private Object _chatRoomsDataGridViewLock = new object();
         private DateTime _lastUpdate = DateTime.Now;
         private bool _isExiting = false;
 
-        private const int _indexColumnIndex = 0;
-        private const int _websiteColumnIndex = 1;
-        private const int _nameColumnIndex = 2;
-        private const int _actionColumnIndex = 3;
-        private const int _statusColumnIndex = 4;
-        private const int _resolutionColumnIndex = 5;
-        private const int _lastUpdateColumnIndex = 6;
+        private const string c_configFileName = "config.json";
+        private const string c_ffmpegBinaryName = "ffmpeg.exe";
+
+        private const string c_outputDirectoryJsonItemName = "OutputDirectory";
+        private const string c_ffmpegPathJsonItemName = "FFmpegPath";
+        private const string c_sortColumnJsonItemName = "SortColumn";
+        private const string c_sortDirectionJsonItemName = "SortDirection";
+        private const string c_chatRoomsJsonItemName = "ChatRooms";
+        private const string c_roomUrlJsonItemName = "RoomUrl";
+        private const string c_actionJsonItemName = "Action";
+        private const string c_preferredResolutionJsonItemName = "PreferredResolution";
+
+        private const int c_indexColumnIndex = 0;
+        private const int c_websiteColumnIndex = 1;
+        private const int c_nameColumnIndex = 2;
+        private const int c_actionColumnIndex = 3;
+        private const int c_statusColumnIndex = 4;
+        private const int c_resolutionColumnIndex = 5;
+        private const int c_lastUpdateColumnIndex = 6;
+
+        private const string c_unsupportedUrlMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
+        private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate and BongaCams!";
+        private const string c_duplicateChatRoomMessage = "The chat room is already in the list!";
     }
 }

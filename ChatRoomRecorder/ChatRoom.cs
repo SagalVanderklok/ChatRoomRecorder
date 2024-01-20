@@ -71,7 +71,7 @@ namespace ChatRoomRecorder
             _timer.Interval = 1000;
             _timer.Tick += _timer_Tick;
             _semaphore = new SemaphoreSlim(1, 1);
-            Interlocked.Increment(ref _totalCount);
+            Interlocked.Increment(ref s_totalCount);
         }
 
         public void Dispose()
@@ -115,13 +115,13 @@ namespace ChatRoomRecorder
                         _ffmpegProcess.Close();
                     }
 
-                    if (_browserInitialized)
+                    if (_browser != null && _browserInitialized)
                     {
                         _browser.Dispose();
                     }
 
                     _disposingFinished = true;
-                    Interlocked.Decrement(ref _totalCount);
+                    Interlocked.Decrement(ref s_totalCount);
                 }
             }
             finally
@@ -319,7 +319,7 @@ namespace ChatRoomRecorder
                     playlistUrl = doc.RootElement.GetProperty("url").GetString();
                     HttpRequestMessage reqMsg = new HttpRequestMessage(HttpMethod.Get, playlistUrl);
                     reqMsg.Headers.Add("Accept-Encoding", "gzip");
-                    HttpResponseMessage respMsg = await _httpClient.SendAsync(reqMsg, _cancellationToken);
+                    HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
                     string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
                     availableResolutions = new List<string>();
                     for (int i = 0; i < playlist.Length; i++)
@@ -413,7 +413,7 @@ namespace ChatRoomRecorder
 
                 string playlistUrl = String.Format("https://{0}.bcvcdn.com/hls/stream_{1}/playlist.m3u8", esid, username);
                 HttpRequestMessage reqMsg = new HttpRequestMessage(HttpMethod.Get, playlistUrl);
-                HttpResponseMessage respMsg = await _httpClient.SendAsync(reqMsg, _cancellationToken);
+                HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
                 if (!respMsg.IsSuccessStatusCode)
                 {
                     _status = ChatRoomStatus.Offline;
@@ -677,7 +677,7 @@ namespace ChatRoomRecorder
         {
             get
             {
-                return _totalCount;
+                return s_totalCount;
             }
         }
 
@@ -705,7 +705,7 @@ namespace ChatRoomRecorder
         private System.Windows.Forms.Timer _timer;
         private SemaphoreSlim _semaphore;
 
-        private static HttpClient _httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
-        private static int _totalCount = 0;
+        private static HttpClient s_httpClient = new HttpClient(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
+        private static int s_totalCount = 0;
     }
 }
