@@ -15,7 +15,7 @@
 4. Open "Web browser" tab, visit supported web sites and pass bot protection
 5. Open "Chat rooms" tab, add desired links and start recording
 
-NOTE: The application requires Microsoft Edge for its functioning, so if you have an older Windows version you need to install the latest updates
+NOTE: The application requires Microsoft Edge for its functioning, so if you have an older version of Windows you need to install the latest updates
 
 ### Visit our website
 
