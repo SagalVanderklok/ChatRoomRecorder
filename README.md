@@ -15,7 +15,7 @@
 4. Open "Web browser" tab, visit supported web sites and pass bot protection
 5. Open "Chat rooms" tab, add desired links and start recording
 
-NOTE: The application uses Microsoft Edge fuctionality so the minimum supported operating system is Windows 10
+NOTE: The application requires Microsoft Edge for its functioning, so be sure that you have it installed!
 
 ### Visit our website
 
