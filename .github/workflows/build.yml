@@ -1,0 +1,12 @@
+name: build
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 4.8.x
+    - run: dotnet add package Newtonsoft.Json
+    - run: dotnet add package Microsoft.Web.WebView2
