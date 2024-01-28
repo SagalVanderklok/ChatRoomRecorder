@@ -8,5 +8,4 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet add package System.Text.Json
-    - run: dotnet add package Microsoft.Web.WebView2
+    - run: dotnet build
