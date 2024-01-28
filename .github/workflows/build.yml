@@ -9,3 +9,7 @@ jobs:
       with:
         dotnet-version: '6.x'
     - run: dotnet build
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ChatRoomRecorder
+        path: bin/Release/ 
