@@ -9,5 +9,8 @@ jobs:
       with:
         dotnet-version: '6.x'
     - run: dotnet publish -c Release -r win-x64 --self-contained true
-    - run: dir ChatRoomRecorder\
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ChatRoomRecorder_win64
+        path: ChatRoomRecorder\bin\Release\net6.0-windows\win-x64\publish\
 
