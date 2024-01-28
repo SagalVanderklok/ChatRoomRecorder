@@ -7,9 +7,9 @@
     <OutputType>WinExe</OutputType>
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<UseWindowsForms>true</UseWindowsForms>
-    <IsPublishable>false</IsPublishable>
+    <IsPublishable>True</IsPublishable>
 	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	<VersionPrefix>1.4.0</VersionPrefix>
+	<VersionPrefix>1.4.0.1</VersionPrefix>
 	<Copyright>Copyright (C) 2024 Sagal Vanderklok</Copyright>
 	<Description>https://chatroomrecorder.com | https://github.com/sagalvanderklok/chatroomrecorder</Description>
   </PropertyGroup>
