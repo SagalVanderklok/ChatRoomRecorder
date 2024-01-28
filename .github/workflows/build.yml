@@ -8,5 +8,5 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet add package Microsoft.Web.WebView2
+    - run: dotnet add package Microsoft.Web.WebView2 --version 1.0.1293.44
     - run: dotnet add package System.Text.Json
