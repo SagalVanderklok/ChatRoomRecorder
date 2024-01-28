@@ -11,7 +11,7 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet publish -c Release -r win-${{ matrix.arch }}
+    - run: dotnet publish -c Release -r win-${{ matrix.arch }} --self-contained false
     - uses: actions/upload-artifact@v3
       with:
         name: ChatRoomRecorder_${{ matrix.arch }}
