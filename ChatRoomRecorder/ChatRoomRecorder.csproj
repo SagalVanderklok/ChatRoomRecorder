@@ -8,6 +8,7 @@
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<UseWindowsForms>true</UseWindowsForms>
     <IsPublishable>True</IsPublishable>
+	<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 	<VersionPrefix>1.4.0.1</VersionPrefix>
 	<Copyright>Copyright (C) 2024 Sagal Vanderklok</Copyright>
