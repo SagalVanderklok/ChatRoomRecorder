@@ -155,7 +155,10 @@ namespace ChatRoomRecorder
                             return;
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception) 
+                    { 
+                        //do nothing
+                    }
                 }
 
                 //stop any recording (if we need to restart it, we'll do it later)
