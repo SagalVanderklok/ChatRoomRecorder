@@ -9,4 +9,4 @@ jobs:
       with:
         dotnet-version: '6.x'
     - run: dotnet publish -c Release -r win-x64 --self-contained true
-    - run: Get-ChildItem -Path Env:
+
