@@ -2,15 +2,17 @@ name: build
 on: workflow_dispatch
 jobs:
   build:
+    strategy:
+      matrix:
+        arch: [x64, x86]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=embedded
+    - run: dotnet publish -c Release -r win-${{ matrix.arch }} --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=embedded
     - uses: actions/upload-artifact@v3
       with:
-        name: ChatRoomRecorder_win64
-        path: ChatRoomRecorder\bin\Release\net6.0-windows\win-x64\publish\
-
+        name: ChatRoomRecorder_${{ matrix.arch }}
+        path: ChatRoomRecorder\bin\Release\net6.0-windows\win-${{ matrix.arch }}\publish\
