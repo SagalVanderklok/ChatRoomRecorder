@@ -8,5 +8,5 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet build --configuration Release --no-restore
+    - run: dotnet build --configuration Release
     - run: dir /a
