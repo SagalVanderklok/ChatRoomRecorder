@@ -8,7 +8,7 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+    - run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
     - uses: actions/upload-artifact@v3
       with:
         name: ChatRoomRecorder_win64
