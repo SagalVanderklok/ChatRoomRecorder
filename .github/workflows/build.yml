@@ -12,5 +12,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: ChatRoomRecorder_win64
-        path: ChatRoomRecorder\bin\Release\net6.0-windows\win-x64\publish\
+        path: |
+          ChatRoomRecorder\bin\Release\net6.0-windows\win-x64\publish\
+          !ChatRoomRecorder\bin\Release\net6.0-windows\win-x64\publish\runtimes
 
