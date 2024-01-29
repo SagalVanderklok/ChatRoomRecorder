@@ -11,7 +11,7 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet publish -c Release -r win-${{ matrix.arch }} --self-contained false -p:PublishSingleFile=true -p:DebugType=embedded
+    - run: dotnet publish -c Release -r win-${{ matrix.arch }} --self-contained false -p:PublishSingleFile=true -p:DebugType=embedded -p:IncludeNativeLibrariesForSelfExtract=true
     - uses: actions/upload-artifact@v3
       with:
         name: ChatRoomRecorder_${{ matrix.arch }}
