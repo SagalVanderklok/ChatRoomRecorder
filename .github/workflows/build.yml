@@ -15,5 +15,5 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: ChatRoomRecorder_${{ matrix.arch }}
-        path: ChatRoomRecorder\bin\Release\net6.0-windows\win-${{ matrix.arch }}\publish
+        path: ChatRoomRecorder\bin\Release\net6.0-windows\win-${{ matrix.arch }}\publish\
   
