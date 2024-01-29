@@ -9,13 +9,12 @@
 
 ### Usage instructions
 
-1. Download and install/unpack [.NET Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48), [FFmpeg](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip) and [ChatRoomRecorder](https://github.com/SagalVanderklok/ChatRoomRecorder/releases)
-2. Start ChatRoomRecorder
-3. Open "Settings" tab and specify an ffmpeg binary location and an output directory for downloads
-4. Open "Web browser" tab, visit supported web sites and pass bot protection
-5. Open "Chat rooms" tab, add desired links and start recording
-
-NOTE: The application requires Microsoft Edge for its functioning, so if you have an older version of Windows you need to install the latest updates
+1. Download and install .NET Desktop Runtime ([x64](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x64-installer) or [x86](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x86-installer)) and WebView2 Runtime ([x64](https://go.microsoft.com/fwlink/?linkid=2124701) or [x86](https://go.microsoft.com/fwlink/?linkid=2099617))
+2. Download and unpack [FFmpeg](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip) and [ChatRoomRecorder](https://github.com/SagalVanderklok/ChatRoomRecorder/releases)
+3. Start ChatRoomRecorder
+4. Open "Settings" tab and specify an ffmpeg binary location and an output directory for downloads
+5. Open "Web browser" tab, visit supported web sites and pass bot protection
+6. Open "Chat rooms" tab, add desired links and start recording
 
 ### Support us
 
