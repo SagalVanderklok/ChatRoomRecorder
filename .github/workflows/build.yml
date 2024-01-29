@@ -11,10 +11,9 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.x'
-    - run: dotnet publish -c Release -r win-${{ matrix.arch }} --self-contained false
+    - run: dotnet publish -c Release -r win-${{ matrix.arch }} --self-contained false -p:PublishSingleFile=true -p:DebugType=embedded
     - uses: actions/upload-artifact@v3
       with:
         name: ChatRoomRecorder_${{ matrix.arch }}
-        path: |
-          ChatRoomRecorder\bin\Release\net6.0-windows\win-${{ matrix.arch }}\publish
-          !ChatRoomRecorder\bin\Release\net6.0-windows\win-${{ matrix.arch }}\runtimes
+        path: ChatRoomRecorder\bin\Release\net6.0-windows\win-${{ matrix.arch }}\publish
+  
