@@ -99,6 +99,7 @@
             this.TabControl.Controls.Add(this.SettingsTabPage);
             this.TabControl.Controls.Add(this.AboutTabPage);
             this.TabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TabControl.Enabled = false;
             this.TabControl.Location = new System.Drawing.Point(0, 0);
             this.TabControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.TabControl.Name = "TabControl";
@@ -132,7 +133,7 @@
             this.StopButton.Name = "StopButton";
             this.StopButton.Size = new System.Drawing.Size(51, 25);
             this.StopButton.TabIndex = 5;
-            this.StopButton.Text = "⤬";
+            this.StopButton.Text = "×";
             this.StopButton.UseVisualStyleBackColor = true;
             this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
             // 
@@ -188,6 +189,7 @@
             this.WebView.Source = new System.Uri("about:blank", System.UriKind.Absolute);
             this.WebView.TabIndex = 0;
             this.WebView.ZoomFactor = 1D;
+            this.WebView.CoreWebView2InitializationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs>(this.WebView_CoreWebView2InitializationCompleted);
             // 
             // GoButton
             // 
@@ -316,6 +318,8 @@
             this.ChatRoomsDataGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellEndEdit);
             this.ChatRoomsDataGridView.CellLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellLeave);
             this.ChatRoomsDataGridView.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_CellMouseClick);
+            this.ChatRoomsDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.ChatRoomsDataGridView_CellValidating);
+            this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
             this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
             this.ChatRoomsDataGridView.CurrentCellChanged += new System.EventHandler(this.ChatRoomsDataGridView_CurrentCellChanged);
             // 

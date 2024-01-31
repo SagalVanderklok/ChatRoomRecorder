@@ -18,7 +18,7 @@ namespace ChatRoomRecorder
     {
         public MainForm()
         {
-            InitializeComponent();
+            InitializeComponent();  
 
             Text = Assembly.GetEntryAssembly().GetName().Name + " " + Assembly.GetEntryAssembly().GetName().Version.ToString(3);
             Assembly asm = Assembly.GetEntryAssembly();
@@ -46,12 +46,25 @@ namespace ChatRoomRecorder
 
             FilesDataGridView.Columns[c_fileNameColumnIndex].HeaderCell.SortGlyphDirection = SortOrder.Ascending;
             FilesDataGridView.Sort(FilesDataGridView.Columns[c_fileNameColumnIndex], ListSortDirection.Ascending);
+        }
 
-            ReadConfig();
+        private void WebView_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
+        {
+            lock (_lock)
+            {
+                if (e.IsSuccess)
+                {
+                    ToggleCellEventHandling(false);
 
-            ToggleCellEventHandling(true);
+                    ReadConfig();
 
-            ChatRoomsUpdateTimer.Start();
+                    ChatRoomsUpdateTimer.Start();
+
+                    TabControl.Enabled = true;
+
+                    ToggleCellEventHandling(true);
+                }
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -104,13 +117,16 @@ namespace ChatRoomRecorder
 
         private void GoButton_Click(object sender, EventArgs e)
         {
-            if (Regex.Matches(AddressTextBox.Text, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
+            if (WebView.CoreWebView2 != null)
             {
-                WebView.CoreWebView2.Navigate(AddressTextBox.Text);
-            }
-            else
-            {
-                MessageBox.Show(c_unsupportedUrlMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (Regex.Matches(AddressTextBox.Text, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
+                {
+                    WebView.CoreWebView2.Navigate(AddressTextBox.Text);
+                }
+                else
+                {
+                    MessageBox.Show(c_unsupportedUrlMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -626,11 +642,13 @@ namespace ChatRoomRecorder
                 {
                     JsonNode chatRoomNode = arrayNode[i];
 
-                    chatRoom = new ChatRoom((string)chatRoomNode[c_roomUrlJsonItemName]);
-                    chatRoom.Action = (ChatRoomAction)Enum.Parse(typeof(ChatRoomAction), (string)chatRoomNode[c_actionJsonItemName]);
-                    chatRoom.PreferredResolution = (string)chatRoomNode[c_preferredResolutionJsonItemName];
-                    chatRoom.OutputDirectory = (string)rootNode[c_outputDirectoryJsonItemName];
-                    chatRoom.FFmpegPath = (string)rootNode[c_ffmpegPathJsonItemName];
+                    chatRoom = new((string)chatRoomNode[c_roomUrlJsonItemName])
+                    {
+                        Action = (ChatRoomAction)Enum.Parse(typeof(ChatRoomAction), (string)chatRoomNode[c_actionJsonItemName]),
+                        PreferredResolution = (string)chatRoomNode[c_preferredResolutionJsonItemName],
+                        OutputDirectory = (string)rootNode[c_outputDirectoryJsonItemName],
+                        FFmpegPath = (string)rootNode[c_ffmpegPathJsonItemName]
+                    };
 
                     AddChatRoom(chatRoom, i + 1, false);
                 }
