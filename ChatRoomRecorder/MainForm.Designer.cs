@@ -30,8 +30,11 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -39,9 +42,8 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.WebBrowserTabPage = new System.Windows.Forms.TabPage();
             this.StopButton = new System.Windows.Forms.Button();
@@ -55,13 +57,6 @@
             this.SplitContainer = new System.Windows.Forms.SplitContainer();
             this.URLTextBox = new System.Windows.Forms.TextBox();
             this.ChatRoomsDataGridView = new System.Windows.Forms.DataGridView();
-            this.IndexColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ActionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.StatusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ResolutionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.LastUpdateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PlusButton = new System.Windows.Forms.Button();
             this.FilesDataGridView = new System.Windows.Forms.DataGridView();
             this.FileNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -77,6 +72,15 @@
             this.LicenseTextBox = new System.Windows.Forms.TextBox();
             this.ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(this.components);
             this.FormCloseTimer = new System.Windows.Forms.Timer(this.components);
+            this.IndexColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ActionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.StatusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ResolutionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.LastUpdateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.LastSeenColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.URLColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TabControl.SuspendLayout();
             this.WebBrowserTabPage.SuspendLayout();
             this.WebViewPanel.SuspendLayout();
@@ -291,26 +295,28 @@
             this.ActionColumn,
             this.StatusColumn,
             this.ResolutionColumn,
-            this.LastUpdateColumn});
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle9;
+            this.LastUpdateColumn,
+            this.LastSeenColumn,
+            this.URLColumn});
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle11;
             this.ChatRoomsDataGridView.Location = new System.Drawing.Point(0, 30);
             this.ChatRoomsDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
-            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
             this.ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.ChatRoomsDataGridView.Size = new System.Drawing.Size(773, 344);
             this.ChatRoomsDataGridView.TabIndex = 11;
@@ -322,82 +328,6 @@
             this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
             this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
             this.ChatRoomsDataGridView.CurrentCellChanged += new System.EventHandler(this.ChatRoomsDataGridView_CurrentCellChanged);
-            // 
-            // IndexColumn
-            // 
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.IndexColumn.DefaultCellStyle = dataGridViewCellStyle2;
-            this.IndexColumn.FillWeight = 57.46263F;
-            this.IndexColumn.HeaderText = "#";
-            this.IndexColumn.Name = "IndexColumn";
-            this.IndexColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // WebsiteColumn
-            // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.WebsiteColumn.DefaultCellStyle = dataGridViewCellStyle3;
-            this.WebsiteColumn.FillWeight = 110.095F;
-            this.WebsiteColumn.HeaderText = "Website";
-            this.WebsiteColumn.Name = "WebsiteColumn";
-            this.WebsiteColumn.ReadOnly = true;
-            this.WebsiteColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // NameColumn
-            // 
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.NameColumn.DefaultCellStyle = dataGridViewCellStyle4;
-            this.NameColumn.FillWeight = 106.1234F;
-            this.NameColumn.HeaderText = "Name";
-            this.NameColumn.Name = "NameColumn";
-            this.NameColumn.ReadOnly = true;
-            this.NameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // ActionColumn
-            // 
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ActionColumn.DefaultCellStyle = dataGridViewCellStyle5;
-            this.ActionColumn.FillWeight = 107.7252F;
-            this.ActionColumn.HeaderText = "Action";
-            this.ActionColumn.MaxDropDownItems = 16;
-            this.ActionColumn.Name = "ActionColumn";
-            this.ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // StatusColumn
-            // 
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.StatusColumn.DefaultCellStyle = dataGridViewCellStyle6;
-            this.StatusColumn.FillWeight = 106.692F;
-            this.StatusColumn.HeaderText = "Status";
-            this.StatusColumn.Name = "StatusColumn";
-            this.StatusColumn.ReadOnly = true;
-            this.StatusColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // ResolutionColumn
-            // 
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ResolutionColumn.DefaultCellStyle = dataGridViewCellStyle7;
-            this.ResolutionColumn.FillWeight = 105.3025F;
-            this.ResolutionColumn.HeaderText = "Resolution";
-            this.ResolutionColumn.MaxDropDownItems = 16;
-            this.ResolutionColumn.Name = "ResolutionColumn";
-            this.ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // LastUpdateColumn
-            // 
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.LastUpdateColumn.DefaultCellStyle = dataGridViewCellStyle8;
-            this.LastUpdateColumn.FillWeight = 106.5989F;
-            this.LastUpdateColumn.HeaderText = "Last update";
-            this.LastUpdateColumn.Name = "LastUpdateColumn";
-            this.LastUpdateColumn.ReadOnly = true;
-            this.LastUpdateColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
             // PlusButton
             // 
@@ -435,8 +365,8 @@
             // 
             // FileNameColumn
             // 
-            dataGridViewCellStyle11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.FileNameColumn.DefaultCellStyle = dataGridViewCellStyle11;
+            dataGridViewCellStyle13.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.FileNameColumn.DefaultCellStyle = dataGridViewCellStyle13;
             this.FileNameColumn.FillWeight = 199.8681F;
             this.FileNameColumn.HeaderText = "File name";
             this.FileNameColumn.Name = "FileNameColumn";
@@ -445,10 +375,10 @@
             // 
             // FileSizeColumn
             // 
-            dataGridViewCellStyle12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle12.Format = "N0";
-            dataGridViewCellStyle12.NullValue = null;
-            this.FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle12;
+            dataGridViewCellStyle14.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle14.Format = "N0";
+            dataGridViewCellStyle14.NullValue = null;
+            this.FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle14;
             this.FileSizeColumn.FillWeight = 50.25381F;
             this.FileSizeColumn.HeaderText = "File size";
             this.FileSizeColumn.Name = "FileSizeColumn";
@@ -574,6 +504,104 @@
             this.FormCloseTimer.Interval = 1000;
             this.FormCloseTimer.Tick += new System.EventHandler(this.FormCloseTimer_Tick);
             // 
+            // IndexColumn
+            // 
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.IndexColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            this.IndexColumn.FillWeight = 50.59083F;
+            this.IndexColumn.HeaderText = "#";
+            this.IndexColumn.Name = "IndexColumn";
+            this.IndexColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // WebsiteColumn
+            // 
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.WebsiteColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            this.WebsiteColumn.FillWeight = 107.9471F;
+            this.WebsiteColumn.HeaderText = "Website";
+            this.WebsiteColumn.Name = "WebsiteColumn";
+            this.WebsiteColumn.ReadOnly = true;
+            this.WebsiteColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // NameColumn
+            // 
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.NameColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            this.NameColumn.FillWeight = 105.555F;
+            this.NameColumn.HeaderText = "Name";
+            this.NameColumn.Name = "NameColumn";
+            this.NameColumn.ReadOnly = true;
+            this.NameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // ActionColumn
+            // 
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.ActionColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            this.ActionColumn.FillWeight = 107.0367F;
+            this.ActionColumn.HeaderText = "Action";
+            this.ActionColumn.MaxDropDownItems = 16;
+            this.ActionColumn.Name = "ActionColumn";
+            this.ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // StatusColumn
+            // 
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.StatusColumn.DefaultCellStyle = dataGridViewCellStyle6;
+            this.StatusColumn.FillWeight = 106.6216F;
+            this.StatusColumn.HeaderText = "Status";
+            this.StatusColumn.Name = "StatusColumn";
+            this.StatusColumn.ReadOnly = true;
+            this.StatusColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // ResolutionColumn
+            // 
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.ResolutionColumn.DefaultCellStyle = dataGridViewCellStyle7;
+            this.ResolutionColumn.FillWeight = 105.0761F;
+            this.ResolutionColumn.HeaderText = "Resolution";
+            this.ResolutionColumn.MaxDropDownItems = 16;
+            this.ResolutionColumn.Name = "ResolutionColumn";
+            this.ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // LastUpdateColumn
+            // 
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.LastUpdateColumn.DefaultCellStyle = dataGridViewCellStyle8;
+            this.LastUpdateColumn.FillWeight = 106.4549F;
+            this.LastUpdateColumn.HeaderText = "Last update";
+            this.LastUpdateColumn.Name = "LastUpdateColumn";
+            this.LastUpdateColumn.ReadOnly = true;
+            this.LastUpdateColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // LastSeenColumn
+            // 
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.LastSeenColumn.DefaultCellStyle = dataGridViewCellStyle9;
+            this.LastSeenColumn.FillWeight = 106.4815F;
+            this.LastSeenColumn.HeaderText = "Last seen";
+            this.LastSeenColumn.Name = "LastSeenColumn";
+            this.LastSeenColumn.ReadOnly = true;
+            this.LastSeenColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // URLColumn
+            // 
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.URLColumn.DefaultCellStyle = dataGridViewCellStyle10;
+            this.URLColumn.FillWeight = 104.2361F;
+            this.URLColumn.HeaderText = "URL";
+            this.URLColumn.Name = "URLColumn";
+            this.URLColumn.ReadOnly = true;
+            this.URLColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -584,6 +612,7 @@
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.TabControl.ResumeLayout(false);
             this.WebBrowserTabPage.ResumeLayout(false);
@@ -633,6 +662,8 @@
         private System.Windows.Forms.Timer FormCloseTimer;
         private System.Windows.Forms.SplitContainer SplitContainer;
         private System.Windows.Forms.DataGridView FilesDataGridView;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileNameColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileSizeColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn IndexColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn WebsiteColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
@@ -640,8 +671,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn LastUpdateColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileNameColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileSizeColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LastSeenColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn URLColumn;
     }
 }
 

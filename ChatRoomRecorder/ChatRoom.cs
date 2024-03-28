@@ -104,7 +104,7 @@ namespace ChatRoomRecorder
                 _semaphore.Wait();
                 try
                 {
-                    if (!_isUpdating && !_disposingFinished && _timer.Enabled)
+                    if (_timer.Enabled && !_disposingFinished && (!_isUpdating || _isUpdating && (DateTime.Now - _lastUpdate).TotalSeconds >= c_updateLimit))
                     {
                         _timer.Stop();
 
@@ -139,7 +139,7 @@ namespace ChatRoomRecorder
             _semaphore.Wait();
             try
             {
-                if (_disposingStarted || _isUpdating || (DateTime.Now - _lastUpdate).TotalSeconds < 60)
+                if (_disposingStarted || _isUpdating && (DateTime.Now - _lastUpdate).TotalSeconds < c_updateLimit)
                 {
                     return;
                 }
@@ -230,6 +230,11 @@ namespace ChatRoomRecorder
             finally
             {
                 _semaphore.Release();
+
+                if (!_isUpdating)
+                {
+                    UpdateCompleted?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 
@@ -254,6 +259,8 @@ namespace ChatRoomRecorder
             finally
             {
                 _semaphore.Release();
+
+                UpdateCompleted?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -389,6 +396,8 @@ namespace ChatRoomRecorder
             {
                 _semaphore.Release();
             }
+
+            UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         private async void BongaCams_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
@@ -495,6 +504,8 @@ namespace ChatRoomRecorder
             {
                 _semaphore.Release();
             }
+
+            UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         private void Record()
@@ -718,6 +729,8 @@ namespace ChatRoomRecorder
             }
         }
 
+        public event EventHandler UpdateCompleted;
+
         private string _name;
         private ChatRoomWebsite _website;
         private ChatRoomStatus _status;
@@ -744,5 +757,7 @@ namespace ChatRoomRecorder
 
         private static HttpClient s_httpClient = new(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
         private static int s_totalCount = 0;
+
+        private const int c_updateLimit = 60;
     }
 }
