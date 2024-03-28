@@ -1,0 +1,29 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  release:
+    strategy:
+      matrix:
+        arch: [x64, x86]
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.x'
+    - name: Publish application
+      run: dotnet publish -c Release -r win-${{ matrix.arch }} --self-contained false -p:PublishSingleFile=true -p:DebugType=embedded -p:IncludeNativeLibrariesForSelfExtract=true
+    - name: Compress binaries
+      run: Compress-Archive -Path ChatRoomRecorder\bin\Release\net6.0-windows\win-${{ matrix.arch }}\publish\* -Destination ChatRoomRecorder_${{ matrix.arch }}.zip
+    - name: Upload release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ChatRoomRecorder_${{ matrix.arch }}.zip
+        tag: ${{ github.ref }}
+        release_name: ${{ github.ref_name }}
