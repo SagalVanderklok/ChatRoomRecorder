@@ -50,25 +50,14 @@ namespace ChatRoomRecorder
 
                 FilesDataGridView.Columns[c_fileNameColumnIndex].HeaderCell.SortGlyphDirection = SortOrder.Ascending;
                 FilesDataGridView.Sort(FilesDataGridView.Columns[c_fileNameColumnIndex], ListSortDirection.Ascending);
-            }
-        }
 
-        private void WebView_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
-        {
-            lock (_lock)
-            {
-                if (e.IsSuccess)
-                {
-                    ToggleCellEventHandling(false);
-
-                    ReadConfig();
-
-                    ChatRoomsUpdateTimer.Start();
-
-                    TabControl.Enabled = true;
-
-                    ToggleCellEventHandling(true);
-                }
+                ToggleCellsEventHandling(false);
+                ToggleSettingsEventHandling(false);
+                
+                ReadConfig();
+                
+                ToggleCellsEventHandling(true);
+                ToggleSettingsEventHandling(true);
             }
         }
 
@@ -120,13 +109,31 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void GoButton_Click(object sender, EventArgs e)
+        private void WebView_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
         {
-            if (WebView.CoreWebView2 != null)
+            lock (_lock)
             {
-                if (Regex.Matches(AddressTextBox.Text, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
+                if (e.IsSuccess)
                 {
-                    WebView.CoreWebView2.Navigate(AddressTextBox.Text);
+                    TabControl.Enabled = true;
+
+                    ChatRoomsUpdateTimer.Start();
+                }
+            }
+        }
+
+        private void WebView_ContentLoading(object sender, Microsoft.Web.WebView2.Core.CoreWebView2ContentLoadingEventArgs e)
+        {
+            AddressBarTextBox.Text = WebView.Source.ToString();
+        }
+
+        private void AddressBarTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (Regex.Matches(AddressBarTextBox.Text, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
+                {
+                    WebView.CoreWebView2.Navigate(AddressBarTextBox.Text);
                 }
                 else
                 {
@@ -198,7 +205,7 @@ namespace ChatRoomRecorder
 
                     if (!duplicate)
                     {
-                        ToggleCellEventHandling(false);
+                        ToggleCellsEventHandling(false);
 
                         ChatRoom chatRoom = new(URLTextBox.Text) { OutputDirectory = OutputDirectoryTextBox.Text, FFmpegPath = FFmpegPathTextBox.Text };
                         chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
@@ -209,7 +216,7 @@ namespace ChatRoomRecorder
 
                         WriteConfig();
 
-                        ToggleCellEventHandling(true);
+                        ToggleCellsEventHandling(true);
                     }
                     else
                     {
@@ -229,16 +236,25 @@ namespace ChatRoomRecorder
             {
                 if (ChatRoomsUpdateTimer.Enabled)
                 {
-                    bool atLeastOneUpdated = false;
+                    Dictionary<ChatRoomWebsite, int> maxUpdateCounts = new()
+                    { 
+                        { ChatRoomWebsite.Chaturbate, (int)ChaturbateConcurrentUpdatesNumericUpDown.Value},
+                        { ChatRoomWebsite.BongaCams, (int)BongaCamsConcurrentUpdatesNumericUpDown.Value }
+                    };
+                    Dictionary<ChatRoomWebsite, int> curUpdateCounts = new()
+                    {
+                        { ChatRoomWebsite.Chaturbate, 0 },
+                        { ChatRoomWebsite.BongaCams, 0 }
+                    };
                     foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
                     {
                         ChatRoom chatRoom = (ChatRoom)row.Tag;
                         if (chatRoom.Action != ChatRoomAction.None)
                         {
-                            if (!atLeastOneUpdated && chatRoom.LastUpdate < _lastUpdate)
+                            if (curUpdateCounts[chatRoom.Website] < maxUpdateCounts[chatRoom.Website] && chatRoom.LastUpdate < _lastUpdates[chatRoom.Website])
                             {
                                 chatRoom.Update();
-                                atLeastOneUpdated = true;
+                                curUpdateCounts[chatRoom.Website]++;
                             }
                         }
                         else
@@ -249,9 +265,12 @@ namespace ChatRoomRecorder
                             }
                         }
                     }
-                    if (!atLeastOneUpdated)
+                    foreach (ChatRoomWebsite website in Enum.GetValues(typeof(ChatRoomWebsite)))
                     {
-                        _lastUpdate = DateTime.Now;
+                        if (curUpdateCounts[website] < maxUpdateCounts[website])
+                        {
+                            _lastUpdates[website] = DateTime.Now;
+                        }
                     }
                 }
 
@@ -263,7 +282,7 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
-                ToggleCellEventHandling(false);
+                ToggleCellsEventHandling(false);
 
                 foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
                 {
@@ -312,7 +331,7 @@ namespace ChatRoomRecorder
                     }
                 }
 
-                ToggleCellEventHandling(true);
+                ToggleCellsEventHandling(true);
             }
         }
 
@@ -332,7 +351,7 @@ namespace ChatRoomRecorder
                 {
                     if (MessageBox.Show(c_confirmChatRoomsRemovalMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                     {
-                        ToggleCellEventHandling(false);
+                        ToggleCellsEventHandling(false);
 
                         foreach (DataGridViewRow delRow in ChatRoomsDataGridView.SelectedRows)
                         {
@@ -353,7 +372,7 @@ namespace ChatRoomRecorder
 
                         WriteConfig();
 
-                        ToggleCellEventHandling(true);
+                        ToggleCellsEventHandling(true);
                     }
                 }
             }
@@ -374,7 +393,7 @@ namespace ChatRoomRecorder
                             int oldIndex = (int)row.Cells[c_indexColumnIndex].Value;
                             if (int.TryParse((string)e.FormattedValue, out newIndex) && (newIndex >= 1) && (newIndex <= ChatRoomsDataGridView.Rows.Count))
                             {
-                                ToggleCellEventHandling(false);
+                                ToggleCellsEventHandling(false);
 
                                 if (newIndex > oldIndex)
                                 {
@@ -399,7 +418,7 @@ namespace ChatRoomRecorder
                                     }
                                 }
 
-                                ToggleCellEventHandling(true);
+                                ToggleCellsEventHandling(true);
                             }
                             else
                             {
@@ -553,16 +572,7 @@ namespace ChatRoomRecorder
             FolderBrowserDialog fbd = new();
             if (fbd.ShowDialog() == DialogResult.OK)
             {
-                lock (_lock)
-                {
-                    foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
-                    {
-                        ((ChatRoom)row.Tag).OutputDirectory = fbd.SelectedPath;
-                    }
-                    OutputDirectoryTextBox.Text = fbd.SelectedPath;
-
-                    WriteConfig();
-                }
+                OutputDirectoryTextBox.Text = fbd.SelectedPath;
             }
         }
 
@@ -571,16 +581,59 @@ namespace ChatRoomRecorder
             OpenFileDialog ofd = new() { Multiselect = false, Filter = string.Format("{0}|{0}", c_ffmpegBinaryName) };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                lock (_lock)
-                {
-                    foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
-                    {
-                        ((ChatRoom)row.Tag).FFmpegPath = ofd.FileName;
-                    }
-                    FFmpegPathTextBox.Text = ofd.FileName;
+                FFmpegPathTextBox.Text = ofd.FileName;
+            }
+        }
 
-                    WriteConfig();
+        private void OutputDirectoryTextBox_TextChanged(object sender, EventArgs e)
+        {
+            lock (_lock)
+            {
+                foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
+                {
+                    ((ChatRoom)row.Tag).OutputDirectory = OutputDirectoryTextBox.Text;
                 }
+
+                WriteConfig();
+            }
+        }
+
+        private void FFmpegPathTextBox_TextChanged(object sender, EventArgs e)
+        {
+            lock (_lock)
+            {
+                foreach (DataGridViewRow row in ChatRoomsDataGridView.Rows)
+                {
+                    ((ChatRoom)row.Tag).FFmpegPath = FFmpegPathTextBox.Text;
+                }
+
+                WriteConfig();
+            }
+        }
+
+        private void ChaturbateConcurrentUpdatesNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            lock (_lock)
+            {
+                WriteConfig();
+            }
+        }
+
+        private void BongaCamsConcurrentUpdatesNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            lock (_lock)
+            {
+                WriteConfig();
+            }
+        }
+
+        private void UpdateIntervalNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            lock (_lock)
+            {
+                ChatRoomsUpdateTimer.Interval = (int)UpdateIntervalNumericUpDown.Value * 1000;
+
+                WriteConfig();
             }
         }
 
@@ -629,7 +682,7 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void ToggleCellEventHandling(bool state)
+        private void ToggleCellsEventHandling(bool state)
         {
             if (state)
             {
@@ -640,6 +693,26 @@ namespace ChatRoomRecorder
             {
                 ChatRoomsDataGridView.CellValidating -= ChatRoomsDataGridView_CellValidating;
                 ChatRoomsDataGridView.CellValueChanged -= ChatRoomsDataGridView_CellValueChanged;
+            }
+        }
+
+        private void ToggleSettingsEventHandling(bool state)
+        {
+            if (state)
+            {
+                OutputDirectoryTextBox.TextChanged += OutputDirectoryTextBox_TextChanged;
+                FFmpegPathTextBox.TextChanged += FFmpegPathTextBox_TextChanged;
+                ChaturbateConcurrentUpdatesNumericUpDown.ValueChanged += ChaturbateConcurrentUpdatesNumericUpDown_ValueChanged;
+                BongaCamsConcurrentUpdatesNumericUpDown.ValueChanged += BongaCamsConcurrentUpdatesNumericUpDown_ValueChanged;
+                UpdateIntervalNumericUpDown.ValueChanged += UpdateIntervalNumericUpDown_ValueChanged;
+            }
+            else
+            {
+                OutputDirectoryTextBox.TextChanged -= OutputDirectoryTextBox_TextChanged;
+                FFmpegPathTextBox.TextChanged -= FFmpegPathTextBox_TextChanged;
+                ChaturbateConcurrentUpdatesNumericUpDown.ValueChanged -= ChaturbateConcurrentUpdatesNumericUpDown_ValueChanged;
+                BongaCamsConcurrentUpdatesNumericUpDown.ValueChanged -= BongaCamsConcurrentUpdatesNumericUpDown_ValueChanged;
+                UpdateIntervalNumericUpDown.ValueChanged -= UpdateIntervalNumericUpDown_ValueChanged;
             }
         }
 
@@ -688,6 +761,10 @@ namespace ChatRoomRecorder
             JsonNode settingsNode = (JsonNode)ReadParameter(c_settingsJsonItemName, rootNode);
             OutputDirectoryTextBox.Text = (string)ReadParameter(c_outputDirectoryJsonItemName, settingsNode);
             FFmpegPathTextBox.Text = (string)ReadParameter(c_ffmpegPathJsonItemName, settingsNode);
+            ChaturbateConcurrentUpdatesNumericUpDown.Value = (decimal)ReadParameter(c_chaturbateConcurrentUpdatesJsonItemName, settingsNode);
+            BongaCamsConcurrentUpdatesNumericUpDown.Value = (decimal)ReadParameter(c_bongaCamsConcurrentUpdatesJsonItemName, settingsNode);
+            UpdateIntervalNumericUpDown.Value = (decimal)ReadParameter(c_updateIntervalJsonItemName, settingsNode);
+            ChatRoomsUpdateTimer.Interval = (int)UpdateIntervalNumericUpDown.Value * 1000;
 
             JsonArray arrayNode = (JsonArray)ReadParameter(c_chatRoomsJsonItemName, rootNode);
             for (int i = 0; i < arrayNode.Count; i++)
@@ -732,6 +809,15 @@ namespace ChatRoomRecorder
                     case c_ffmpegPathJsonItemName:
                         value = (string)node[c_ffmpegPathJsonItemName];
                         break;
+                    case c_chaturbateConcurrentUpdatesJsonItemName:
+                        value = decimal.Parse((string)node[c_chaturbateConcurrentUpdatesJsonItemName]);
+                        break;
+                    case c_bongaCamsConcurrentUpdatesJsonItemName:
+                        value = decimal.Parse((string)node[c_bongaCamsConcurrentUpdatesJsonItemName]);
+                        break;
+                    case c_updateIntervalJsonItemName:
+                        value = decimal.Parse((string)node[c_updateIntervalJsonItemName]);
+                        break;
                     case c_chatRoomsJsonItemName:
                         value = (JsonArray)node[c_chatRoomsJsonItemName];
                         break;
@@ -766,6 +852,15 @@ namespace ChatRoomRecorder
                         break;
                     case c_ffmpegPathJsonItemName:
                         value = (new FileInfo(Environment.ProcessPath)).Directory.FullName + Path.DirectorySeparatorChar + c_ffmpegBinaryName;
+                        break;
+                    case c_chaturbateConcurrentUpdatesJsonItemName:
+                        value = (decimal)1;
+                        break;
+                    case c_bongaCamsConcurrentUpdatesJsonItemName:
+                        value = (decimal)1;
+                        break;
+                    case c_updateIntervalJsonItemName:
+                        value = (decimal)5;
                         break;
                     case c_chatRoomsJsonItemName:
                         value = new JsonArray();
@@ -806,6 +901,13 @@ namespace ChatRoomRecorder
                 {
                     Utf8JsonWriter writer = new(fs);
                     writer.WriteStartObject();
+                    writer.WriteStartObject(c_settingsJsonItemName);
+                    writer.WriteString(c_outputDirectoryJsonItemName, OutputDirectoryTextBox.Text);
+                    writer.WriteString(c_ffmpegPathJsonItemName, FFmpegPathTextBox.Text);
+                    writer.WriteString(c_chaturbateConcurrentUpdatesJsonItemName, ChaturbateConcurrentUpdatesNumericUpDown.Value.ToString());
+                    writer.WriteString(c_bongaCamsConcurrentUpdatesJsonItemName, BongaCamsConcurrentUpdatesNumericUpDown.Value.ToString());
+                    writer.WriteString(c_updateIntervalJsonItemName, UpdateIntervalNumericUpDown.Value.ToString());
+                    writer.WriteEndObject();
                     writer.WriteStartArray(c_chatRoomsJsonItemName);
                     foreach (DataGridViewRow row in sortedRows.Values)
                     {
@@ -818,10 +920,6 @@ namespace ChatRoomRecorder
                         writer.WriteEndObject();
                     }
                     writer.WriteEndArray();
-                    writer.WriteStartObject(c_settingsJsonItemName);
-                    writer.WriteString(c_outputDirectoryJsonItemName, OutputDirectoryTextBox.Text);
-                    writer.WriteString(c_ffmpegPathJsonItemName, FFmpegPathTextBox.Text);
-                    writer.WriteEndObject();
                     writer.WriteEndObject();
                     writer.Flush();
                 }
@@ -834,21 +932,24 @@ namespace ChatRoomRecorder
 
         private string _configDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + Assembly.GetEntryAssembly().GetName().Name;
         private object _lock = new();
-        private DateTime _lastUpdate = DateTime.Now;
+        private Dictionary<ChatRoomWebsite, DateTime> _lastUpdates = new() { { ChatRoomWebsite.Chaturbate, DateTime.Now }, { ChatRoomWebsite.BongaCams, DateTime.Now } };
         private bool _isExiting = false;
 
         private const string c_configFileName = "config.json";
         private const string c_ffmpegBinaryName = "ffmpeg.exe";
 
+        private const string c_settingsJsonItemName = "Settings";
+        private const string c_outputDirectoryJsonItemName = "OutputDirectory";
+        private const string c_ffmpegPathJsonItemName = "FFmpegPath";
+        private const string c_chaturbateConcurrentUpdatesJsonItemName = "ChaturbateConcurrentUpdates";
+        private const string c_bongaCamsConcurrentUpdatesJsonItemName = "BongaCamsConcurrentUpdates";
+        private const string c_updateIntervalJsonItemName = "UpdateInterval";
         private const string c_chatRoomsJsonItemName = "ChatRooms";
         private const string c_roomUrlJsonItemName = "RoomUrl";
         private const string c_actionJsonItemName = "Action";
         private const string c_preferredResolutionJsonItemName = "PreferredResolution";
         private const string c_lastUpdateJsonItemName = "LastUpdate";
         private const string c_lastSeenJsonItemName = "LastSeen";
-        private const string c_settingsJsonItemName = "Settings";
-        private const string c_outputDirectoryJsonItemName = "OutputDirectory";
-        private const string c_ffmpegPathJsonItemName = "FFmpegPath";
 
         private const int c_indexColumnIndex = 0;
         private const int c_websiteColumnIndex = 1;
