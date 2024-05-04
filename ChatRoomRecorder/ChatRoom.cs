@@ -20,6 +20,13 @@ namespace ChatRoomRecorder
         Chaturbate
      }
 
+    public enum ChatRoomAction
+    {
+        None,
+        Monitor,
+        Record
+    }
+
     public enum ChatRoomStatus
     {
         Unknown,
@@ -32,11 +39,140 @@ namespace ChatRoomRecorder
         Record
     }
 
-    public enum ChatRoomAction
+    public record struct ChatRoomResolution : IComparable<ChatRoomResolution>
     {
-        None,
-        Monitor,
-        Record
+        public static ChatRoomResolution Parse(string s)
+        {
+            try
+            {
+                MatchCollection matches = Regex.Matches(s, "^([0-9]*)x([0-9]*)$", RegexOptions.IgnoreCase);
+                return new ChatRoomResolution(UInt16.Parse(matches[0].Groups[1].Value), UInt16.Parse(matches[0].Groups[2].Value));
+            }
+            catch (Exception)
+            {
+                return ChatRoomResolution.MinValue;
+            }
+        }
+
+        public static int FindClosest(ChatRoomResolution desiredResolution, ChatRoomResolution[] allResolutions)
+        {
+            int index = -1;
+            int difference = -1;
+
+            if (allResolutions != null)
+            {
+                for (int i = 0; i < allResolutions.Length; i++)
+                {
+                    if (allResolutions[i] != ChatRoomResolution.MinValue)
+                    {
+                        int current_difference = Math.Abs(desiredResolution.TotalPixels - allResolutions[i].TotalPixels);
+                        if (index == -1 || current_difference < difference)
+                        {
+                            index = i;
+                            difference = current_difference;
+                        }
+                    }
+                }
+            }
+
+            return index;
+        }
+
+        public static ChatRoomResolution MinValue
+        {
+            get
+            {
+                return new ChatRoomResolution(0, 0);
+            }
+        }
+
+        public static ChatRoomResolution MaxValue
+        {
+            get
+            {
+                return new ChatRoomResolution(UInt16.MaxValue, UInt16.MaxValue);
+            }
+        }
+
+        public static ChatRoomResolution[] CommonResolutions
+        {
+            get
+            {
+                return new ChatRoomResolution[]
+                {
+                    new ChatRoomResolution(640, 360),
+                    new ChatRoomResolution(960, 540),
+                    new ChatRoomResolution(1280, 720),
+                    new ChatRoomResolution(1600, 900),
+                    new ChatRoomResolution(1920, 1080),
+                    new ChatRoomResolution(2560, 1440),
+                    new ChatRoomResolution(3840, 2160)
+                };
+            }
+        }
+
+        public static bool operator <(ChatRoomResolution left, ChatRoomResolution right)
+        {
+            return left.TotalPixels < right.TotalPixels;
+        }
+
+        public static bool operator >(ChatRoomResolution left, ChatRoomResolution right)
+        {
+            return left.TotalPixels > right.TotalPixels;
+        }
+
+        public static bool operator <=(ChatRoomResolution left, ChatRoomResolution right)
+        {
+            return left.TotalPixels <= right.TotalPixels;
+        }
+
+        public static bool operator >=(ChatRoomResolution left, ChatRoomResolution right)
+        {
+            return left.TotalPixels >= right.TotalPixels;
+        }
+
+        public ChatRoomResolution(UInt16 width, UInt16 height)
+        {
+            _width = width;
+            _height = height;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}x{1}", _width, _height);
+        }
+
+        public int CompareTo(ChatRoomResolution resolution)
+        {
+            return TotalPixels.CompareTo(resolution.TotalPixels);
+        }
+
+        public int TotalPixels
+        {
+            get
+            {
+                return (int)_width * (int)_height;
+            }
+        }
+
+        public UInt16 Width
+        {
+            get
+            {
+                return _width;
+            }
+        }
+
+        public UInt16 Height
+        {
+            get
+            {
+                return _height;
+            }
+        }
+
+        private UInt16 _width;
+        private UInt16 _height;
     }
 
     public class ChatRoom : IDisposable
@@ -52,8 +188,8 @@ namespace ChatRoomRecorder
                 _action = ChatRoomAction.None;
                 _roomUrl = parsedUrl.Item3;
                 _playlistUrl = String.Empty;
-                _availableResolutions = new List<string>();
-                _preferredResolution = String.Empty;
+                _availableResolutions = new List<ChatRoomResolution>();
+                _preferredResolution = ChatRoomResolution.MaxValue;
                 _outputDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
                 _ffmpegPath = (new FileInfo(Environment.ProcessPath)).Directory.FullName + Path.DirectorySeparatorChar + "ffmpeg.exe";
                 _ffmpegProcess = null;
@@ -302,16 +438,14 @@ namespace ChatRoomRecorder
             }
 
             ChatRoomStatus status = ChatRoomStatus.Unknown;
-            string playlistUrl = null;
-            List<string> availableResolutions = null;
-            JsonDocument doc = null;
+            string playlistUrl = string.Empty;
+            List<ChatRoomResolution> availableResolutions = new List<ChatRoomResolution>();
 
             try
             {
-                StreamReader reader = new(await e.Response.GetContentAsync());
-                string respStr = reader.ReadToEnd();
+                string respStr = new StreamReader(await e.Response.GetContentAsync()).ReadToEnd();
+                JsonDocument doc = JsonDocument.Parse(respStr);
 
-                doc = JsonDocument.Parse(respStr);
                 switch (doc.RootElement.GetProperty("room_status").GetString())
                 {
                     case "public":
@@ -330,66 +464,45 @@ namespace ChatRoomRecorder
                         status = ChatRoomStatus.Offline;
                         break;
                 }
-            }
-            catch (Exception)
-            {
-                status = ChatRoomStatus.Error;
-            }
 
-            if (status == ChatRoomStatus.Public)
-            {
-                try
+                if (status == ChatRoomStatus.Public)
                 {
                     playlistUrl = doc.RootElement.GetProperty("url").GetString();
                     HttpRequestMessage reqMsg = new(HttpMethod.Get, playlistUrl);
                     reqMsg.Headers.Add("Accept-Encoding", "gzip");
                     HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
                     string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
-                    availableResolutions = new List<string>();
+                    
                     for (int i = 0; i < playlist.Length; i++)
                     {
-                        string pattern = "^.*RESOLUTION=([0-9]*x[0-9]*).*$";
-                        MatchCollection matches = Regex.Matches(playlist[i], pattern, RegexOptions.IgnoreCase);
+                        MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
                         if (matches.Count > 0)
                         {
-                            availableResolutions.Add(matches[0].Groups[1].Value);
+                            availableResolutions.Add(ChatRoomResolution.Parse(matches[0].Groups[1].Value));
                         }
                     }
-                    if (availableResolutions.Count == 0)
-                    {
-                        status = ChatRoomStatus.Error;
-                    }
                 }
-                catch (Exception)
+
+                if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
                 {
-                    status = ChatRoomStatus.Error;
+                    status = ChatRoomStatus.Record;
                 }
-            }
 
-            if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
-            {
-                _status = ChatRoomStatus.Record;
+                MonitorOrRecord(ref status, playlistUrl, availableResolutions);
             }
-            else
+            catch (Exception)
             {
-                _status = status;
+                status = ChatRoomStatus.Error;
+                playlistUrl = string.Empty;
+                availableResolutions.Clear();
             }
-            if (_status == ChatRoomStatus.Public || _status == ChatRoomStatus.Record)
-            {
-                _playlistUrl = playlistUrl;
-                _availableResolutions = availableResolutions;
-            }
-            else
-            {
-                _playlistUrl = String.Empty;
-                _availableResolutions.Clear();
-            }
-
-            Record();
 
             await _semaphore.WaitAsync();
             try
             {
+                _status = status;
+                _playlistUrl = playlistUrl;
+                _availableResolutions = availableResolutions;
                 _isUpdating = false;
             }
             finally
@@ -415,26 +528,26 @@ namespace ChatRoomRecorder
                 _semaphore.Release();
             }
 
+            ChatRoomStatus status = ChatRoomStatus.Unknown;
+            string playlistUrl = string.Empty;
+            List<ChatRoomResolution> availableResolutions = new List<ChatRoomResolution>();
+
             try
             {
-                StreamReader reader = new(await e.Response.GetContentAsync());
-                string respStr = reader.ReadToEnd();
-
+                string respStr = new StreamReader(await e.Response.GetContentAsync()).ReadToEnd();
                 JsonNode rootNode = JsonNode.Parse(respStr);
-
                 JsonNode modelNode = null;
-                string username = string.Empty;
-                for (int i = 0; i < (int)rootNode["total_count"]; i++)
+                
+                for (int i = 0; i < (int)rootNode["total_count"] && modelNode == null; i++)
                 {
                     JsonNode node = ((JsonArray)rootNode["models"])[i];
                     string name = (string)node["username"];
                     if (name != null && name.ToLower() == _name)
                     {
                         modelNode = node;
-                        username = name;
-                        break;
                     }
                 }
+
                 if (modelNode == null)
                 {
                     throw new ArgumentException();
@@ -446,58 +559,52 @@ namespace ChatRoomRecorder
                     throw new ArgumentException();
                 }
 
-                string playlistUrl = String.Format("https://{0}.bcvcdn.com/hls/stream_{1}/playlist.m3u8", esid, username);
-                HttpRequestMessage reqMsg = new(HttpMethod.Get, playlistUrl);
+                HttpRequestMessage reqMsg = new(HttpMethod.Get, String.Format("https://{0}.bcvcdn.com/hls/stream_{1}/playlist.m3u8", esid, (string)modelNode["username"]));
                 HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
-                if (!respMsg.IsSuccessStatusCode)
+
+                if (respMsg.IsSuccessStatusCode)
                 {
-                    _status = ChatRoomStatus.Offline;
-                    _playlistUrl = String.Empty;
-                    _availableResolutions.Clear();
-                }
-                else
-                {
+                    playlistUrl = reqMsg.RequestUri.OriginalString;
                     string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
-                    List<string> availableResolutions = new();
+
                     for (int i = 0; i < playlist.Length; i++)
                     {
                         MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
                         if (matches.Count > 0)
                         {
-                            availableResolutions.Add(matches[0].Groups[1].Value);
+                            availableResolutions.Add(ChatRoomResolution.Parse(matches[0].Groups[1].Value));
                         }
                     }
-                    if (availableResolutions.Count > 0)
+
+                    if (_action == ChatRoomAction.Record)
                     {
-                        if (_action == ChatRoomAction.Record)
-                        {
-                            _status = ChatRoomStatus.Record;
-                        }
-                        else
-                        {
-                            _status = ChatRoomStatus.Public;
-                        }
-                        _playlistUrl = playlistUrl;
-                        _availableResolutions = availableResolutions;
+                        status = ChatRoomStatus.Record;
                     }
                     else
                     {
-                        throw new ArgumentException();
+                        status = ChatRoomStatus.Public;
                     }
                 }
+                else
+                {
+                    status = ChatRoomStatus.Offline;
+                }
+
+                MonitorOrRecord(ref status, playlistUrl, availableResolutions);
             }
             catch (Exception)
             {
-                _status = ChatRoomStatus.Error;
-                _playlistUrl = String.Empty;
-                _availableResolutions.Clear();
+                status = ChatRoomStatus.Error;
+                playlistUrl = String.Empty;
+                availableResolutions.Clear();
             }
-
-            Record();
 
             await _semaphore.WaitAsync();
             try
             {
+                _status = status;
+                _playlistUrl = playlistUrl;
+                _availableResolutions = availableResolutions;
                 _isUpdating = false;
             }
             finally
@@ -508,24 +615,24 @@ namespace ChatRoomRecorder
             UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
-        private void Record()
+        private void MonitorOrRecord(ref ChatRoomStatus status, string playlistUrl, List<ChatRoomResolution> availableResolutions)
         {
-            if (_status == ChatRoomStatus.Record)
+            if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
             {
-                try
+                int streamIndex = ChatRoomResolution.FindClosest(_preferredResolution, availableResolutions.ToArray());
+
+                if (streamIndex == -1)
                 {
-                    _fileName = (_outputDirectory + Path.DirectorySeparatorChar + _website + " " + _name + " " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".ts").ToLower();
+                    throw new ArgumentException();
+                }
+
+                if (status == ChatRoomStatus.Record)
+                {
+                    _fileName = String.Format("{0}\\{1} {2} {3}.ts", _outputDirectory, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
                     _fileSize = 0;
-                    int streamIndex = _availableResolutions.Contains(_preferredResolution) ? _availableResolutions.IndexOf(_preferredResolution) : _availableResolutions.Count - 1;
-                    string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", _playlistUrl, streamIndex, _fileName);
+                    string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName);
                     ProcessStartInfo psi = new() { FileName = _ffmpegPath, Arguments = ffmpegArgs, UseShellExecute = false, LoadUserProfile = false, CreateNoWindow = true };
                     _ffmpegProcess = Process.Start(psi);
-                }
-                catch (Exception)
-                {
-                    _status = ChatRoomStatus.Error;
-                    _playlistUrl = String.Empty;
-                    _availableResolutions.Clear();
                 }
             }
         }
@@ -632,7 +739,7 @@ namespace ChatRoomRecorder
             }
         }
 
-        public string[] AvailableResolutions
+        public ChatRoomResolution[] AvailableResolutions
         {
             get
             {
@@ -640,18 +747,11 @@ namespace ChatRoomRecorder
             }
         }
 
-        public string PreferredResolution
+        public ChatRoomResolution PreferredResolution
         {
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentException();
-                }
-                else
-                {
-                    _preferredResolution = value;
-                }
+                _preferredResolution = value;
             }
             get
             {
@@ -737,8 +837,8 @@ namespace ChatRoomRecorder
         private ChatRoomAction _action;
         private string _roomUrl;
         private string _playlistUrl;
-        private List<string> _availableResolutions;
-        private string _preferredResolution;
+        private List<ChatRoomResolution> _availableResolutions;
+        private ChatRoomResolution _preferredResolution;
         private string _outputDirectory;
         private string _ffmpegPath;
         private Process _ffmpegProcess;

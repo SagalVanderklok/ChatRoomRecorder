@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Drawing;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ChatRoomRecorder
 {
@@ -37,7 +36,7 @@ namespace ChatRoomRecorder
                 ChatRoomsDataGridView.Columns[c_nameColumnIndex].ValueType = typeof(string);
                 ChatRoomsDataGridView.Columns[c_actionColumnIndex].ValueType = typeof(ChatRoomAction);
                 ChatRoomsDataGridView.Columns[c_statusColumnIndex].ValueType = typeof(ChatRoomStatus);
-                ChatRoomsDataGridView.Columns[c_resolutionColumnIndex].ValueType = typeof(string);
+                ChatRoomsDataGridView.Columns[c_resolutionColumnIndex].ValueType = typeof(ChatRoomResolution);
                 ChatRoomsDataGridView.Columns[c_lastUpdateColumnIndex].ValueType = typeof(DateTime);
                 ChatRoomsDataGridView.Columns[c_lastSeenColumnIndex].ValueType = typeof(DateTime);
                 ChatRoomsDataGridView.Columns[c_urlColumnIndex].ValueType = typeof(string);
@@ -207,7 +206,12 @@ namespace ChatRoomRecorder
                     {
                         ToggleCellsEventHandling(false);
 
-                        ChatRoom chatRoom = new(URLTextBox.Text) { OutputDirectory = OutputDirectoryTextBox.Text, FFmpegPath = FFmpegPathTextBox.Text };
+                        ChatRoom chatRoom = new(URLTextBox.Text) 
+                        { 
+                            OutputDirectory = OutputDirectoryTextBox.Text, 
+                            FFmpegPath = FFmpegPathTextBox.Text,
+                            PreferredResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(c_defaultResolution, ChatRoomResolution.CommonResolutions)]
+                        };
                         chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
 
                         URLTextBox.Clear();
@@ -295,24 +299,9 @@ namespace ChatRoomRecorder
                         }
 
                         row.Cells[c_statusColumnIndex].Value = chatRoom.Status;
-                        
-                        DataGridViewComboBoxCell resolutionCell = (DataGridViewComboBoxCell)row.Cells[c_resolutionColumnIndex];
-                        if (chatRoom.AvailableResolutions.Length > 0)
-                        {
-                            resolutionCell.DataSource = (new string[] { string.Empty }).Concat(chatRoom.AvailableResolutions).ToArray();
-                            resolutionCell.Value = chatRoom.AvailableResolutions.Contains(chatRoom.PreferredResolution) ? chatRoom.PreferredResolution : string.Empty;
-                        }
-                        else if (chatRoom.PreferredResolution != string.Empty)
-                        {
-                            resolutionCell.DataSource = new string[] { string.Empty, chatRoom.PreferredResolution };
-                            resolutionCell.Value = chatRoom.PreferredResolution;
-                        }
-                        else
-                        {
-                            resolutionCell.DataSource = new string[] { string.Empty };
-                            resolutionCell.Value = string.Empty;
-                        }
-                        
+
+                        row.Cells[c_resolutionColumnIndex].Value = chatRoom.PreferredResolution;
+
                         row.Cells[c_lastUpdateColumnIndex].Value = DateTime.Now;
 
                         if (chatRoom.Status != ChatRoomStatus.Unknown && chatRoom.Status != ChatRoomStatus.Error && chatRoom.Status != ChatRoomStatus.Offline)
@@ -429,7 +418,7 @@ namespace ChatRoomRecorder
                             chatRoom.Action = (ChatRoomAction)Enum.Parse(typeof(ChatRoomAction), (string)e.FormattedValue);
                             break;
                         case 5:  //Resolution
-                            chatRoom.PreferredResolution = e.FormattedValue == null ? string.Empty : (string)e.FormattedValue;
+                            chatRoom.PreferredResolution = ChatRoomResolution.Parse((string)e.FormattedValue);
                             break;
                     }
                 }
@@ -655,17 +644,9 @@ namespace ChatRoomRecorder
             row.Cells[c_statusColumnIndex].Value = chatRoom.Status;
             
             DataGridViewComboBoxCell resolutionCell = (DataGridViewComboBoxCell)row.Cells[c_resolutionColumnIndex];
-            if (chatRoom.PreferredResolution != string.Empty)
-            {
-                resolutionCell.DataSource = new string[] { string.Empty, chatRoom.PreferredResolution };
-                resolutionCell.Value = chatRoom.PreferredResolution;
-            }
-            else
-            {
-                resolutionCell.DataSource = new string[] { string.Empty };
-                resolutionCell.Value = string.Empty;
-            }
-            
+            resolutionCell.DataSource = ChatRoomResolution.CommonResolutions;
+            resolutionCell.Value = chatRoom.PreferredResolution;
+
             row.Cells[c_lastUpdateColumnIndex].Value = lastUpdate;
             
             row.Cells[c_lastSeenColumnIndex].Value = lastSeen;
@@ -777,7 +758,7 @@ namespace ChatRoomRecorder
                     ChatRoom chatRoom = new(roomUrl)
                     {
                         Action = (ChatRoomAction)ReadParameter(c_actionJsonItemName, chatRoomNode),
-                        PreferredResolution = (string)ReadParameter(c_preferredResolutionJsonItemName, chatRoomNode),
+                        PreferredResolution = (ChatRoomResolution)ReadParameter(c_preferredResolutionJsonItemName, chatRoomNode),
                         OutputDirectory = OutputDirectoryTextBox.Text,
                         FFmpegPath = FFmpegPathTextBox.Text
                     };
@@ -828,7 +809,7 @@ namespace ChatRoomRecorder
                         value = (ChatRoomAction)Enum.Parse(typeof(ChatRoomAction), (string)node[c_actionJsonItemName]);
                         break;
                     case c_preferredResolutionJsonItemName:
-                        value = (string)node[c_preferredResolutionJsonItemName];
+                        value = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(ChatRoomResolution.Parse((string)node[c_preferredResolutionJsonItemName]), ChatRoomResolution.CommonResolutions)];
                         break;
                     case c_lastUpdateJsonItemName:
                         value = DateTime.Parse((string)node[c_lastUpdateJsonItemName]);
@@ -872,7 +853,7 @@ namespace ChatRoomRecorder
                         value = ChatRoomAction.None;
                         break;
                     case c_preferredResolutionJsonItemName:
-                        value = string.Empty;
+                        value = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(c_defaultResolution, ChatRoomResolution.CommonResolutions)];
                         break;
                     case c_lastUpdateJsonItemName:
                         value = DateTime.MinValue;
@@ -930,10 +911,12 @@ namespace ChatRoomRecorder
             }
         }
 
-        private string _configDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + Assembly.GetEntryAssembly().GetName().Name;
         private object _lock = new();
         private Dictionary<ChatRoomWebsite, DateTime> _lastUpdates = new() { { ChatRoomWebsite.Chaturbate, DateTime.Now }, { ChatRoomWebsite.BongaCams, DateTime.Now } };
         private bool _isExiting = false;
+
+        private readonly string _configDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + Assembly.GetEntryAssembly().GetName().Name;
+        private readonly ChatRoomResolution c_defaultResolution = ChatRoomResolution.Parse("1920x1080");
 
         private const string c_configFileName = "config.json";
         private const string c_ffmpegBinaryName = "ffmpeg.exe";
