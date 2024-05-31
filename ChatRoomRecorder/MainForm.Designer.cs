@@ -28,253 +28,341 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.TabControl = new System.Windows.Forms.TabControl();
-            this.WebBrowserTabPage = new System.Windows.Forms.TabPage();
-            this.StopButton = new System.Windows.Forms.Button();
-            this.ForwardButton = new System.Windows.Forms.Button();
-            this.BackButton = new System.Windows.Forms.Button();
-            this.WebViewPanel = new System.Windows.Forms.Panel();
-            this.WebView = new Microsoft.Web.WebView2.WinForms.WebView2();
-            this.AddressBarTextBox = new System.Windows.Forms.TextBox();
-            this.ChatRoomsTabPage = new System.Windows.Forms.TabPage();
-            this.SplitContainer = new System.Windows.Forms.SplitContainer();
-            this.URLTextBox = new System.Windows.Forms.TextBox();
-            this.ChatRoomsDataGridView = new System.Windows.Forms.DataGridView();
-            this.IndexColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ActionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.StatusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ResolutionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.LastUpdateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.LastSeenColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.URLColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.PlusButton = new System.Windows.Forms.Button();
-            this.FilesDataGridView = new System.Windows.Forms.DataGridView();
-            this.FileNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.FileSizeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SettingsTabPage = new System.Windows.Forms.TabPage();
-            this.UpdateIntervalNumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.UpdateIntervalLabel = new System.Windows.Forms.Label();
-            this.BongaCamsConcurrentUpdatesNumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.ChaturbateConcurrentUpdatesNumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.BongaCamsConcurrentUpdatesLabel = new System.Windows.Forms.Label();
-            this.ChaturbateConcurrentUpdatesLabel = new System.Windows.Forms.Label();
-            this.FFmpegPathLabel = new System.Windows.Forms.Label();
-            this.OutputDirectoryButton = new System.Windows.Forms.Button();
-            this.FFmpegPathButton = new System.Windows.Forms.Button();
-            this.FFmpegPathTextBox = new System.Windows.Forms.TextBox();
-            this.OutputDirectoryTextBox = new System.Windows.Forms.TextBox();
-            this.OutputDirectoryLabel = new System.Windows.Forms.Label();
-            this.AboutTabPage = new System.Windows.Forms.TabPage();
-            this.LicenseTextBox = new System.Windows.Forms.TextBox();
-            this.ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(this.components);
-            this.FormCloseTimer = new System.Windows.Forms.Timer(this.components);
-            this.TabControl.SuspendLayout();
-            this.WebBrowserTabPage.SuspendLayout();
-            this.WebViewPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.WebView)).BeginInit();
-            this.ChatRoomsTabPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.SplitContainer)).BeginInit();
-            this.SplitContainer.Panel1.SuspendLayout();
-            this.SplitContainer.Panel2.SuspendLayout();
-            this.SplitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ChatRoomsDataGridView)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.FilesDataGridView)).BeginInit();
-            this.SettingsTabPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.UpdateIntervalNumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.BongaCamsConcurrentUpdatesNumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ChaturbateConcurrentUpdatesNumericUpDown)).BeginInit();
-            this.AboutTabPage.SuspendLayout();
-            this.SuspendLayout();
+            FilesBindingSource = new System.Windows.Forms.BindingSource(components);
+            TabControl = new System.Windows.Forms.TabControl();
+            WebBrowserTabPage = new System.Windows.Forms.TabPage();
+            WebBrowserTableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            WebBrowserTableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            StopButton = new System.Windows.Forms.Button();
+            ForwardButton = new System.Windows.Forms.Button();
+            BackButton = new System.Windows.Forms.Button();
+            NavigateButton = new System.Windows.Forms.Button();
+            AddressBarTextBox = new System.Windows.Forms.TextBox();
+            WebView2Panel = new System.Windows.Forms.Panel();
+            WebView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
+            ChatRoomsTabPage = new System.Windows.Forms.TabPage();
+            ChatRoomsTableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            ChatRoomsTableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            UrlTextBox = new System.Windows.Forms.TextBox();
+            PlusButton = new System.Windows.Forms.Button();
+            ChatRoomsSplitContainer = new System.Windows.Forms.SplitContainer();
+            ChatRoomsDataGridView = new System.Windows.Forms.DataGridView();
+            WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ActionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            ResolutionColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            StatusColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            UpdatedColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            SeenColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            UrlColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ChatRoomsBindingSource = new System.Windows.Forms.BindingSource(components);
+            FilesDataGridView = new System.Windows.Forms.DataGridView();
+            FileNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            FileSizeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            SettingsTabPage = new System.Windows.Forms.TabPage();
+            SettingsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            OutputDirectoryTextBox = new System.Windows.Forms.TextBox();
+            FFmpegPathTextBox = new System.Windows.Forms.TextBox();
+            ChaturbateConcurrentUpdatesNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            BongaCamsConcurrentUpdatesNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            UpdateIntervalNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            OutputDirectoryLabel = new System.Windows.Forms.Label();
+            FFmpegPathLabel = new System.Windows.Forms.Label();
+            ChaturbateConcurrentUpdatesLabel = new System.Windows.Forms.Label();
+            BongaCamsConcurrentUpdatesLabel = new System.Windows.Forms.Label();
+            UpdateIntervalLabel = new System.Windows.Forms.Label();
+            AboutTabPage = new System.Windows.Forms.TabPage();
+            LicenseTextBox = new System.Windows.Forms.TextBox();
+            ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(components);
+            FormCloseTimer = new System.Windows.Forms.Timer(components);
+            SettingsBindingSource = new System.Windows.Forms.BindingSource(components);
+            ((System.ComponentModel.ISupportInitialize)FilesBindingSource).BeginInit();
+            TabControl.SuspendLayout();
+            WebBrowserTabPage.SuspendLayout();
+            WebBrowserTableLayoutPanel1.SuspendLayout();
+            WebBrowserTableLayoutPanel2.SuspendLayout();
+            WebView2Panel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)WebView2).BeginInit();
+            ChatRoomsTabPage.SuspendLayout();
+            ChatRoomsTableLayoutPanel1.SuspendLayout();
+            ChatRoomsTableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer).BeginInit();
+            ChatRoomsSplitContainer.Panel1.SuspendLayout();
+            ChatRoomsSplitContainer.Panel2.SuspendLayout();
+            ChatRoomsSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsDataGridView).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsBindingSource).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)FilesDataGridView).BeginInit();
+            SettingsTabPage.SuspendLayout();
+            SettingsTableLayoutPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)ChaturbateConcurrentUpdatesNumericUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)BongaCamsConcurrentUpdatesNumericUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)UpdateIntervalNumericUpDown).BeginInit();
+            AboutTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)SettingsBindingSource).BeginInit();
+            SuspendLayout();
             // 
             // TabControl
             // 
-            this.TabControl.Controls.Add(this.WebBrowserTabPage);
-            this.TabControl.Controls.Add(this.ChatRoomsTabPage);
-            this.TabControl.Controls.Add(this.SettingsTabPage);
-            this.TabControl.Controls.Add(this.AboutTabPage);
-            this.TabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TabControl.Enabled = false;
-            this.TabControl.Location = new System.Drawing.Point(0, 0);
-            this.TabControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.TabControl.Name = "TabControl";
-            this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(784, 561);
-            this.TabControl.TabIndex = 19;
+            TabControl.Controls.Add(WebBrowserTabPage);
+            TabControl.Controls.Add(ChatRoomsTabPage);
+            TabControl.Controls.Add(SettingsTabPage);
+            TabControl.Controls.Add(AboutTabPage);
+            TabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            TabControl.Enabled = false;
+            TabControl.Location = new System.Drawing.Point(0, 0);
+            TabControl.Margin = new System.Windows.Forms.Padding(0);
+            TabControl.Name = "TabControl";
+            TabControl.Padding = new System.Drawing.Point(5, 5);
+            TabControl.SelectedIndex = 0;
+            TabControl.Size = new System.Drawing.Size(784, 561);
+            TabControl.TabIndex = 19;
             // 
             // WebBrowserTabPage
             // 
-            this.WebBrowserTabPage.Controls.Add(this.StopButton);
-            this.WebBrowserTabPage.Controls.Add(this.ForwardButton);
-            this.WebBrowserTabPage.Controls.Add(this.BackButton);
-            this.WebBrowserTabPage.Controls.Add(this.WebViewPanel);
-            this.WebBrowserTabPage.Controls.Add(this.AddressBarTextBox);
-            this.WebBrowserTabPage.Location = new System.Drawing.Point(4, 24);
-            this.WebBrowserTabPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.WebBrowserTabPage.Name = "WebBrowserTabPage";
-            this.WebBrowserTabPage.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.WebBrowserTabPage.Size = new System.Drawing.Size(776, 533);
-            this.WebBrowserTabPage.TabIndex = 0;
-            this.WebBrowserTabPage.Text = "Web browser";
-            this.WebBrowserTabPage.UseVisualStyleBackColor = true;
+            WebBrowserTabPage.Controls.Add(WebBrowserTableLayoutPanel1);
+            WebBrowserTabPage.Location = new System.Drawing.Point(4, 28);
+            WebBrowserTabPage.Margin = new System.Windows.Forms.Padding(0);
+            WebBrowserTabPage.Name = "WebBrowserTabPage";
+            WebBrowserTabPage.Size = new System.Drawing.Size(776, 529);
+            WebBrowserTabPage.TabIndex = 0;
+            WebBrowserTabPage.Text = "Web browser";
+            WebBrowserTabPage.UseVisualStyleBackColor = true;
+            // 
+            // WebBrowserTableLayoutPanel1
+            // 
+            WebBrowserTableLayoutPanel1.ColumnCount = 1;
+            WebBrowserTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            WebBrowserTableLayoutPanel1.Controls.Add(WebBrowserTableLayoutPanel2, 0, 0);
+            WebBrowserTableLayoutPanel1.Controls.Add(WebView2Panel, 0, 1);
+            WebBrowserTableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            WebBrowserTableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            WebBrowserTableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            WebBrowserTableLayoutPanel1.Name = "WebBrowserTableLayoutPanel1";
+            WebBrowserTableLayoutPanel1.RowCount = 2;
+            WebBrowserTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
+            WebBrowserTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            WebBrowserTableLayoutPanel1.Size = new System.Drawing.Size(776, 529);
+            WebBrowserTableLayoutPanel1.TabIndex = 0;
+            // 
+            // WebBrowserTableLayoutPanel2
+            // 
+            WebBrowserTableLayoutPanel2.ColumnCount = 5;
+            WebBrowserTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            WebBrowserTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            WebBrowserTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            WebBrowserTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            WebBrowserTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            WebBrowserTableLayoutPanel2.Controls.Add(StopButton, 0, 0);
+            WebBrowserTableLayoutPanel2.Controls.Add(ForwardButton, 0, 0);
+            WebBrowserTableLayoutPanel2.Controls.Add(BackButton, 0, 0);
+            WebBrowserTableLayoutPanel2.Controls.Add(NavigateButton, 3, 0);
+            WebBrowserTableLayoutPanel2.Controls.Add(AddressBarTextBox, 4, 0);
+            WebBrowserTableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            WebBrowserTableLayoutPanel2.Location = new System.Drawing.Point(0, 5);
+            WebBrowserTableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
+            WebBrowserTableLayoutPanel2.Name = "WebBrowserTableLayoutPanel2";
+            WebBrowserTableLayoutPanel2.RowCount = 1;
+            WebBrowserTableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            WebBrowserTableLayoutPanel2.Size = new System.Drawing.Size(776, 23);
+            WebBrowserTableLayoutPanel2.TabIndex = 0;
             // 
             // StopButton
             // 
-            this.StopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.StopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.StopButton.Location = new System.Drawing.Point(723, 4);
-            this.StopButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.StopButton.Name = "StopButton";
-            this.StopButton.Size = new System.Drawing.Size(51, 25);
-            this.StopButton.TabIndex = 5;
-            this.StopButton.Text = "×";
-            this.StopButton.UseVisualStyleBackColor = true;
-            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
+            StopButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            StopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            StopButton.Location = new System.Drawing.Point(102, 0);
+            StopButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            StopButton.Name = "StopButton";
+            StopButton.Size = new System.Drawing.Size(46, 23);
+            StopButton.TabIndex = 40;
+            StopButton.Text = "×";
+            StopButton.UseVisualStyleBackColor = true;
+            StopButton.Click += StopButton_Click;
             // 
             // ForwardButton
             // 
-            this.ForwardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ForwardButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ForwardButton.Location = new System.Drawing.Point(668, 4);
-            this.ForwardButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.ForwardButton.Name = "ForwardButton";
-            this.ForwardButton.Size = new System.Drawing.Size(51, 25);
-            this.ForwardButton.TabIndex = 4;
-            this.ForwardButton.Text = "→";
-            this.ForwardButton.UseVisualStyleBackColor = true;
-            this.ForwardButton.Click += new System.EventHandler(this.ForwardButton_Click);
+            ForwardButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            ForwardButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            ForwardButton.Location = new System.Drawing.Point(52, 0);
+            ForwardButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            ForwardButton.Name = "ForwardButton";
+            ForwardButton.Size = new System.Drawing.Size(46, 23);
+            ForwardButton.TabIndex = 10;
+            ForwardButton.Text = "→";
+            ForwardButton.UseVisualStyleBackColor = true;
+            ForwardButton.Click += ForwardButton_Click;
             // 
             // BackButton
             // 
-            this.BackButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BackButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.BackButton.Location = new System.Drawing.Point(613, 4);
-            this.BackButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BackButton.Name = "BackButton";
-            this.BackButton.Size = new System.Drawing.Size(51, 25);
-            this.BackButton.TabIndex = 3;
-            this.BackButton.Text = "←";
-            this.BackButton.UseVisualStyleBackColor = true;
-            this.BackButton.Click += new System.EventHandler(this.BackButton_Click);
+            BackButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            BackButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            BackButton.Location = new System.Drawing.Point(0, 0);
+            BackButton.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            BackButton.Name = "BackButton";
+            BackButton.Size = new System.Drawing.Size(48, 23);
+            BackButton.TabIndex = 9;
+            BackButton.Text = "←";
+            BackButton.UseVisualStyleBackColor = true;
+            BackButton.Click += BackButton_Click;
             // 
-            // WebViewPanel
+            // NavigateButton
             // 
-            this.WebViewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.WebViewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.WebViewPanel.Controls.Add(this.WebView);
-            this.WebViewPanel.Location = new System.Drawing.Point(0, 33);
-            this.WebViewPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.WebViewPanel.Name = "WebViewPanel";
-            this.WebViewPanel.Size = new System.Drawing.Size(773, 499);
-            this.WebViewPanel.TabIndex = 2;
-            // 
-            // WebView
-            // 
-            this.WebView.AllowExternalDrop = true;
-            this.WebView.CreationProperties = null;
-            this.WebView.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.WebView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WebView.Location = new System.Drawing.Point(0, 0);
-            this.WebView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.WebView.Name = "WebView";
-            this.WebView.Size = new System.Drawing.Size(771, 497);
-            this.WebView.Source = new System.Uri("about:blank", System.UriKind.Absolute);
-            this.WebView.TabIndex = 0;
-            this.WebView.ZoomFactor = 1D;
-            this.WebView.CoreWebView2InitializationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs>(this.WebView_CoreWebView2InitializationCompleted);
-            this.WebView.ContentLoading += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2ContentLoadingEventArgs>(this.WebView_ContentLoading);
+            NavigateButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            NavigateButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            NavigateButton.Location = new System.Drawing.Point(152, 0);
+            NavigateButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            NavigateButton.Name = "NavigateButton";
+            NavigateButton.Size = new System.Drawing.Size(46, 23);
+            NavigateButton.TabIndex = 7;
+            NavigateButton.Text = "↩";
+            NavigateButton.UseVisualStyleBackColor = true;
+            NavigateButton.Click += NavigateButton_Click;
             // 
             // AddressBarTextBox
             // 
-            this.AddressBarTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.AddressBarTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.AddressBarTextBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.AddressBarTextBox.Location = new System.Drawing.Point(0, 5);
-            this.AddressBarTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.AddressBarTextBox.Name = "AddressBarTextBox";
-            this.AddressBarTextBox.Size = new System.Drawing.Size(608, 23);
-            this.AddressBarTextBox.TabIndex = 0;
-            this.AddressBarTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.AddressBarTextBox_KeyDown);
+            AddressBarTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            AddressBarTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            AddressBarTextBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            AddressBarTextBox.Location = new System.Drawing.Point(202, 0);
+            AddressBarTextBox.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
+            AddressBarTextBox.Name = "AddressBarTextBox";
+            AddressBarTextBox.Size = new System.Drawing.Size(574, 23);
+            AddressBarTextBox.TabIndex = 8;
+            AddressBarTextBox.KeyDown += AddressBarTextBox_KeyDown;
+            // 
+            // WebView2Panel
+            // 
+            WebView2Panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            WebView2Panel.Controls.Add(WebView2);
+            WebView2Panel.Dock = System.Windows.Forms.DockStyle.Fill;
+            WebView2Panel.Location = new System.Drawing.Point(0, 33);
+            WebView2Panel.Margin = new System.Windows.Forms.Padding(0);
+            WebView2Panel.Name = "WebView2Panel";
+            WebView2Panel.Size = new System.Drawing.Size(776, 496);
+            WebView2Panel.TabIndex = 1;
+            // 
+            // WebView2
+            // 
+            WebView2.AllowExternalDrop = true;
+            WebView2.CreationProperties = null;
+            WebView2.DefaultBackgroundColor = System.Drawing.Color.White;
+            WebView2.Dock = System.Windows.Forms.DockStyle.Fill;
+            WebView2.Location = new System.Drawing.Point(0, 0);
+            WebView2.Margin = new System.Windows.Forms.Padding(0);
+            WebView2.Name = "WebView2";
+            WebView2.Size = new System.Drawing.Size(774, 494);
+            WebView2.Source = new System.Uri("about:blank", System.UriKind.Absolute);
+            WebView2.TabIndex = 42;
+            WebView2.ZoomFactor = 1D;
+            WebView2.CoreWebView2InitializationCompleted += WebView2_CoreWebView2InitializationCompleted;
+            WebView2.ContentLoading += WebView2_ContentLoading;
             // 
             // ChatRoomsTabPage
             // 
-            this.ChatRoomsTabPage.Controls.Add(this.SplitContainer);
-            this.ChatRoomsTabPage.Location = new System.Drawing.Point(4, 24);
-            this.ChatRoomsTabPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.ChatRoomsTabPage.Name = "ChatRoomsTabPage";
-            this.ChatRoomsTabPage.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.ChatRoomsTabPage.Size = new System.Drawing.Size(776, 533);
-            this.ChatRoomsTabPage.TabIndex = 1;
-            this.ChatRoomsTabPage.Text = "Chat rooms";
-            this.ChatRoomsTabPage.UseVisualStyleBackColor = true;
+            ChatRoomsTabPage.Controls.Add(ChatRoomsTableLayoutPanel1);
+            ChatRoomsTabPage.Location = new System.Drawing.Point(4, 28);
+            ChatRoomsTabPage.Margin = new System.Windows.Forms.Padding(0);
+            ChatRoomsTabPage.Name = "ChatRoomsTabPage";
+            ChatRoomsTabPage.Size = new System.Drawing.Size(776, 529);
+            ChatRoomsTabPage.TabIndex = 1;
+            ChatRoomsTabPage.Text = "Chat rooms";
+            ChatRoomsTabPage.UseVisualStyleBackColor = true;
             // 
-            // SplitContainer
+            // ChatRoomsTableLayoutPanel1
             // 
-            this.SplitContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.SplitContainer.BackColor = System.Drawing.Color.Transparent;
-            this.SplitContainer.Location = new System.Drawing.Point(0, 3);
-            this.SplitContainer.Margin = new System.Windows.Forms.Padding(0);
-            this.SplitContainer.Name = "SplitContainer";
-            this.SplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            ChatRoomsTableLayoutPanel1.ColumnCount = 1;
+            ChatRoomsTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            ChatRoomsTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            ChatRoomsTableLayoutPanel1.Controls.Add(ChatRoomsTableLayoutPanel2, 0, 0);
+            ChatRoomsTableLayoutPanel1.Controls.Add(ChatRoomsSplitContainer, 0, 1);
+            ChatRoomsTableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            ChatRoomsTableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            ChatRoomsTableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            ChatRoomsTableLayoutPanel1.Name = "ChatRoomsTableLayoutPanel1";
+            ChatRoomsTableLayoutPanel1.RowCount = 2;
+            ChatRoomsTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
+            ChatRoomsTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            ChatRoomsTableLayoutPanel1.Size = new System.Drawing.Size(776, 529);
+            ChatRoomsTableLayoutPanel1.TabIndex = 13;
             // 
-            // SplitContainer.Panel1
+            // ChatRoomsTableLayoutPanel2
             // 
-            this.SplitContainer.Panel1.BackColor = System.Drawing.Color.Transparent;
-            this.SplitContainer.Panel1.Controls.Add(this.URLTextBox);
-            this.SplitContainer.Panel1.Controls.Add(this.ChatRoomsDataGridView);
-            this.SplitContainer.Panel1.Controls.Add(this.PlusButton);
+            ChatRoomsTableLayoutPanel2.ColumnCount = 2;
+            ChatRoomsTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            ChatRoomsTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            ChatRoomsTableLayoutPanel2.Controls.Add(UrlTextBox, 1, 0);
+            ChatRoomsTableLayoutPanel2.Controls.Add(PlusButton, 0, 0);
+            ChatRoomsTableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            ChatRoomsTableLayoutPanel2.Location = new System.Drawing.Point(0, 5);
+            ChatRoomsTableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
+            ChatRoomsTableLayoutPanel2.Name = "ChatRoomsTableLayoutPanel2";
+            ChatRoomsTableLayoutPanel2.RowCount = 1;
+            ChatRoomsTableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            ChatRoomsTableLayoutPanel2.Size = new System.Drawing.Size(776, 23);
+            ChatRoomsTableLayoutPanel2.TabIndex = 0;
             // 
-            // SplitContainer.Panel2
+            // UrlTextBox
             // 
-            this.SplitContainer.Panel2.BackColor = System.Drawing.Color.Transparent;
-            this.SplitContainer.Panel2.Controls.Add(this.FilesDataGridView);
-            this.SplitContainer.Size = new System.Drawing.Size(773, 529);
-            this.SplitContainer.SplitterDistance = 375;
-            this.SplitContainer.TabIndex = 12;
+            UrlTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            UrlTextBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            UrlTextBox.Location = new System.Drawing.Point(52, 0);
+            UrlTextBox.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
+            UrlTextBox.Name = "UrlTextBox";
+            UrlTextBox.Size = new System.Drawing.Size(724, 23);
+            UrlTextBox.TabIndex = 6;
+            UrlTextBox.TextChanged += UrlTextBox_TextChanged;
+            UrlTextBox.KeyDown += UrlTextBox_KeyDown;
             // 
-            // URLTextBox
+            // PlusButton
             // 
-            this.URLTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.URLTextBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.URLTextBox.Location = new System.Drawing.Point(0, 2);
-            this.URLTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.URLTextBox.Name = "URLTextBox";
-            this.URLTextBox.Size = new System.Drawing.Size(718, 23);
-            this.URLTextBox.TabIndex = 6;
-            this.URLTextBox.TextChanged += new System.EventHandler(this.URLTextBox_TextChanged);
+            PlusButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            PlusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            PlusButton.Location = new System.Drawing.Point(0, 0);
+            PlusButton.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            PlusButton.Name = "PlusButton";
+            PlusButton.Size = new System.Drawing.Size(48, 23);
+            PlusButton.TabIndex = 7;
+            PlusButton.Text = "+";
+            PlusButton.UseVisualStyleBackColor = true;
+            PlusButton.Click += PlusButton_Click;
+            // 
+            // ChatRoomsSplitContainer
+            // 
+            ChatRoomsSplitContainer.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            ChatRoomsSplitContainer.BackColor = System.Drawing.Color.Transparent;
+            ChatRoomsSplitContainer.Location = new System.Drawing.Point(0, 33);
+            ChatRoomsSplitContainer.Margin = new System.Windows.Forms.Padding(0);
+            ChatRoomsSplitContainer.Name = "ChatRoomsSplitContainer";
+            ChatRoomsSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // ChatRoomsSplitContainer.Panel1
+            // 
+            ChatRoomsSplitContainer.Panel1.BackColor = System.Drawing.Color.Transparent;
+            ChatRoomsSplitContainer.Panel1.Controls.Add(ChatRoomsDataGridView);
+            // 
+            // ChatRoomsSplitContainer.Panel2
+            // 
+            ChatRoomsSplitContainer.Panel2.BackColor = System.Drawing.Color.Transparent;
+            ChatRoomsSplitContainer.Panel2.Controls.Add(FilesDataGridView);
+            ChatRoomsSplitContainer.Size = new System.Drawing.Size(776, 496);
+            ChatRoomsSplitContainer.SplitterDistance = 351;
+            ChatRoomsSplitContainer.TabIndex = 12;
             // 
             // ChatRoomsDataGridView
             // 
-            this.ChatRoomsDataGridView.AllowUserToAddRows = false;
-            this.ChatRoomsDataGridView.AllowUserToDeleteRows = false;
-            this.ChatRoomsDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ChatRoomsDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            ChatRoomsDataGridView.AllowUserToAddRows = false;
+            ChatRoomsDataGridView.AllowUserToDeleteRows = false;
+            ChatRoomsDataGridView.AutoGenerateColumns = false;
+            ChatRoomsDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -282,514 +370,421 @@
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.IndexColumn,
-            this.WebsiteColumn,
-            this.NameColumn,
-            this.ActionColumn,
-            this.StatusColumn,
-            this.ResolutionColumn,
-            this.LastUpdateColumn,
-            this.LastSeenColumn,
-            this.URLColumn});
-            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle11.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle11;
-            this.ChatRoomsDataGridView.Location = new System.Drawing.Point(0, 30);
-            this.ChatRoomsDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
-            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle12.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
-            this.ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.ChatRoomsDataGridView.Size = new System.Drawing.Size(773, 344);
-            this.ChatRoomsDataGridView.TabIndex = 11;
-            this.ChatRoomsDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.ChatRoomsDataGridView_CellBeginEdit);
-            this.ChatRoomsDataGridView.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellEndEdit);
-            this.ChatRoomsDataGridView.CellLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellLeave);
-            this.ChatRoomsDataGridView.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_CellMouseClick);
-            this.ChatRoomsDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.ChatRoomsDataGridView_CellValidating);
-            this.ChatRoomsDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ChatRoomsDataGridView_CellValueChanged);
-            this.ChatRoomsDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.ChatRoomsDataGridView_ColumnHeaderMouseClick);
-            this.ChatRoomsDataGridView.CurrentCellChanged += new System.EventHandler(this.ChatRoomsDataGridView_CurrentCellChanged);
-            // 
-            // IndexColumn
-            // 
+            ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { WebsiteColumn, NameColumn, ActionColumn, ResolutionColumn, StatusColumn, UpdatedColumn, SeenColumn, UrlColumn });
+            ChatRoomsDataGridView.DataSource = ChatRoomsBindingSource;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.IndexColumn.DefaultCellStyle = dataGridViewCellStyle2;
-            this.IndexColumn.FillWeight = 50.59083F;
-            this.IndexColumn.HeaderText = "#";
-            this.IndexColumn.Name = "IndexColumn";
-            this.IndexColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+            ChatRoomsDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            ChatRoomsDataGridView.Location = new System.Drawing.Point(0, 0);
+            ChatRoomsDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            ChatRoomsDataGridView.Size = new System.Drawing.Size(776, 351);
+            ChatRoomsDataGridView.TabIndex = 11;
+            ChatRoomsDataGridView.CellBeginEdit += ChatRoomsDataGridView_CellBeginEdit;
+            ChatRoomsDataGridView.CellEndEdit += ChatRoomsDataGridView_CellEndEdit;
+            ChatRoomsDataGridView.CellLeave += ChatRoomsDataGridView_CellLeave;
+            ChatRoomsDataGridView.CellMouseClick += ChatRoomsDataGridView_CellMouseClick;
+            ChatRoomsDataGridView.CellValueChanged += ChatRoomsDataGridView_CellValueChanged;
+            ChatRoomsDataGridView.ColumnHeaderMouseClick += ChatRoomsDataGridView_ColumnHeaderMouseClick;
+            ChatRoomsDataGridView.SelectionChanged += ChatRoomsDataGridView_SelectionChanged;
             // 
             // WebsiteColumn
             // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.WebsiteColumn.DefaultCellStyle = dataGridViewCellStyle3;
-            this.WebsiteColumn.FillWeight = 107.9471F;
-            this.WebsiteColumn.HeaderText = "Website";
-            this.WebsiteColumn.Name = "WebsiteColumn";
-            this.WebsiteColumn.ReadOnly = true;
-            this.WebsiteColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            WebsiteColumn.DataPropertyName = "Website";
+            WebsiteColumn.HeaderText = "Website";
+            WebsiteColumn.Name = "WebsiteColumn";
+            WebsiteColumn.ReadOnly = true;
             // 
             // NameColumn
             // 
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.NameColumn.DefaultCellStyle = dataGridViewCellStyle4;
-            this.NameColumn.FillWeight = 105.555F;
-            this.NameColumn.HeaderText = "Name";
-            this.NameColumn.Name = "NameColumn";
-            this.NameColumn.ReadOnly = true;
-            this.NameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            NameColumn.DataPropertyName = "Name";
+            NameColumn.HeaderText = "Name";
+            NameColumn.Name = "NameColumn";
+            NameColumn.ReadOnly = true;
             // 
             // ActionColumn
             // 
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ActionColumn.DefaultCellStyle = dataGridViewCellStyle5;
-            this.ActionColumn.FillWeight = 107.0367F;
-            this.ActionColumn.HeaderText = "Action";
-            this.ActionColumn.MaxDropDownItems = 16;
-            this.ActionColumn.Name = "ActionColumn";
-            this.ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // StatusColumn
-            // 
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.StatusColumn.DefaultCellStyle = dataGridViewCellStyle6;
-            this.StatusColumn.FillWeight = 106.6216F;
-            this.StatusColumn.HeaderText = "Status";
-            this.StatusColumn.Name = "StatusColumn";
-            this.StatusColumn.ReadOnly = true;
-            this.StatusColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            ActionColumn.DataPropertyName = "Action";
+            ActionColumn.HeaderText = "Action";
+            ActionColumn.Name = "ActionColumn";
+            ActionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
             // ResolutionColumn
             // 
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ResolutionColumn.DefaultCellStyle = dataGridViewCellStyle7;
-            this.ResolutionColumn.FillWeight = 105.0761F;
-            this.ResolutionColumn.HeaderText = "Resolution";
-            this.ResolutionColumn.MaxDropDownItems = 16;
-            this.ResolutionColumn.Name = "ResolutionColumn";
-            this.ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            ResolutionColumn.DataPropertyName = "PreferredResolution";
+            ResolutionColumn.HeaderText = "Resolution";
+            ResolutionColumn.Name = "ResolutionColumn";
+            ResolutionColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
-            // LastUpdateColumn
+            // StatusColumn
             // 
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.LastUpdateColumn.DefaultCellStyle = dataGridViewCellStyle8;
-            this.LastUpdateColumn.FillWeight = 106.4549F;
-            this.LastUpdateColumn.HeaderText = "Last update";
-            this.LastUpdateColumn.Name = "LastUpdateColumn";
-            this.LastUpdateColumn.ReadOnly = true;
-            this.LastUpdateColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            StatusColumn.DataPropertyName = "Status";
+            StatusColumn.HeaderText = "Status";
+            StatusColumn.Name = "StatusColumn";
+            StatusColumn.ReadOnly = true;
             // 
-            // LastSeenColumn
+            // UpdatedColumn
             // 
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.LastSeenColumn.DefaultCellStyle = dataGridViewCellStyle9;
-            this.LastSeenColumn.FillWeight = 106.4815F;
-            this.LastSeenColumn.HeaderText = "Last seen";
-            this.LastSeenColumn.Name = "LastSeenColumn";
-            this.LastSeenColumn.ReadOnly = true;
-            this.LastSeenColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            UpdatedColumn.DataPropertyName = "LastUpdated";
+            UpdatedColumn.HeaderText = "Updated";
+            UpdatedColumn.Name = "UpdatedColumn";
+            UpdatedColumn.ReadOnly = true;
             // 
-            // URLColumn
+            // SeenColumn
             // 
-            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle10.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.URLColumn.DefaultCellStyle = dataGridViewCellStyle10;
-            this.URLColumn.FillWeight = 104.2361F;
-            this.URLColumn.HeaderText = "URL";
-            this.URLColumn.Name = "URLColumn";
-            this.URLColumn.ReadOnly = true;
-            this.URLColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            SeenColumn.DataPropertyName = "LastSeen";
+            SeenColumn.HeaderText = "Seen";
+            SeenColumn.Name = "SeenColumn";
+            SeenColumn.ReadOnly = true;
             // 
-            // PlusButton
+            // UrlColumn
             // 
-            this.PlusButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.PlusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.PlusButton.Location = new System.Drawing.Point(723, 1);
-            this.PlusButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.PlusButton.Name = "PlusButton";
-            this.PlusButton.Size = new System.Drawing.Size(51, 25);
-            this.PlusButton.TabIndex = 7;
-            this.PlusButton.Text = "+";
-            this.PlusButton.UseVisualStyleBackColor = true;
-            this.PlusButton.Click += new System.EventHandler(this.PlusButton_Click);
+            UrlColumn.DataPropertyName = "ChatRoomUrl";
+            UrlColumn.HeaderText = "Url";
+            UrlColumn.Name = "UrlColumn";
+            UrlColumn.ReadOnly = true;
             // 
             // FilesDataGridView
             // 
-            this.FilesDataGridView.AllowUserToAddRows = false;
-            this.FilesDataGridView.AllowUserToDeleteRows = false;
-            this.FilesDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.FilesDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            this.FilesDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.FilesDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.FileNameColumn,
-            this.FileSizeColumn});
-            this.FilesDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.FilesDataGridView.Location = new System.Drawing.Point(0, 0);
-            this.FilesDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.FilesDataGridView.Name = "FilesDataGridView";
-            this.FilesDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.FilesDataGridView.Size = new System.Drawing.Size(773, 150);
-            this.FilesDataGridView.TabIndex = 0;
-            this.FilesDataGridView.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.FilesDataGridView_CellMouseClick);
-            this.FilesDataGridView.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.FilesDataGridView_CellMouseDoubleClick);
-            this.FilesDataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.FilesDataGridView_ColumnHeaderMouseClick);
+            FilesDataGridView.AllowUserToAddRows = false;
+            FilesDataGridView.AllowUserToDeleteRows = false;
+            FilesDataGridView.AutoGenerateColumns = false;
+            FilesDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            FilesDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            FilesDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            FilesDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { FileNameColumn, FileSizeColumn });
+            FilesDataGridView.DataSource = FilesBindingSource;
+            FilesDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            FilesDataGridView.Location = new System.Drawing.Point(0, 0);
+            FilesDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            FilesDataGridView.Name = "FilesDataGridView";
+            FilesDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            FilesDataGridView.Size = new System.Drawing.Size(776, 141);
+            FilesDataGridView.TabIndex = 0;
+            FilesDataGridView.CellMouseClick += FilesDataGridView_CellMouseClick;
+            FilesDataGridView.CellMouseDoubleClick += FilesDataGridView_CellMouseDoubleClick;
             // 
             // FileNameColumn
             // 
-            dataGridViewCellStyle13.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.FileNameColumn.DefaultCellStyle = dataGridViewCellStyle13;
-            this.FileNameColumn.FillWeight = 199.8681F;
-            this.FileNameColumn.HeaderText = "File name";
-            this.FileNameColumn.Name = "FileNameColumn";
-            this.FileNameColumn.ReadOnly = true;
-            this.FileNameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            FileNameColumn.DataPropertyName = "Name";
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            FileNameColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            FileNameColumn.FillWeight = 199.8681F;
+            FileNameColumn.HeaderText = "File name";
+            FileNameColumn.Name = "FileNameColumn";
             // 
             // FileSizeColumn
             // 
-            dataGridViewCellStyle14.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle14.Format = "N0";
-            dataGridViewCellStyle14.NullValue = null;
-            this.FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle14;
-            this.FileSizeColumn.FillWeight = 50.25381F;
-            this.FileSizeColumn.HeaderText = "File size";
-            this.FileSizeColumn.Name = "FileSizeColumn";
-            this.FileSizeColumn.ReadOnly = true;
-            this.FileSizeColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            FileSizeColumn.DataPropertyName = "Length";
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle5.Format = "N0";
+            dataGridViewCellStyle5.NullValue = null;
+            FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            FileSizeColumn.FillWeight = 50.25381F;
+            FileSizeColumn.HeaderText = "File size";
+            FileSizeColumn.Name = "FileSizeColumn";
             // 
             // SettingsTabPage
             // 
-            this.SettingsTabPage.Controls.Add(this.UpdateIntervalNumericUpDown);
-            this.SettingsTabPage.Controls.Add(this.UpdateIntervalLabel);
-            this.SettingsTabPage.Controls.Add(this.BongaCamsConcurrentUpdatesNumericUpDown);
-            this.SettingsTabPage.Controls.Add(this.ChaturbateConcurrentUpdatesNumericUpDown);
-            this.SettingsTabPage.Controls.Add(this.BongaCamsConcurrentUpdatesLabel);
-            this.SettingsTabPage.Controls.Add(this.ChaturbateConcurrentUpdatesLabel);
-            this.SettingsTabPage.Controls.Add(this.FFmpegPathLabel);
-            this.SettingsTabPage.Controls.Add(this.OutputDirectoryButton);
-            this.SettingsTabPage.Controls.Add(this.FFmpegPathButton);
-            this.SettingsTabPage.Controls.Add(this.FFmpegPathTextBox);
-            this.SettingsTabPage.Controls.Add(this.OutputDirectoryTextBox);
-            this.SettingsTabPage.Controls.Add(this.OutputDirectoryLabel);
-            this.SettingsTabPage.Location = new System.Drawing.Point(4, 24);
-            this.SettingsTabPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.SettingsTabPage.Name = "SettingsTabPage";
-            this.SettingsTabPage.Size = new System.Drawing.Size(776, 533);
-            this.SettingsTabPage.TabIndex = 2;
-            this.SettingsTabPage.Text = "Settings";
-            this.SettingsTabPage.UseVisualStyleBackColor = true;
+            SettingsTabPage.Controls.Add(SettingsTableLayoutPanel);
+            SettingsTabPage.Location = new System.Drawing.Point(4, 28);
+            SettingsTabPage.Margin = new System.Windows.Forms.Padding(0);
+            SettingsTabPage.Name = "SettingsTabPage";
+            SettingsTabPage.Size = new System.Drawing.Size(776, 529);
+            SettingsTabPage.TabIndex = 2;
+            SettingsTabPage.Text = "Settings";
+            SettingsTabPage.UseVisualStyleBackColor = true;
             // 
-            // UpdateIntervalNumericUpDown
+            // SettingsTableLayoutPanel
             // 
-            this.UpdateIntervalNumericUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.UpdateIntervalNumericUpDown.Location = new System.Drawing.Point(180, 115);
-            this.UpdateIntervalNumericUpDown.Maximum = new decimal(new int[] {
-            86400,
-            0,
-            0,
-            0});
-            this.UpdateIntervalNumericUpDown.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.UpdateIntervalNumericUpDown.Name = "UpdateIntervalNumericUpDown";
-            this.UpdateIntervalNumericUpDown.Size = new System.Drawing.Size(593, 23);
-            this.UpdateIntervalNumericUpDown.TabIndex = 38;
-            this.UpdateIntervalNumericUpDown.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.UpdateIntervalNumericUpDown.ValueChanged += new System.EventHandler(this.UpdateIntervalNumericUpDown_ValueChanged);
-            // 
-            // UpdateIntervalLabel
-            // 
-            this.UpdateIntervalLabel.AutoSize = true;
-            this.UpdateIntervalLabel.Location = new System.Drawing.Point(-4, 117);
-            this.UpdateIntervalLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.UpdateIntervalLabel.Name = "UpdateIntervalLabel";
-            this.UpdateIntervalLabel.Size = new System.Drawing.Size(87, 15);
-            this.UpdateIntervalLabel.TabIndex = 37;
-            this.UpdateIntervalLabel.Text = "Update interval";
-            // 
-            // BongaCamsConcurrentUpdatesNumericUpDown
-            // 
-            this.BongaCamsConcurrentUpdatesNumericUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.BongaCamsConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(180, 88);
-            this.BongaCamsConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.BongaCamsConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.BongaCamsConcurrentUpdatesNumericUpDown.Name = "BongaCamsConcurrentUpdatesNumericUpDown";
-            this.BongaCamsConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(593, 23);
-            this.BongaCamsConcurrentUpdatesNumericUpDown.TabIndex = 36;
-            this.BongaCamsConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.BongaCamsConcurrentUpdatesNumericUpDown.ValueChanged += new System.EventHandler(this.BongaCamsConcurrentUpdatesNumericUpDown_ValueChanged);
-            // 
-            // ChaturbateConcurrentUpdatesNumericUpDown
-            // 
-            this.ChaturbateConcurrentUpdatesNumericUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ChaturbateConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(180, 61);
-            this.ChaturbateConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.ChaturbateConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ChaturbateConcurrentUpdatesNumericUpDown.Name = "ChaturbateConcurrentUpdatesNumericUpDown";
-            this.ChaturbateConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(593, 23);
-            this.ChaturbateConcurrentUpdatesNumericUpDown.TabIndex = 35;
-            this.ChaturbateConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ChaturbateConcurrentUpdatesNumericUpDown.ValueChanged += new System.EventHandler(this.ChaturbateConcurrentUpdatesNumericUpDown_ValueChanged);
-            // 
-            // BongaCamsConcurrentUpdatesLabel
-            // 
-            this.BongaCamsConcurrentUpdatesLabel.AutoSize = true;
-            this.BongaCamsConcurrentUpdatesLabel.Location = new System.Drawing.Point(-4, 90);
-            this.BongaCamsConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.BongaCamsConcurrentUpdatesLabel.Name = "BongaCamsConcurrentUpdatesLabel";
-            this.BongaCamsConcurrentUpdatesLabel.Size = new System.Drawing.Size(177, 15);
-            this.BongaCamsConcurrentUpdatesLabel.TabIndex = 34;
-            this.BongaCamsConcurrentUpdatesLabel.Text = "BongaCams concurrent updates";
-            // 
-            // ChaturbateConcurrentUpdatesLabel
-            // 
-            this.ChaturbateConcurrentUpdatesLabel.AutoSize = true;
-            this.ChaturbateConcurrentUpdatesLabel.Location = new System.Drawing.Point(-4, 63);
-            this.ChaturbateConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.ChaturbateConcurrentUpdatesLabel.Name = "ChaturbateConcurrentUpdatesLabel";
-            this.ChaturbateConcurrentUpdatesLabel.Size = new System.Drawing.Size(172, 15);
-            this.ChaturbateConcurrentUpdatesLabel.TabIndex = 33;
-            this.ChaturbateConcurrentUpdatesLabel.Text = "Chaturbate concurrent updates";
-            // 
-            // FFmpegPathLabel
-            // 
-            this.FFmpegPathLabel.AutoSize = true;
-            this.FFmpegPathLabel.Location = new System.Drawing.Point(-4, 36);
-            this.FFmpegPathLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.FFmpegPathLabel.Name = "FFmpegPathLabel";
-            this.FFmpegPathLabel.Size = new System.Drawing.Size(77, 15);
-            this.FFmpegPathLabel.TabIndex = 32;
-            this.FFmpegPathLabel.Text = "FFmpeg path";
-            // 
-            // OutputDirectoryButton
-            // 
-            this.OutputDirectoryButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.OutputDirectoryButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.OutputDirectoryButton.Location = new System.Drawing.Point(723, 4);
-            this.OutputDirectoryButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.OutputDirectoryButton.Name = "OutputDirectoryButton";
-            this.OutputDirectoryButton.Size = new System.Drawing.Size(51, 25);
-            this.OutputDirectoryButton.TabIndex = 30;
-            this.OutputDirectoryButton.Text = "...";
-            this.OutputDirectoryButton.UseVisualStyleBackColor = true;
-            this.OutputDirectoryButton.Click += new System.EventHandler(this.OutputDirectoryButton_Click);
-            // 
-            // FFmpegPathButton
-            // 
-            this.FFmpegPathButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.FFmpegPathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.FFmpegPathButton.Location = new System.Drawing.Point(723, 32);
-            this.FFmpegPathButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.FFmpegPathButton.Name = "FFmpegPathButton";
-            this.FFmpegPathButton.Size = new System.Drawing.Size(51, 25);
-            this.FFmpegPathButton.TabIndex = 29;
-            this.FFmpegPathButton.Text = "...";
-            this.FFmpegPathButton.UseVisualStyleBackColor = true;
-            this.FFmpegPathButton.Click += new System.EventHandler(this.FFmpegPathButton_Click);
-            // 
-            // FFmpegPathTextBox
-            // 
-            this.FFmpegPathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.FFmpegPathTextBox.Location = new System.Drawing.Point(180, 33);
-            this.FFmpegPathTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.FFmpegPathTextBox.Name = "FFmpegPathTextBox";
-            this.FFmpegPathTextBox.ReadOnly = true;
-            this.FFmpegPathTextBox.Size = new System.Drawing.Size(538, 23);
-            this.FFmpegPathTextBox.TabIndex = 22;
-            this.FFmpegPathTextBox.TextChanged += new System.EventHandler(this.FFmpegPathTextBox_TextChanged);
+            SettingsTableLayoutPanel.ColumnCount = 4;
+            SettingsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            SettingsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 350F));
+            SettingsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 350F));
+            SettingsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            SettingsTableLayoutPanel.Controls.Add(OutputDirectoryTextBox, 2, 0);
+            SettingsTableLayoutPanel.Controls.Add(FFmpegPathTextBox, 2, 1);
+            SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesNumericUpDown, 2, 2);
+            SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesNumericUpDown, 2, 3);
+            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalNumericUpDown, 2, 4);
+            SettingsTableLayoutPanel.Controls.Add(OutputDirectoryLabel, 1, 0);
+            SettingsTableLayoutPanel.Controls.Add(FFmpegPathLabel, 1, 1);
+            SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesLabel, 1, 2);
+            SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesLabel, 1, 3);
+            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalLabel, 1, 4);
+            SettingsTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            SettingsTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+            SettingsTableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
+            SettingsTableLayoutPanel.Name = "SettingsTableLayoutPanel";
+            SettingsTableLayoutPanel.RowCount = 6;
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            SettingsTableLayoutPanel.Size = new System.Drawing.Size(776, 529);
+            SettingsTableLayoutPanel.TabIndex = 39;
             // 
             // OutputDirectoryTextBox
             // 
-            this.OutputDirectoryTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.OutputDirectoryTextBox.Location = new System.Drawing.Point(180, 5);
-            this.OutputDirectoryTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
-            this.OutputDirectoryTextBox.ReadOnly = true;
-            this.OutputDirectoryTextBox.Size = new System.Drawing.Size(538, 23);
-            this.OutputDirectoryTextBox.TabIndex = 24;
-            this.OutputDirectoryTextBox.TextChanged += new System.EventHandler(this.OutputDirectoryTextBox_TextChanged);
+            OutputDirectoryTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            OutputDirectoryTextBox.Location = new System.Drawing.Point(388, 5);
+            OutputDirectoryTextBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
+            OutputDirectoryTextBox.ReadOnly = true;
+            OutputDirectoryTextBox.Size = new System.Drawing.Size(350, 23);
+            OutputDirectoryTextBox.TabIndex = 24;
+            OutputDirectoryTextBox.Click += OutputDirectoryTextBox_Click;
+            // 
+            // FFmpegPathTextBox
+            // 
+            FFmpegPathTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            FFmpegPathTextBox.Location = new System.Drawing.Point(388, 34);
+            FFmpegPathTextBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            FFmpegPathTextBox.Name = "FFmpegPathTextBox";
+            FFmpegPathTextBox.ReadOnly = true;
+            FFmpegPathTextBox.Size = new System.Drawing.Size(350, 23);
+            FFmpegPathTextBox.TabIndex = 22;
+            FFmpegPathTextBox.Click += FFmpegPathTextBox_Click;
+            // 
+            // ChaturbateConcurrentUpdatesNumericUpDown
+            // 
+            ChaturbateConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
+            ChaturbateConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 63);
+            ChaturbateConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            ChaturbateConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+            ChaturbateConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            ChaturbateConcurrentUpdatesNumericUpDown.Name = "ChaturbateConcurrentUpdatesNumericUpDown";
+            ChaturbateConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(350, 23);
+            ChaturbateConcurrentUpdatesNumericUpDown.TabIndex = 35;
+            ChaturbateConcurrentUpdatesNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            ChaturbateConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // BongaCamsConcurrentUpdatesNumericUpDown
+            // 
+            BongaCamsConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
+            BongaCamsConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 92);
+            BongaCamsConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            BongaCamsConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+            BongaCamsConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            BongaCamsConcurrentUpdatesNumericUpDown.Name = "BongaCamsConcurrentUpdatesNumericUpDown";
+            BongaCamsConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(350, 23);
+            BongaCamsConcurrentUpdatesNumericUpDown.TabIndex = 36;
+            BongaCamsConcurrentUpdatesNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            BongaCamsConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // UpdateIntervalNumericUpDown
+            // 
+            UpdateIntervalNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
+            UpdateIntervalNumericUpDown.Location = new System.Drawing.Point(388, 121);
+            UpdateIntervalNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            UpdateIntervalNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+            UpdateIntervalNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            UpdateIntervalNumericUpDown.Name = "UpdateIntervalNumericUpDown";
+            UpdateIntervalNumericUpDown.Size = new System.Drawing.Size(350, 23);
+            UpdateIntervalNumericUpDown.TabIndex = 38;
+            UpdateIntervalNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            UpdateIntervalNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // OutputDirectoryLabel
             // 
-            this.OutputDirectoryLabel.AutoSize = true;
-            this.OutputDirectoryLabel.Location = new System.Drawing.Point(-4, 9);
-            this.OutputDirectoryLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.OutputDirectoryLabel.Name = "OutputDirectoryLabel";
-            this.OutputDirectoryLabel.Size = new System.Drawing.Size(95, 15);
-            this.OutputDirectoryLabel.TabIndex = 21;
-            this.OutputDirectoryLabel.Text = "Output directory";
+            OutputDirectoryLabel.AutoSize = true;
+            OutputDirectoryLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            OutputDirectoryLabel.Location = new System.Drawing.Point(38, 5);
+            OutputDirectoryLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            OutputDirectoryLabel.Name = "OutputDirectoryLabel";
+            OutputDirectoryLabel.Size = new System.Drawing.Size(350, 24);
+            OutputDirectoryLabel.TabIndex = 21;
+            OutputDirectoryLabel.Text = "Output directory";
+            // 
+            // FFmpegPathLabel
+            // 
+            FFmpegPathLabel.AutoSize = true;
+            FFmpegPathLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            FFmpegPathLabel.Location = new System.Drawing.Point(38, 34);
+            FFmpegPathLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            FFmpegPathLabel.Name = "FFmpegPathLabel";
+            FFmpegPathLabel.Size = new System.Drawing.Size(350, 24);
+            FFmpegPathLabel.TabIndex = 32;
+            FFmpegPathLabel.Text = "FFmpeg path";
+            // 
+            // ChaturbateConcurrentUpdatesLabel
+            // 
+            ChaturbateConcurrentUpdatesLabel.AutoSize = true;
+            ChaturbateConcurrentUpdatesLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            ChaturbateConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 63);
+            ChaturbateConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            ChaturbateConcurrentUpdatesLabel.Name = "ChaturbateConcurrentUpdatesLabel";
+            ChaturbateConcurrentUpdatesLabel.Size = new System.Drawing.Size(350, 24);
+            ChaturbateConcurrentUpdatesLabel.TabIndex = 33;
+            ChaturbateConcurrentUpdatesLabel.Text = "Chaturbate concurrent updates";
+            // 
+            // BongaCamsConcurrentUpdatesLabel
+            // 
+            BongaCamsConcurrentUpdatesLabel.AutoSize = true;
+            BongaCamsConcurrentUpdatesLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            BongaCamsConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 92);
+            BongaCamsConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            BongaCamsConcurrentUpdatesLabel.Name = "BongaCamsConcurrentUpdatesLabel";
+            BongaCamsConcurrentUpdatesLabel.Size = new System.Drawing.Size(350, 24);
+            BongaCamsConcurrentUpdatesLabel.TabIndex = 34;
+            BongaCamsConcurrentUpdatesLabel.Text = "BongaCams concurrent updates";
+            // 
+            // UpdateIntervalLabel
+            // 
+            UpdateIntervalLabel.AutoSize = true;
+            UpdateIntervalLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            UpdateIntervalLabel.Location = new System.Drawing.Point(38, 121);
+            UpdateIntervalLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            UpdateIntervalLabel.Name = "UpdateIntervalLabel";
+            UpdateIntervalLabel.Size = new System.Drawing.Size(350, 24);
+            UpdateIntervalLabel.TabIndex = 37;
+            UpdateIntervalLabel.Text = "Update interval";
             // 
             // AboutTabPage
             // 
-            this.AboutTabPage.Controls.Add(this.LicenseTextBox);
-            this.AboutTabPage.Location = new System.Drawing.Point(4, 24);
-            this.AboutTabPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.AboutTabPage.Name = "AboutTabPage";
-            this.AboutTabPage.Size = new System.Drawing.Size(776, 533);
-            this.AboutTabPage.TabIndex = 3;
-            this.AboutTabPage.Text = "About";
-            this.AboutTabPage.UseVisualStyleBackColor = true;
+            AboutTabPage.Controls.Add(LicenseTextBox);
+            AboutTabPage.Location = new System.Drawing.Point(4, 28);
+            AboutTabPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            AboutTabPage.Name = "AboutTabPage";
+            AboutTabPage.Size = new System.Drawing.Size(776, 529);
+            AboutTabPage.TabIndex = 3;
+            AboutTabPage.Text = "About";
+            AboutTabPage.UseVisualStyleBackColor = true;
             // 
             // LicenseTextBox
             // 
-            this.LicenseTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LicenseTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.LicenseTextBox.Location = new System.Drawing.Point(-4, 9);
-            this.LicenseTextBox.Margin = new System.Windows.Forms.Padding(0);
-            this.LicenseTextBox.Multiline = true;
-            this.LicenseTextBox.Name = "LicenseTextBox";
-            this.LicenseTextBox.Size = new System.Drawing.Size(778, 522);
-            this.LicenseTextBox.TabIndex = 2;
-            this.LicenseTextBox.Text = resources.GetString("LicenseTextBox.Text");
+            LicenseTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            LicenseTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            LicenseTextBox.Location = new System.Drawing.Point(0, 0);
+            LicenseTextBox.Margin = new System.Windows.Forms.Padding(0);
+            LicenseTextBox.Multiline = true;
+            LicenseTextBox.Name = "LicenseTextBox";
+            LicenseTextBox.Size = new System.Drawing.Size(776, 529);
+            LicenseTextBox.TabIndex = 2;
+            LicenseTextBox.Text = resources.GetString("LicenseTextBox.Text");
+            LicenseTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ChatRoomsUpdateTimer
             // 
-            this.ChatRoomsUpdateTimer.Interval = 5000;
-            this.ChatRoomsUpdateTimer.Tick += new System.EventHandler(this.ChatRoomsUpdateTimer_Tick);
+            ChatRoomsUpdateTimer.Interval = 5000;
+            ChatRoomsUpdateTimer.Tick += ChatRoomsUpdateTimer_Tick;
             // 
             // FormCloseTimer
             // 
-            this.FormCloseTimer.Interval = 1000;
-            this.FormCloseTimer.Tick += new System.EventHandler(this.FormCloseTimer_Tick);
+            FormCloseTimer.Interval = 1000;
+            FormCloseTimer.Tick += FormCloseTimer_Tick;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 561);
-            this.Controls.Add(this.TabControl);
-            this.Margin = new System.Windows.Forms.Padding(2);
-            this.MinimumSize = new System.Drawing.Size(800, 600);
-            this.Name = "MainForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.TabControl.ResumeLayout(false);
-            this.WebBrowserTabPage.ResumeLayout(false);
-            this.WebBrowserTabPage.PerformLayout();
-            this.WebViewPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.WebView)).EndInit();
-            this.ChatRoomsTabPage.ResumeLayout(false);
-            this.SplitContainer.Panel1.ResumeLayout(false);
-            this.SplitContainer.Panel1.PerformLayout();
-            this.SplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.SplitContainer)).EndInit();
-            this.SplitContainer.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.ChatRoomsDataGridView)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.FilesDataGridView)).EndInit();
-            this.SettingsTabPage.ResumeLayout(false);
-            this.SettingsTabPage.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.UpdateIntervalNumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.BongaCamsConcurrentUpdatesNumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ChaturbateConcurrentUpdatesNumericUpDown)).EndInit();
-            this.AboutTabPage.ResumeLayout(false);
-            this.AboutTabPage.PerformLayout();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(784, 561);
+            Controls.Add(TabControl);
+            Margin = new System.Windows.Forms.Padding(2);
+            MinimumSize = new System.Drawing.Size(800, 600);
+            Name = "MainForm";
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            FormClosing += MainForm_FormClosing;
+            ((System.ComponentModel.ISupportInitialize)FilesBindingSource).EndInit();
+            TabControl.ResumeLayout(false);
+            WebBrowserTabPage.ResumeLayout(false);
+            WebBrowserTableLayoutPanel1.ResumeLayout(false);
+            WebBrowserTableLayoutPanel2.ResumeLayout(false);
+            WebBrowserTableLayoutPanel2.PerformLayout();
+            WebView2Panel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)WebView2).EndInit();
+            ChatRoomsTabPage.ResumeLayout(false);
+            ChatRoomsTableLayoutPanel1.ResumeLayout(false);
+            ChatRoomsTableLayoutPanel2.ResumeLayout(false);
+            ChatRoomsTableLayoutPanel2.PerformLayout();
+            ChatRoomsSplitContainer.Panel1.ResumeLayout(false);
+            ChatRoomsSplitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer).EndInit();
+            ChatRoomsSplitContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsDataGridView).EndInit();
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsBindingSource).EndInit();
+            ((System.ComponentModel.ISupportInitialize)FilesDataGridView).EndInit();
+            SettingsTabPage.ResumeLayout(false);
+            SettingsTableLayoutPanel.ResumeLayout(false);
+            SettingsTableLayoutPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)ChaturbateConcurrentUpdatesNumericUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)BongaCamsConcurrentUpdatesNumericUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)UpdateIntervalNumericUpDown).EndInit();
+            AboutTabPage.ResumeLayout(false);
+            AboutTabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)SettingsBindingSource).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion
         private System.Windows.Forms.TabControl TabControl;
-        private System.Windows.Forms.TabPage WebBrowserTabPage;
         private System.Windows.Forms.TabPage ChatRoomsTabPage;
         private System.Windows.Forms.TabPage SettingsTabPage;
         private System.Windows.Forms.DataGridView ChatRoomsDataGridView;
         private System.Windows.Forms.Button PlusButton;
-        private System.Windows.Forms.TextBox URLTextBox;
-        private System.Windows.Forms.Button OutputDirectoryButton;
-        private System.Windows.Forms.Button FFmpegPathButton;
+        private System.Windows.Forms.TextBox UrlTextBox;
         private System.Windows.Forms.TextBox FFmpegPathTextBox;
         private System.Windows.Forms.TextBox OutputDirectoryTextBox;
         private System.Windows.Forms.Label OutputDirectoryLabel;
         private System.Windows.Forms.TabPage AboutTabPage;
         private System.Windows.Forms.TextBox LicenseTextBox;
-        private System.Windows.Forms.TextBox AddressBarTextBox;
         private System.Windows.Forms.Timer ChatRoomsUpdateTimer;
-        private System.Windows.Forms.Panel WebViewPanel;
-        private Microsoft.Web.WebView2.WinForms.WebView2 WebView;
-        private System.Windows.Forms.Button BackButton;
-        private System.Windows.Forms.Button StopButton;
-        private System.Windows.Forms.Button ForwardButton;
         private System.Windows.Forms.Label FFmpegPathLabel;
         private System.Windows.Forms.Timer FormCloseTimer;
-        private System.Windows.Forms.SplitContainer SplitContainer;
+        private System.Windows.Forms.SplitContainer ChatRoomsSplitContainer;
         private System.Windows.Forms.DataGridView FilesDataGridView;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileNameColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FileSizeColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn IndexColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn WebsiteColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn ActionColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LastUpdateColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LastSeenColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn URLColumn;
         private System.Windows.Forms.Label ChaturbateConcurrentUpdatesLabel;
         private System.Windows.Forms.Label BongaCamsConcurrentUpdatesLabel;
         private System.Windows.Forms.NumericUpDown BongaCamsConcurrentUpdatesNumericUpDown;
         private System.Windows.Forms.NumericUpDown ChaturbateConcurrentUpdatesNumericUpDown;
         private System.Windows.Forms.Label UpdateIntervalLabel;
         private System.Windows.Forms.NumericUpDown UpdateIntervalNumericUpDown;
+        private System.Windows.Forms.BindingSource ChatRoomsBindingSource;
+        private System.Windows.Forms.BindingSource FilesBindingSource;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileNameColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn FileSizeColumn;
+        private System.Windows.Forms.BindingSource SettingsBindingSource;
+        private System.Windows.Forms.TabPage WebBrowserTabPage;
+        private System.Windows.Forms.TableLayoutPanel WebBrowserTableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel WebBrowserTableLayoutPanel2;
+        private System.Windows.Forms.Button NavigateButton;
+        private System.Windows.Forms.TextBox AddressBarTextBox;
+        private System.Windows.Forms.Panel WebView2Panel;
+        private Microsoft.Web.WebView2.WinForms.WebView2 WebView2;
+        private System.Windows.Forms.Button StopButton;
+        private System.Windows.Forms.Button ForwardButton;
+        private System.Windows.Forms.Button BackButton;
+        private System.Windows.Forms.TableLayoutPanel ChatRoomsTableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel ChatRoomsTableLayoutPanel2;
+        private System.Windows.Forms.TableLayoutPanel SettingsTableLayoutPanel;
+        private System.Windows.Forms.DataGridViewTextBoxColumn WebsiteColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn NameColumn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn ActionColumn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn ResolutionColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StatusColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn UpdatedColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn SeenColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn UrlColumn;
     }
 }
 

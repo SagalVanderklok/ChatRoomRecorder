@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.WinForms;
+using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
-using System.Diagnostics;
-using System.Text.Json.Nodes;
-using Microsoft.Web.WebView2.WinForms;
-using Microsoft.Web.WebView2.Core;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace ChatRoomRecorder
@@ -39,19 +39,53 @@ namespace ChatRoomRecorder
         Record
     }
 
-    public record struct ChatRoomResolution : IComparable<ChatRoomResolution>
+    public record struct ChatRoomResolution : IComparable
     {
-        public static ChatRoomResolution Parse(string s)
+        public ChatRoomResolution(short width, short height)
+        {
+            if (width >= 0 && height >= 0)
+            {
+                _width = width;
+                _height = height;
+            }
+            else
+            {
+                _width = 0;
+                _height = 0;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}x{1}", _width, _height);
+        }
+
+        public int ToInt32()
+        {
+            return (int)_width << 16 | _height;
+        }
+
+        public int CompareTo(object resolution)
+        {
+            return TotalPixels.CompareTo(((ChatRoomResolution)resolution).TotalPixels);
+        }
+
+        public static ChatRoomResolution Parse(string resolution)
         {
             try
             {
-                MatchCollection matches = Regex.Matches(s, "^([0-9]*)x([0-9]*)$", RegexOptions.IgnoreCase);
-                return new ChatRoomResolution(UInt16.Parse(matches[0].Groups[1].Value), UInt16.Parse(matches[0].Groups[2].Value));
+                MatchCollection matches = Regex.Matches(resolution, "^([0-9]*)x([0-9]*)$", RegexOptions.IgnoreCase);
+                return new ChatRoomResolution(short.Parse(matches[0].Groups[1].Value), short.Parse(matches[0].Groups[2].Value));
             }
             catch (Exception)
             {
                 return ChatRoomResolution.MinValue;
             }
+        }
+
+        public static ChatRoomResolution Parse(int resolution)
+        {
+            return new ChatRoomResolution(Convert.ToInt16(resolution >> 16), Convert.ToInt16(resolution << 16 >> 16));
         }
 
         public static int FindClosest(ChatRoomResolution desiredResolution, ChatRoomResolution[] allResolutions)
@@ -78,39 +112,6 @@ namespace ChatRoomRecorder
             return index;
         }
 
-        public static ChatRoomResolution MinValue
-        {
-            get
-            {
-                return new ChatRoomResolution(0, 0);
-            }
-        }
-
-        public static ChatRoomResolution MaxValue
-        {
-            get
-            {
-                return new ChatRoomResolution(UInt16.MaxValue, UInt16.MaxValue);
-            }
-        }
-
-        public static ChatRoomResolution[] CommonResolutions
-        {
-            get
-            {
-                return new ChatRoomResolution[]
-                {
-                    new ChatRoomResolution(640, 360),
-                    new ChatRoomResolution(960, 540),
-                    new ChatRoomResolution(1280, 720),
-                    new ChatRoomResolution(1600, 900),
-                    new ChatRoomResolution(1920, 1080),
-                    new ChatRoomResolution(2560, 1440),
-                    new ChatRoomResolution(3840, 2160)
-                };
-            }
-        }
-
         public static bool operator <(ChatRoomResolution left, ChatRoomResolution right)
         {
             return left.TotalPixels < right.TotalPixels;
@@ -131,22 +132,6 @@ namespace ChatRoomRecorder
             return left.TotalPixels >= right.TotalPixels;
         }
 
-        public ChatRoomResolution(UInt16 width, UInt16 height)
-        {
-            _width = width;
-            _height = height;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0}x{1}", _width, _height);
-        }
-
-        public int CompareTo(ChatRoomResolution resolution)
-        {
-            return TotalPixels.CompareTo(resolution.TotalPixels);
-        }
-
         public int TotalPixels
         {
             get
@@ -155,7 +140,7 @@ namespace ChatRoomRecorder
             }
         }
 
-        public UInt16 Width
+        public short Width
         {
             get
             {
@@ -163,7 +148,7 @@ namespace ChatRoomRecorder
             }
         }
 
-        public UInt16 Height
+        public short Height
         {
             get
             {
@@ -171,12 +156,47 @@ namespace ChatRoomRecorder
             }
         }
 
-        private UInt16 _width;
-        private UInt16 _height;
+        public static ChatRoomResolution MinValue
+        {
+            get
+            {
+                return new ChatRoomResolution(0, 0);
+            }
+        }
+
+        public static ChatRoomResolution MaxValue
+        {
+            get
+            {
+                return new ChatRoomResolution(short.MaxValue, short.MaxValue);
+            }
+        }
+
+        public static ChatRoomResolution[] CommonResolutions
+        {
+            get
+            {
+                return new ChatRoomResolution[]
+                {
+                    new ChatRoomResolution(640, 360),
+                    new ChatRoomResolution(960, 540),
+                    new ChatRoomResolution(1280, 720),
+                    new ChatRoomResolution(1600, 900),
+                    new ChatRoomResolution(1920, 1080),
+                    new ChatRoomResolution(2560, 1440),
+                    new ChatRoomResolution(3840, 2160)
+                };
+            }
+        }
+
+        private short _width;
+        private short _height;
     }
 
     public class ChatRoom : IDisposable
     {
+        public event EventHandler UpdateCompleted;
+
         public ChatRoom(string url)
         {
             Tuple<ChatRoomWebsite, string, string> parsedUrl = ParseUrl(url);
@@ -186,16 +206,17 @@ namespace ChatRoomRecorder
                 _name = parsedUrl.Item2;
                 _status = ChatRoomStatus.Unknown;
                 _action = ChatRoomAction.None;
-                _roomUrl = parsedUrl.Item3;
+                _chatRoomUrl = parsedUrl.Item3;
                 _playlistUrl = String.Empty;
                 _availableResolutions = new List<ChatRoomResolution>();
                 _preferredResolution = ChatRoomResolution.MaxValue;
                 _outputDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                _ffmpegPath = (new FileInfo(Environment.ProcessPath)).Directory.FullName + Path.DirectorySeparatorChar + "ffmpeg.exe";
+                _ffmpegPath = string.Format("{0}{1}ffmpeg.exe", new FileInfo(Environment.ProcessPath).Directory.FullName, Path.DirectorySeparatorChar);
                 _ffmpegProcess = null;
                 _fileName = string.Empty;
                 _fileSize = -1;
-                _lastUpdate = DateTime.MinValue;
+                _lastUpdated = DateTime.MinValue;
+                _lastSeen = DateTime.MinValue;
                 _isUpdating = false;
                 _disposingStarted = false;
                 _disposingFinished = false;
@@ -240,7 +261,7 @@ namespace ChatRoomRecorder
                 _semaphore.Wait();
                 try
                 {
-                    if (_timer.Enabled && !_disposingFinished && (!_isUpdating || _isUpdating && (DateTime.Now - _lastUpdate).TotalSeconds >= c_updateLimit))
+                    if (_timer.Enabled && !_disposingFinished && (!_isUpdating || _isUpdating && (DateTime.Now - _lastUpdated).TotalSeconds >= c_updateLimit))
                     {
                         _timer.Stop();
 
@@ -275,13 +296,13 @@ namespace ChatRoomRecorder
             _semaphore.Wait();
             try
             {
-                if (_disposingStarted || _isUpdating && (DateTime.Now - _lastUpdate).TotalSeconds < c_updateLimit)
+                if (_disposingStarted || _isUpdating && (DateTime.Now - _lastUpdated).TotalSeconds < c_updateLimit)
                 {
                     return;
                 }
 
                 _isUpdating = true;
-                _lastUpdate = DateTime.Now;
+                _lastUpdated = DateTime.Now;
 
                 //we're recording and that's what we want - return, otherwise - continue
 
@@ -488,6 +509,11 @@ namespace ChatRoomRecorder
                     status = ChatRoomStatus.Record;
                 }
 
+                if (status == ChatRoomStatus.Record || status == ChatRoomStatus.Public || status == ChatRoomStatus.Private || status == ChatRoomStatus.Hidden || status == ChatRoomStatus.Away)
+                {
+                    _lastSeen = DateTime.Now;
+                }
+
                 MonitorOrRecord(ref status, playlistUrl, availableResolutions);
             }
             catch (Exception)
@@ -590,6 +616,11 @@ namespace ChatRoomRecorder
                     status = ChatRoomStatus.Offline;
                 }
 
+                if (status == ChatRoomStatus.Record || status == ChatRoomStatus.Public)
+                {
+                    _lastSeen = DateTime.Now;
+                }
+
                 MonitorOrRecord(ref status, playlistUrl, availableResolutions);
             }
             catch (Exception)
@@ -628,9 +659,9 @@ namespace ChatRoomRecorder
 
                 if (status == ChatRoomStatus.Record)
                 {
-                    _fileName = String.Format("{0}\\{1} {2} {3}.ts", _outputDirectory, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
+                    _fileName = string.Format("{0}{1}{2} {3} {4}.ts", _outputDirectory, Path.DirectorySeparatorChar, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
                     _fileSize = 0;
-                    string ffmpegArgs = String.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName);
+                    string ffmpegArgs = string.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName);
                     ProcessStartInfo psi = new() { FileName = _ffmpegPath, Arguments = ffmpegArgs, UseShellExecute = false, LoadUserProfile = false, CreateNoWindow = true };
                     _ffmpegProcess = Process.Start(psi);
                 }
@@ -683,7 +714,7 @@ namespace ChatRoomRecorder
             {
                 return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value, string.Format("https://bongacams.com/{0}/", matches[0].Groups[1].Value));
             }
-         
+
             return null;
         }
 
@@ -723,11 +754,11 @@ namespace ChatRoomRecorder
             }
         }
 
-        public string RoomUrl
+        public string ChatRoomUrl
         {
             get
             {
-                return _roomUrl;
+                return _chatRoomUrl;
             }
         }
 
@@ -797,11 +828,27 @@ namespace ChatRoomRecorder
             }
         }
 
-        public DateTime LastUpdate
+        public DateTime LastUpdated
         {
+            set
+            {
+                _lastUpdated = value;
+            }
             get
             {
-                return _lastUpdate;
+                return _lastUpdated;
+            }
+        }
+
+        public DateTime LastSeen
+        {
+            set
+            {
+                _lastSeen = value;
+            }
+            get
+            {
+                return _lastSeen;
             }
         }
 
@@ -829,13 +876,11 @@ namespace ChatRoomRecorder
             }
         }
 
-        public event EventHandler UpdateCompleted;
-
         private string _name;
         private ChatRoomWebsite _website;
         private ChatRoomStatus _status;
         private ChatRoomAction _action;
-        private string _roomUrl;
+        private string _chatRoomUrl;
         private string _playlistUrl;
         private List<ChatRoomResolution> _availableResolutions;
         private ChatRoomResolution _preferredResolution;
@@ -844,7 +889,8 @@ namespace ChatRoomRecorder
         private Process _ffmpegProcess;
         private string _fileName;
         private long _fileSize;
-        private DateTime _lastUpdate;
+        private DateTime _lastUpdated;
+        private DateTime _lastSeen;
         private bool _isUpdating;
         private bool _disposingStarted;
         private bool _disposingFinished;
@@ -855,9 +901,9 @@ namespace ChatRoomRecorder
         private System.Windows.Forms.Timer _timer;
         private SemaphoreSlim _semaphore;
 
+        private const int c_updateLimit = 60;
+
         private static HttpClient s_httpClient = new(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
         private static int s_totalCount = 0;
-
-        private const int c_updateLimit = 60;
     }
 }
