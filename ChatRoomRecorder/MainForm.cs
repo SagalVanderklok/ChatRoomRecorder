@@ -27,25 +27,24 @@ namespace ChatRoomRecorder
                 ((AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyDescriptionAttribute))).Description,
                 ((AssemblyCopyrightAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyCopyrightAttribute))).Copyright);
 
-            SettingsBindingSource.DataSource = new Settings()
-            {
-                OutputDirectory = c_defaultSettings.OutputDirectory,
-                FFmpegPath = c_defaultSettings.FFmpegPath,
-                ChaturbateConcurrentUpdates = c_defaultSettings.ChaturbateConcurrentUpdates,
-                BongaCamsConcurrentUpdates = c_defaultSettings.BongaCamsConcurrentUpdates,
-                UpdateInterval = c_defaultSettings.UpdateInterval
-            };
+            c_defaultSettings.CopyTo(_settings);
+            SettingsBindingSource.DataSource = _settings;
             OutputDirectoryTextBox.DataBindings.Add("Text", SettingsBindingSource, c_outputDirectorySettingName);
             FFmpegPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_ffmpegPathSettingName);
             ChaturbateConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_chaturbateConcurrentUpdatesSettingName);
             BongaCamsConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_bongaCamsConcurrentUpdatesSettingName);
             UpdateIntervalNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateIntervalSettingName);
 
-            ChatRoomsBindingSource.DataSource = new SortableBindingList<ChatRoom>();
+            ChatRoomsBindingSource.DataSource = _chatRoomsList;
             ActionColumn.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
             ResolutionColumn.DataSource = ChatRoomResolution.CommonResolutions;
 
-            FilesBindingSource.DataSource = new SortableBindingList<FileInfo>();
+            FilesBindingSource.DataSource = _filesList;
+
+            foreach (ChatRoomWebsite website in Enum.GetValues(typeof(ChatRoomWebsite)))
+            {
+                _lastUpdates.Add(website, DateTime.Now);
+            }
 
             ReadData();
         }
@@ -58,11 +57,12 @@ namespace ChatRoomRecorder
                 {
                     TabControl.Enabled = false;
 
-                    _isExiting = true;
+                    ChatRoomsUpdateTimer.Stop();
+                    FormCloseTimer.Start();
 
-                    for (int i = 0; i < ChatRoomsBindingSource.Count; i++)
+                    foreach (ChatRoom chatRoom in _chatRoomsList)
                     {
-                        ((ChatRoom)ChatRoomsBindingSource[i]).Dispose();
+                        chatRoom.Dispose();
                     }
 
                     if (_connection != null)
@@ -70,8 +70,7 @@ namespace ChatRoomRecorder
                         _connection.Close();
                     }
 
-                    ChatRoomsUpdateTimer.Stop();
-                    FormCloseTimer.Start();
+                    _isExiting = true;
 
                     e.Cancel = true;
                 }
@@ -104,11 +103,14 @@ namespace ChatRoomRecorder
 
         private void WebView2_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
         {
-            if (e.IsSuccess)
+            lock (_lock)
             {
-                ChatRoomsUpdateTimer.Start();
+                if (e.IsSuccess)
+                {
+                    ChatRoomsUpdateTimer.Start();
 
-                TabControl.Enabled = true;
+                    TabControl.Enabled = true;
+                }
             }
         }
 
@@ -134,14 +136,14 @@ namespace ChatRoomRecorder
 
         private void NavigateButton_Click(object sender, EventArgs e)
         {
-            NavigateToUrl();
+            NavigateToUrl(AddressBarTextBox.Text);
         }
 
         private void AddressBarTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                NavigateToUrl();
+                NavigateToUrl(AddressBarTextBox.Text);
             }
         }
 
@@ -149,7 +151,7 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
-                AddChatRoom();
+                AddChatRoom(UrlTextBox.Text);
             }
         }
 
@@ -159,7 +161,7 @@ namespace ChatRoomRecorder
             {
                 if (e.KeyCode == Keys.Enter)
                 {
-                    AddChatRoom();
+                    AddChatRoom(UrlTextBox.Text);
                 }
             }
         }
@@ -168,11 +170,7 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
-                ChatRoomsDataGridView.Enabled = false;
-
-                FilterChatRoomsDataGridView();
-
-                ChatRoomsDataGridView.Enabled = true;
+                _chatRoomsList.Filter = UrlTextBox.Text;
             }
         }
 
@@ -184,19 +182,18 @@ namespace ChatRoomRecorder
                 {
                     Dictionary<ChatRoomWebsite, int> maxUpdateCounts = new()
                     {
-                        { ChatRoomWebsite.Chaturbate, ((Settings)SettingsBindingSource.DataSource).ChaturbateConcurrentUpdates },
-                        { ChatRoomWebsite.BongaCams, ((Settings)SettingsBindingSource.DataSource).BongaCamsConcurrentUpdates }
+                        { ChatRoomWebsite.Chaturbate, _settings.ChaturbateConcurrentUpdates },
+                        { ChatRoomWebsite.BongaCams, _settings.BongaCamsConcurrentUpdates }
                     };
 
-                    Dictionary<ChatRoomWebsite, int> curUpdateCounts = new()
+                    Dictionary<ChatRoomWebsite, int> curUpdateCounts = new();
+                    foreach (ChatRoomWebsite website in Enum.GetValues(typeof(ChatRoomWebsite)))
                     {
-                        { ChatRoomWebsite.Chaturbate, 0 },
-                        { ChatRoomWebsite.BongaCams, 0 }
-                    };
+                        curUpdateCounts.Add(website, 0);
+                    }
 
-                    for (int i = 0; i < ChatRoomsBindingSource.Count; i++)
+                    foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
                     {
-                        ChatRoom chatRoom = (ChatRoom)ChatRoomsBindingSource[i];
                         if (chatRoom.Action != ChatRoomAction.None)
                         {
                             if (curUpdateCounts[chatRoom.Website] < maxUpdateCounts[chatRoom.Website] && chatRoom.LastUpdated < _lastUpdates[chatRoom.Website])
@@ -231,18 +228,14 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
-                if (ChatRoomsDataGridView.Rows[ChatRoomsBindingSource.IndexOf(sender)].Visible)
+                int index = _chatRoomsList.IndexOf((ChatRoom)sender);
+                if (index != -1)
                 {
-                    ChatRoomsDataGridView.InvalidateRow(ChatRoomsBindingSource.IndexOf(sender));
+                    ChatRoomsDataGridView.InvalidateRow(index);
                 }
 
                 WriteData(c_chatRoomsTableName, (ChatRoom)sender, 0);
             }
-        }
-
-        private void ChatRoomsDataGridView_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            UrlTextBox.Clear();
         }
 
         private void ChatRoomsDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
@@ -284,7 +277,7 @@ namespace ChatRoomRecorder
             {
                 if (e.RowIndex >= 0)
                 {
-                    WriteData(c_chatRoomsTableName, ChatRoomsBindingSource[e.RowIndex], 0);
+                    WriteData(c_chatRoomsTableName, _chatRoomsList[e.RowIndex], 0);
                 }
             }
         }
@@ -293,18 +286,67 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
-                FilesBindingSource.Clear();
+                _filesList.Clear();
 
                 foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
                 {
                     try
                     {
-                        ChatRoom chatRoom = (ChatRoom)ChatRoomsBindingSource[selectedRow.Index];
-                        DirectoryInfo directory = new(((Settings)SettingsBindingSource.DataSource).OutputDirectory);
+                        ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
+                        DirectoryInfo directory = new(_settings.OutputDirectory);
                         FileInfo[] files = directory.GetFiles(string.Format("{0} {1} *", chatRoom.Website, chatRoom.Name));
                         foreach (FileInfo file in files)
                         {
-                            FilesBindingSource.Add(file);
+                            _filesList.Add(file);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        //do nothing
+                    }
+                }
+
+                ThumbnailPictureBox.Image = null;
+
+                if (ChatRoomsDataGridView.SelectedRows.Count == 1)
+                {
+                    try
+                    {
+                        ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
+                        string thumbnailDirectory = new FileInfo(Environment.ProcessPath).Directory.FullName + Path.DirectorySeparatorChar + c_thumbnailsDirectoryName;
+                        string thumbnailPath = thumbnailDirectory + Path.DirectorySeparatorChar + chatRoom.Website + " " + chatRoom.Name + ".jpg";
+
+                        if (!Directory.Exists(thumbnailDirectory))
+                        {
+                            Directory.CreateDirectory(thumbnailDirectory);
+                        }
+
+                        if (!File.Exists(thumbnailPath))
+                        {
+                            if (_filesList.Count > 0)
+                            {
+                                FileInfo file = _filesList[_random.Next(_filesList.Count)];
+                                DateTime time = DateTime.MinValue.AddSeconds((double)_random.Next((int)(file.Length / 1000000 % 86400)));
+                                string ffmpegPath = _settings.FFmpegPath;
+                                string ffmpegArgs = string.Format("-ss \"{0}\" -i \"{1}\" -frames:v 1 -update 1 -q:v 1 -vf scale=320:-1 -y \"{2}\"",
+                                    time.ToString("HH:mm:ss"), file.FullName, thumbnailPath);
+                                Process.Start(new ProcessStartInfo()
+                                {
+                                    FileName = ffmpegPath,
+                                    Arguments = ffmpegArgs,
+                                    UseShellExecute = false,
+                                    LoadUserProfile = false,
+                                    CreateNoWindow = true
+                                });
+                            }
+                        }
+
+                        if (File.Exists(thumbnailPath))
+                        {
+                            using (FileStream fs = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
+                            {
+                                ThumbnailPictureBox.Image = new Bitmap(fs);
+                            }
                         }
                     }
                     catch (Exception)
@@ -321,25 +363,21 @@ namespace ChatRoomRecorder
             {
                 if (e.Button == MouseButtons.Right)
                 {
-                    if (MessageBox.Show(c_confirmChatRoomsRemovalMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    if (MessageBox.Show(c_confirmChatRoomsRemovingMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                     {
-                        ChatRoomsDataGridView.Enabled = false;
-
                         List<ChatRoom> chatRooms = new List<ChatRoom>();
+
                         foreach (DataGridViewRow row in ChatRoomsDataGridView.SelectedRows)
                         {
-                            chatRooms.Add((ChatRoom)ChatRoomsBindingSource[row.Index]);
+                            chatRooms.Add(_chatRoomsList[row.Index]);
                         }
+
                         foreach (ChatRoom chatRoom in chatRooms)
                         {
-                            ChatRoomsBindingSource.Remove(chatRoom);
+                            _chatRoomsList.Remove(chatRoom);
                             WriteData(c_chatRoomsTableName, chatRoom, -1);
                             chatRoom.Dispose();
                         }
-
-                        FilterChatRoomsDataGridView();
-
-                        ChatRoomsDataGridView.Enabled = true;
                     }
                 }
             }
@@ -351,7 +389,7 @@ namespace ChatRoomRecorder
             {
                 if (e.Button == MouseButtons.Right)
                 {
-                    if (MessageBox.Show(c_confirmFilesRemovalMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    if (MessageBox.Show(c_confirmFilesRemovingMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                     {
                         try
                         {
@@ -359,18 +397,18 @@ namespace ChatRoomRecorder
 
                             foreach (DataGridViewRow row in FilesDataGridView.SelectedRows)
                             {
-                                files.Add((FileInfo)FilesBindingSource[row.Index]);
+                                files.Add(_filesList[row.Index]);
                             }
 
                             foreach (FileInfo file in files)
                             {
-                                FilesBindingSource.Remove(file);
                                 file.Delete();
+                                _filesList.Remove(file);
                             }
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show(c_fileRemoveErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(c_fileRemovingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
@@ -388,12 +426,39 @@ namespace ChatRoomRecorder
                         Process.Start(new ProcessStartInfo()
                         {
                             UseShellExecute = true,
-                            FileName = ((FileInfo)FilesBindingSource[e.RowIndex]).FullName
+                            FileName = (_filesList[e.RowIndex]).FullName
                         });
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show(c_fileOpenErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(c_fileOpeningErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void ThumbnailPictureBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            lock (_lock)
+            {
+                if (e.Button == MouseButtons.Right && ThumbnailPictureBox.Image != null)
+                {
+                    if (MessageBox.Show(c_confirmThumbnailRemovingMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    {
+                        try
+                        {
+                            ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
+                            string thumbnailDirectory = new FileInfo(Environment.ProcessPath).Directory.FullName + Path.DirectorySeparatorChar + c_thumbnailsDirectoryName;
+                            string thumbnailPath = thumbnailDirectory + Path.DirectorySeparatorChar + chatRoom.Website + " " + chatRoom.Name + ".jpg";
+
+                            File.Delete(thumbnailPath);
+
+                            ThumbnailPictureBox.Image = null;
+                        }
+                        catch (Exception)
+                        {
+                            MessageBox.Show(c_thumbnailRemovingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
             }
@@ -404,7 +469,7 @@ namespace ChatRoomRecorder
             FolderBrowserDialog fbd = new();
             if (fbd.ShowDialog() == DialogResult.OK)
             {
-                ((Settings)SettingsBindingSource.DataSource).OutputDirectory = fbd.SelectedPath;
+                _settings.OutputDirectory = fbd.SelectedPath;
             }
         }
 
@@ -413,7 +478,7 @@ namespace ChatRoomRecorder
             OpenFileDialog ofd = new() { Multiselect = false, Filter = string.Format("{0}|{0}", c_ffmpegBinaryName) };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                ((Settings)SettingsBindingSource.DataSource).FFmpegPath = ofd.FileName;
+                _settings.FFmpegPath = ofd.FileName;
             }
         }
 
@@ -421,32 +486,32 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
-                Settings settings = (Settings)SettingsBindingSource.DataSource;
-
                 switch (e.PropertyName)
                 {
                     case c_outputDirectorySettingName:
-                        for (int i = 0; i < ChatRoomsBindingSource.Count; i++)
+                        foreach (ChatRoom chatRoom in _chatRoomsList)
                         {
-                            ((ChatRoom)ChatRoomsBindingSource[i]).OutputDirectory = settings.OutputDirectory;
+                            chatRoom.OutputDirectory = _settings.OutputDirectory;
                         }
                         break;
 
                     case c_ffmpegPathSettingName:
-                        for (int i = 0; i < ChatRoomsBindingSource.Count; i++)
+                        foreach (ChatRoom chatRoom in _chatRoomsList)
                         {
-                            ((ChatRoom)ChatRoomsBindingSource[i]).FFmpegPath = settings.FFmpegPath;
+                            chatRoom.FFmpegPath = _settings.FFmpegPath;
                         }
                         break;
 
                     case c_chaturbateConcurrentUpdatesSettingName:
+                        //do nothing
                         break;
 
                     case c_bongaCamsConcurrentUpdatesSettingName:
+                        //do nothing
                         break;
 
                     case c_updateIntervalSettingName:
-                        ChatRoomsUpdateTimer.Interval = settings.UpdateInterval * 1000;
+                        ChatRoomsUpdateTimer.Interval = _settings.UpdateInterval * 1000;
                         break;
                 }
 
@@ -454,11 +519,11 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void NavigateToUrl()
+        private void NavigateToUrl(string url)
         {
-            if (Regex.Matches(AddressBarTextBox.Text, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
+            if (Regex.Matches(url, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
             {
-                WebView2.CoreWebView2.Navigate(AddressBarTextBox.Text);
+                WebView2.CoreWebView2.Navigate(url);
             }
             else
             {
@@ -466,38 +531,32 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void AddChatRoom()
+        private void AddChatRoom(string url)
         {
-            Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(UrlTextBox.Text);
+            Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(url);
 
             if (parsedUrl != null)
             {
                 bool duplicate = false;
 
-                for (int i = 0; i < ChatRoomsBindingSource.Count && !duplicate; i++)
+                foreach (ChatRoom chatRoom in _chatRoomsList)
                 {
-                    ChatRoom chatRoom = (ChatRoom)ChatRoomsBindingSource[i];
                     if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
                     {
                         duplicate = true;
+                        break;
                     }
                 }
 
                 if (!duplicate)
                 {
-                    ChatRoomsDataGridView.Enabled = false;
-
                     ChatRoom chatRoom = new(parsedUrl.Item3);
                     chatRoom.PreferredResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(c_defaultResolution, ChatRoomResolution.CommonResolutions)];
-                    chatRoom.OutputDirectory = ((Settings)SettingsBindingSource.DataSource).OutputDirectory;
-                    chatRoom.FFmpegPath = ((Settings)SettingsBindingSource.DataSource).FFmpegPath;
+                    chatRoom.OutputDirectory = _settings.OutputDirectory;
+                    chatRoom.FFmpegPath = _settings.FFmpegPath;
                     chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
-                    ChatRoomsBindingSource.Add(chatRoom);
+                    _chatRoomsList.Add(chatRoom);
                     WriteData(c_chatRoomsTableName, chatRoom, 1);
-                    
-                    FilterChatRoomsDataGridView();
-
-                    ChatRoomsDataGridView.Enabled = true;
                 }
                 else
                 {
@@ -510,48 +569,8 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void FilterChatRoomsDataGridView()
-        {
-            DataGridViewColumn currentColumn = null;
-            DataGridViewRow currentRow = null;
-
-            if (ChatRoomsDataGridView.CurrentCell != null)
-            {
-                currentColumn = ChatRoomsDataGridView.CurrentCell.OwningColumn;
-                ChatRoomsDataGridView.CurrentCell = null;
-            }
-
-            Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(UrlTextBox.Text);
-            for (int i = ChatRoomsBindingSource.Count - 1; i >= 0; i--)
-            {
-                ChatRoom chatRoom = (ChatRoom)ChatRoomsBindingSource[i];
-                DataGridViewRow row = ChatRoomsDataGridView.Rows[i];
-                row.Visible =
-                    parsedUrl == null && chatRoom.ChatRoomUrl.Contains(UrlTextBox.Text, StringComparison.CurrentCultureIgnoreCase) ||
-                    parsedUrl != null && chatRoom.Website == parsedUrl.Item1 && chatRoom.Name.Contains(parsedUrl.Item2, StringComparison.CurrentCultureIgnoreCase);
-                if (row.Visible)
-                {
-                    currentRow = row;
-                }
-            }
-
-            if (currentRow != null)
-            {
-                if (currentColumn != null)
-                {
-                    ChatRoomsDataGridView.CurrentCell = currentRow.Cells[ChatRoomsDataGridView.Columns.IndexOf(currentColumn)];
-                }
-                else
-                {
-                    ChatRoomsDataGridView.CurrentCell = currentRow.Cells[0];
-                }
-            }
-        }
-
         private void ReadData()
         {
-            Settings settings = (Settings)SettingsBindingSource.DataSource;
-
             try
             {
                 _connection = new SqliteConnection(string.Format("data source={0}", c_dbFileName));
@@ -587,25 +606,21 @@ namespace ChatRoomRecorder
                 {
                     while (reader.Read())
                     {
-                        settings.OutputDirectory = reader.GetString(0);
-                        settings.FFmpegPath = reader.GetString(1);
-                        settings.ChaturbateConcurrentUpdates = reader.GetInt32(2);
-                        settings.BongaCamsConcurrentUpdates = reader.GetInt32(3);
-                        settings.UpdateInterval = reader.GetInt32(4);
+                        _settings.OutputDirectory = reader.GetString(0);
+                        _settings.FFmpegPath = reader.GetString(1);
+                        _settings.ChaturbateConcurrentUpdates = reader.GetInt32(2);
+                        _settings.BongaCamsConcurrentUpdates = reader.GetInt32(3);
+                        _settings.UpdateInterval = reader.GetInt32(4);
                     }
                 }
             }
             catch (Exception)
             {
-                settings.OutputDirectory = c_defaultSettings.OutputDirectory;
-                settings.FFmpegPath = c_defaultSettings.FFmpegPath;
-                settings.ChaturbateConcurrentUpdates = c_defaultSettings.ChaturbateConcurrentUpdates;
-                settings.BongaCamsConcurrentUpdates = c_defaultSettings.BongaCamsConcurrentUpdates;
-                settings.UpdateInterval = c_defaultSettings.UpdateInterval;
+                c_defaultSettings.CopyTo(_settings);
             }
             finally
             {
-                settings.PropertyChanged += Settings_PropertyChanged;
+                _settings.PropertyChanged += Settings_PropertyChanged;
             }
 
             try
@@ -627,20 +642,20 @@ namespace ChatRoomRecorder
                         chatRoom.PreferredResolution = resolution;
                         chatRoom.LastUpdated = updated;
                         chatRoom.LastSeen = seen;
-                        chatRoom.OutputDirectory = settings.OutputDirectory;
-                        chatRoom.FFmpegPath = settings.FFmpegPath;
+                        chatRoom.OutputDirectory = _settings.OutputDirectory;
+                        chatRoom.FFmpegPath = _settings.FFmpegPath;
                         chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
-                        ChatRoomsBindingSource.Add(chatRoom);
+                        _chatRoomsList.Add(chatRoom);
                     }
                 }
             }
             catch (Exception)
             {
-                for (int i = 0; i < ChatRoomsBindingSource.Count; i++)
+                foreach (ChatRoom chatRoom in _chatRoomsList)
                 {
-                    ((ChatRoom)ChatRoomsBindingSource[i]).Dispose();
+                    chatRoom.Dispose();
                 }
-                ChatRoomsBindingSource.Clear();
+                _chatRoomsList.RemoveAll();
             }
         }
 
@@ -653,17 +668,18 @@ namespace ChatRoomRecorder
                 switch (table)
                 {
                     case c_settingsTableName:
-                        Settings settings = (Settings)SettingsBindingSource.DataSource;
+
                         command.CommandText = string.Format("delete from {0}; insert into {0} values ('{1}','{2}','{3}','{4}','{5}');",
                             c_settingsTableName,
-                            settings.OutputDirectory,
-                            settings.FFmpegPath,
-                            settings.ChaturbateConcurrentUpdates,
-                            settings.BongaCamsConcurrentUpdates,
-                            settings.UpdateInterval);
+                            _settings.OutputDirectory,
+                            _settings.FFmpegPath,
+                            _settings.ChaturbateConcurrentUpdates,
+                            _settings.BongaCamsConcurrentUpdates,
+                            _settings.UpdateInterval);
                         break;
 
                     case c_chatRoomsTableName:
+
                         ChatRoom chatRoom = (ChatRoom)item;
                         switch (operation)
                         {
@@ -705,13 +721,13 @@ namespace ChatRoomRecorder
             }
         }
 
+        private Settings _settings = new Settings();
+        private ChatRoomsBindingList _chatRoomsList = new();
+        private FilesBindingList _filesList = new();
         private SqliteConnection _connection = null;
         private object _lock = new();
-        private Dictionary<ChatRoomWebsite, DateTime> _lastUpdates = new()
-        {
-            { ChatRoomWebsite.Chaturbate, DateTime.Now },
-            { ChatRoomWebsite.BongaCams, DateTime.Now }
-        };
+        private Random _random = new Random();
+        private Dictionary<ChatRoomWebsite, DateTime> _lastUpdates = new();
         private bool _isExiting = false;
 
         private readonly Settings c_defaultSettings = new Settings()
@@ -726,6 +742,7 @@ namespace ChatRoomRecorder
 
         private const string c_dbFileName = "ChatRoomRecorder.db";
         private const string c_ffmpegBinaryName = "ffmpeg.exe";
+        private const string c_thumbnailsDirectoryName = "Thumbnails";
 
         private const string c_settingsTableName = "Settings";
         private const string c_chatRoomsTableName = "ChatRooms";
@@ -745,10 +762,102 @@ namespace ChatRoomRecorder
         private const string c_unsupportedUrlMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
         private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate and BongaCams!";
         private const string c_duplicateChatRoomMessage = "The chat room is already in the list!";
-        private const string c_fileOpenErrorMessage = "The file can't be opened!";
-        private const string c_confirmFilesRemovalMessage = "Do you really want to remove selected files?";
-        private const string c_fileRemoveErrorMessage = "The file can't be removed!";
-        private const string c_confirmChatRoomsRemovalMessage = "Do you really want to remove selected chat rooms?";
+        private const string c_confirmChatRoomsRemovingMessage = "Do you really want to remove selected chat rooms?";
+        private const string c_fileOpeningErrorMessage = "The file can't be opened!";
+        private const string c_confirmFilesRemovingMessage = "Do you really want to remove selected files?";
+        private const string c_fileRemovingErrorMessage = "The file can't be removed!";
+        private const string c_confirmThumbnailRemovingMessage = "Do you really want to remove this thumbnail?";
+        private const string c_thumbnailRemovingErrorMessage = "The thumbnail can't be removed!";
+    }
+
+    public class Settings : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void CopyTo(Settings settings)
+        {
+            settings._outputDirectory = _outputDirectory;
+            settings._ffmpegPath = _ffmpegPath;
+            settings._chaturbateConcurrentUpdates = _chaturbateConcurrentUpdates;
+            settings._bongaCamsConcurrentUpdates = _bongaCamsConcurrentUpdates;
+            settings._updateInterval = _updateInterval;
+        }
+
+        private void NotifyPropertyChanged(string propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        public string OutputDirectory
+        {
+            get
+            {
+                return _outputDirectory;
+            }
+            set
+            {
+                _outputDirectory = value;
+                NotifyPropertyChanged(nameof(OutputDirectory));
+            }
+        }
+        public string FFmpegPath
+        {
+            get
+            {
+                return _ffmpegPath;
+            }
+            set
+            {
+                _ffmpegPath = value;
+                NotifyPropertyChanged(nameof(FFmpegPath));
+            }
+        }
+        public int ChaturbateConcurrentUpdates
+        {
+            get
+            {
+                return _chaturbateConcurrentUpdates;
+            }
+            set
+            {
+                _chaturbateConcurrentUpdates = value >= 1 ? value : 1;
+                NotifyPropertyChanged(nameof(ChaturbateConcurrentUpdates));
+            }
+        }
+        public int BongaCamsConcurrentUpdates
+        {
+            get
+            {
+                return _bongaCamsConcurrentUpdates;
+            }
+            set
+            {
+                _bongaCamsConcurrentUpdates = value >= 1 ? value : 1;
+                NotifyPropertyChanged(nameof(BongaCamsConcurrentUpdates));
+            }
+        }
+
+        public int UpdateInterval
+        {
+            get
+            {
+                return _updateInterval;
+            }
+            set
+            {
+                _updateInterval = value >= 1 ? value : 1;
+                NotifyPropertyChanged(nameof(UpdateInterval));
+            }
+        }
+
+        private string _outputDirectory;
+        private string _ffmpegPath;
+        private int _chaturbateConcurrentUpdates;
+        private int _bongaCamsConcurrentUpdates;
+        private int _updateInterval;
     }
 
     public class SortableBindingList<T> : BindingList<T>
@@ -821,84 +930,126 @@ namespace ChatRoomRecorder
         private ListSortDirection _sortDirection;
     }
 
-    public class Settings : INotifyPropertyChanged
+    public class ChatRoomsBindingList: SortableBindingList<ChatRoom>, IBindingListView
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(string propertyName = "")
+        public ChatRoomsBindingList()
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            ListChanged += ChatRoomsBindingList_ListChanged;
         }
 
-        public string OutputDirectory
+        public void RemoveAll()
         {
-            get
-            {
-                return _outputDirectory;
-            }
-            set
-            {
-                _outputDirectory = value; 
-                NotifyPropertyChanged(nameof(OutputDirectory));
-            }
+            RaiseListChangedEvents = false;
+
+            Items.Clear();
+            _unfilteredItems.Clear();
+
+            RaiseListChangedEvents = true;
+
+            OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
-        public string FFmpegPath
+
+        public void ApplySort(ListSortDescriptionCollection sorts)
         {
-            get
-            {
-                return _ffmpegPath;
-            }
-            set
-            {
-                _ffmpegPath = value; 
-                NotifyPropertyChanged(nameof(FFmpegPath));
-            }
+            //do nothing
         }
-        public int ChaturbateConcurrentUpdates
+
+        public void RemoveFilter()
         {
-            get
-            {
-                return _chaturbateConcurrentUpdates;
-            }
-            set
-            {
-                _chaturbateConcurrentUpdates = value >= 1 ? value : 1;
-                NotifyPropertyChanged(nameof(ChaturbateConcurrentUpdates));
-            }
+            Filter = null;
         }
-        public int BongaCamsConcurrentUpdates
+
+        private void ChatRoomsBindingList_ListChanged(object sender, ListChangedEventArgs e)
         {
-            get
+            switch (e.ListChangedType)
             {
-                return _bongaCamsConcurrentUpdates;
-            }
-            set
-            {
-                _bongaCamsConcurrentUpdates = value >= 1 ? value : 1;
-                NotifyPropertyChanged(nameof(BongaCamsConcurrentUpdates));
+                case ListChangedType.ItemAdded:
+                    _unfilteredItems.Add(Items[e.NewIndex]);
+                    break;
+                case ListChangedType.ItemDeleted:
+                    _unfilteredItems.RemoveAt(e.NewIndex);
+                    break;
             }
         }
 
-        public int UpdateInterval
+        public bool SupportsAdvancedSorting
         {
             get
             {
-                return _updateInterval;
-            }
-            set
-            {
-                _updateInterval = value >= 1 ? value : 1;
-                NotifyPropertyChanged(nameof(UpdateInterval));
+                return false;
             }
         }
 
-        private string _outputDirectory;
-        private string _ffmpegPath;
-        private int _chaturbateConcurrentUpdates;
-        private int _bongaCamsConcurrentUpdates;
-        private int _updateInterval;
+        public ListSortDescriptionCollection SortDescriptions
+        {
+            get
+            {
+                return null;
+
+            }
+        }
+
+        public bool SupportsFiltering
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public string Filter
+        {
+            get
+            {
+                return _filter;
+            }
+
+            set
+            {
+                if (value == string.Empty)
+                {
+                    value = null;
+                }
+
+                if (_filter != value)
+                {
+                    _filter = value;
+
+                    RaiseListChangedEvents = false;
+
+                    ClearItems();
+                    Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(_filter);
+                    foreach (ChatRoom chatRoom in _unfilteredItems)
+                    {
+                        if (_filter == null ||
+                            parsedUrl == null && chatRoom.ChatRoomUrl.Contains(_filter, StringComparison.CurrentCultureIgnoreCase) ||
+                            parsedUrl != null && chatRoom.Website == parsedUrl.Item1 && chatRoom.Name.Contains(parsedUrl.Item2, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            Items.Add(chatRoom);
+                        }
+                    }
+
+                    RaiseListChangedEvents = true;
+
+                    OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+                }
+            }
+        }
+
+        public List<ChatRoom> UnfilteredItems
+        {
+            get
+            {
+                return _unfilteredItems;
+            }
+        }
+
+        private string _filter = null;
+        private List<ChatRoom> _unfilteredItems = new();
+    }
+
+    public class FilesBindingList : SortableBindingList<FileInfo>
+    {
+        //empty
     }
 }

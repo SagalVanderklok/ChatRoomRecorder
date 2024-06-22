@@ -52,7 +52,7 @@
             ChatRoomsTableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             UrlTextBox = new System.Windows.Forms.TextBox();
             PlusButton = new System.Windows.Forms.Button();
-            ChatRoomsSplitContainer = new System.Windows.Forms.SplitContainer();
+            ChatRoomsSplitContainer1 = new System.Windows.Forms.SplitContainer();
             ChatRoomsDataGridView = new System.Windows.Forms.DataGridView();
             WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -63,6 +63,8 @@
             SeenColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             UrlColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ChatRoomsBindingSource = new System.Windows.Forms.BindingSource(components);
+            ChatRoomsSplitContainer2 = new System.Windows.Forms.SplitContainer();
+            ThumbnailPictureBox = new System.Windows.Forms.PictureBox();
             FilesDataGridView = new System.Windows.Forms.DataGridView();
             FileNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             FileSizeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -93,12 +95,17 @@
             ChatRoomsTabPage.SuspendLayout();
             ChatRoomsTableLayoutPanel1.SuspendLayout();
             ChatRoomsTableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer).BeginInit();
-            ChatRoomsSplitContainer.Panel1.SuspendLayout();
-            ChatRoomsSplitContainer.Panel2.SuspendLayout();
-            ChatRoomsSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer1).BeginInit();
+            ChatRoomsSplitContainer1.Panel1.SuspendLayout();
+            ChatRoomsSplitContainer1.Panel2.SuspendLayout();
+            ChatRoomsSplitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ChatRoomsDataGridView).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ChatRoomsBindingSource).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer2).BeginInit();
+            ChatRoomsSplitContainer2.Panel1.SuspendLayout();
+            ChatRoomsSplitContainer2.Panel2.SuspendLayout();
+            ChatRoomsSplitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)ThumbnailPictureBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)FilesDataGridView).BeginInit();
             SettingsTabPage.SuspendLayout();
             SettingsTableLayoutPanel.SuspendLayout();
@@ -282,7 +289,7 @@
             ChatRoomsTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             ChatRoomsTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             ChatRoomsTableLayoutPanel1.Controls.Add(ChatRoomsTableLayoutPanel2, 0, 0);
-            ChatRoomsTableLayoutPanel1.Controls.Add(ChatRoomsSplitContainer, 0, 1);
+            ChatRoomsTableLayoutPanel1.Controls.Add(ChatRoomsSplitContainer1, 0, 1);
             ChatRoomsTableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             ChatRoomsTableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             ChatRoomsTableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
@@ -334,27 +341,27 @@
             PlusButton.UseVisualStyleBackColor = true;
             PlusButton.Click += PlusButton_Click;
             // 
-            // ChatRoomsSplitContainer
+            // ChatRoomsSplitContainer1
             // 
-            ChatRoomsSplitContainer.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            ChatRoomsSplitContainer.BackColor = System.Drawing.Color.Transparent;
-            ChatRoomsSplitContainer.Location = new System.Drawing.Point(0, 33);
-            ChatRoomsSplitContainer.Margin = new System.Windows.Forms.Padding(0);
-            ChatRoomsSplitContainer.Name = "ChatRoomsSplitContainer";
-            ChatRoomsSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            ChatRoomsSplitContainer1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            ChatRoomsSplitContainer1.BackColor = System.Drawing.Color.Transparent;
+            ChatRoomsSplitContainer1.Location = new System.Drawing.Point(0, 33);
+            ChatRoomsSplitContainer1.Margin = new System.Windows.Forms.Padding(0);
+            ChatRoomsSplitContainer1.Name = "ChatRoomsSplitContainer1";
+            ChatRoomsSplitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // ChatRoomsSplitContainer.Panel1
+            // ChatRoomsSplitContainer1.Panel1
             // 
-            ChatRoomsSplitContainer.Panel1.BackColor = System.Drawing.Color.Transparent;
-            ChatRoomsSplitContainer.Panel1.Controls.Add(ChatRoomsDataGridView);
+            ChatRoomsSplitContainer1.Panel1.BackColor = System.Drawing.Color.Transparent;
+            ChatRoomsSplitContainer1.Panel1.Controls.Add(ChatRoomsDataGridView);
             // 
-            // ChatRoomsSplitContainer.Panel2
+            // ChatRoomsSplitContainer1.Panel2
             // 
-            ChatRoomsSplitContainer.Panel2.BackColor = System.Drawing.Color.Transparent;
-            ChatRoomsSplitContainer.Panel2.Controls.Add(FilesDataGridView);
-            ChatRoomsSplitContainer.Size = new System.Drawing.Size(776, 496);
-            ChatRoomsSplitContainer.SplitterDistance = 351;
-            ChatRoomsSplitContainer.TabIndex = 12;
+            ChatRoomsSplitContainer1.Panel2.BackColor = System.Drawing.Color.Transparent;
+            ChatRoomsSplitContainer1.Panel2.Controls.Add(ChatRoomsSplitContainer2);
+            ChatRoomsSplitContainer1.Size = new System.Drawing.Size(776, 496);
+            ChatRoomsSplitContainer1.SplitterDistance = 351;
+            ChatRoomsSplitContainer1.TabIndex = 12;
             // 
             // ChatRoomsDataGridView
             // 
@@ -402,7 +409,6 @@
             ChatRoomsDataGridView.CellLeave += ChatRoomsDataGridView_CellLeave;
             ChatRoomsDataGridView.CellMouseClick += ChatRoomsDataGridView_CellMouseClick;
             ChatRoomsDataGridView.CellValueChanged += ChatRoomsDataGridView_CellValueChanged;
-            ChatRoomsDataGridView.ColumnHeaderMouseClick += ChatRoomsDataGridView_ColumnHeaderMouseClick;
             ChatRoomsDataGridView.SelectionChanged += ChatRoomsDataGridView_SelectionChanged;
             // 
             // WebsiteColumn
@@ -461,6 +467,38 @@
             UrlColumn.Name = "UrlColumn";
             UrlColumn.ReadOnly = true;
             // 
+            // ChatRoomsSplitContainer2
+            // 
+            ChatRoomsSplitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            ChatRoomsSplitContainer2.Location = new System.Drawing.Point(0, 0);
+            ChatRoomsSplitContainer2.Margin = new System.Windows.Forms.Padding(0);
+            ChatRoomsSplitContainer2.Name = "ChatRoomsSplitContainer2";
+            // 
+            // ChatRoomsSplitContainer2.Panel1
+            // 
+            ChatRoomsSplitContainer2.Panel1.Controls.Add(ThumbnailPictureBox);
+            // 
+            // ChatRoomsSplitContainer2.Panel2
+            // 
+            ChatRoomsSplitContainer2.Panel2.Controls.Add(FilesDataGridView);
+            ChatRoomsSplitContainer2.Size = new System.Drawing.Size(776, 141);
+            ChatRoomsSplitContainer2.SplitterDistance = 150;
+            ChatRoomsSplitContainer2.TabIndex = 1;
+            // 
+            // ThumbnailPictureBox
+            // 
+            ThumbnailPictureBox.BackColor = System.Drawing.SystemColors.ControlDark;
+            ThumbnailPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            ThumbnailPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            ThumbnailPictureBox.Location = new System.Drawing.Point(0, 0);
+            ThumbnailPictureBox.Margin = new System.Windows.Forms.Padding(0);
+            ThumbnailPictureBox.Name = "ThumbnailPictureBox";
+            ThumbnailPictureBox.Size = new System.Drawing.Size(150, 141);
+            ThumbnailPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            ThumbnailPictureBox.TabIndex = 0;
+            ThumbnailPictureBox.TabStop = false;
+            ThumbnailPictureBox.MouseClick += ThumbnailPictureBox_MouseClick;
+            // 
             // FilesDataGridView
             // 
             FilesDataGridView.AllowUserToAddRows = false;
@@ -476,7 +514,7 @@
             FilesDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             FilesDataGridView.Name = "FilesDataGridView";
             FilesDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            FilesDataGridView.Size = new System.Drawing.Size(776, 141);
+            FilesDataGridView.Size = new System.Drawing.Size(622, 141);
             FilesDataGridView.TabIndex = 0;
             FilesDataGridView.CellMouseClick += FilesDataGridView_CellMouseClick;
             FilesDataGridView.CellMouseDoubleClick += FilesDataGridView_CellMouseDoubleClick;
@@ -717,12 +755,17 @@
             ChatRoomsTableLayoutPanel1.ResumeLayout(false);
             ChatRoomsTableLayoutPanel2.ResumeLayout(false);
             ChatRoomsTableLayoutPanel2.PerformLayout();
-            ChatRoomsSplitContainer.Panel1.ResumeLayout(false);
-            ChatRoomsSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer).EndInit();
-            ChatRoomsSplitContainer.ResumeLayout(false);
+            ChatRoomsSplitContainer1.Panel1.ResumeLayout(false);
+            ChatRoomsSplitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer1).EndInit();
+            ChatRoomsSplitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)ChatRoomsDataGridView).EndInit();
             ((System.ComponentModel.ISupportInitialize)ChatRoomsBindingSource).EndInit();
+            ChatRoomsSplitContainer2.Panel1.ResumeLayout(false);
+            ChatRoomsSplitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer2).EndInit();
+            ChatRoomsSplitContainer2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)ThumbnailPictureBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)FilesDataGridView).EndInit();
             SettingsTabPage.ResumeLayout(false);
             SettingsTableLayoutPanel.ResumeLayout(false);
@@ -751,7 +794,7 @@
         private System.Windows.Forms.Timer ChatRoomsUpdateTimer;
         private System.Windows.Forms.Label FFmpegPathLabel;
         private System.Windows.Forms.Timer FormCloseTimer;
-        private System.Windows.Forms.SplitContainer ChatRoomsSplitContainer;
+        private System.Windows.Forms.SplitContainer ChatRoomsSplitContainer1;
         private System.Windows.Forms.DataGridView FilesDataGridView;
         private System.Windows.Forms.Label ChaturbateConcurrentUpdatesLabel;
         private System.Windows.Forms.Label BongaCamsConcurrentUpdatesLabel;
@@ -785,6 +828,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn UpdatedColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn SeenColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn UrlColumn;
+        private System.Windows.Forms.SplitContainer ChatRoomsSplitContainer2;
+        private System.Windows.Forms.PictureBox ThumbnailPictureBox;
     }
 }
 
