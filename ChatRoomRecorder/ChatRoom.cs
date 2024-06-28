@@ -17,8 +17,9 @@ namespace ChatRoomRecorder
     public enum ChatRoomWebsite
     {
         BongaCams,
-        Chaturbate
-     }
+        Chaturbate,
+        Stripchat
+    }
 
     public enum ChatRoomAction
     {
@@ -34,6 +35,7 @@ namespace ChatRoomRecorder
         Offline,
         Away,
         Hidden,
+        Group,
         Private,
         Public,
         Record
@@ -296,7 +298,7 @@ namespace ChatRoomRecorder
             _semaphore.Wait();
             try
             {
-                if (_disposingStarted || _isUpdating && (DateTime.Now - _lastUpdated).TotalSeconds < c_updateLimit)
+                if (_disposingStarted || (DateTime.Now - _lastUpdated).TotalSeconds < c_updateLimit)
                 {
                     return;
                 }
@@ -376,10 +378,13 @@ namespace ChatRoomRecorder
                     switch (_website)
                     {
                         case ChatRoomWebsite.Chaturbate:
-                            UpdateStatusChaturbate();
+                            SendRequestChaturbate();
                             break;
                         case ChatRoomWebsite.BongaCams:
-                            UpdateStatusBongaCams();
+                            SendRequestBongaCams();
+                            break;
+                        case ChatRoomWebsite.Stripchat:
+                            SendRequestStripchat();
                             break;
                     }
                 }
@@ -403,13 +408,16 @@ namespace ChatRoomRecorder
                 switch (_website)
                 {
                     case ChatRoomWebsite.Chaturbate:
-                        _browser.CoreWebView2.WebResourceResponseReceived += Chaturbate_WebResourceResponseReceived;
+                        _browser.CoreWebView2.WebResourceResponseReceived += _browser_WebResourceResponseReceivedChaturbate;
                         break;
                     case ChatRoomWebsite.BongaCams:
-                        _browser.CoreWebView2.WebResourceResponseReceived += BongaCams_WebResourceResponseReceived;
+                        _browser.CoreWebView2.WebResourceResponseReceived += _browser_WebResourceResponseReceivedBongaCams;
+                        break;
+                    case ChatRoomWebsite.Stripchat:
+                        _browser.CoreWebView2.WebResourceResponseReceived += _browser_WebResourceResponseReceivedStripchat;
                         break;
                 }
-                _browser.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
+                _browser.CoreWebView2.NavigationCompleted += _browser_NavigationCompleted;
                 _browserInitialized = true;
                 _isUpdating = false;
             }
@@ -421,7 +429,26 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void UpdateStatusChaturbate()
+        private void _browser_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            _semaphore.Wait();
+            try
+            {
+                if (_isUpdating && !e.IsSuccess)
+                {
+                    _status = ChatRoomStatus.Error;
+                    _playlistUrl = String.Empty;
+                    _availableResolutions.Clear();
+                    _isUpdating = false;
+                }
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private void SendRequestChaturbate()
         {
             string postData = "room_slug=" + _name;
             CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
@@ -432,7 +459,7 @@ namespace ChatRoomRecorder
             _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
         }
 
-        private void UpdateStatusBongaCams()
+        private void SendRequestBongaCams()
         {
             string postData = "model_search[display_name]=" + _name;
             CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
@@ -443,7 +470,17 @@ namespace ChatRoomRecorder
             _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
         }
 
-        private async void Chaturbate_WebResourceResponseReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceResponseReceivedEventArgs e)
+        private void SendRequestStripchat()
+        {
+            CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                string.Format("https://stripchat.com/api/front/v2/models/username/{0}/cam", _name),
+                "GET",
+                null,
+                "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+            _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+        }
+
+        private async void _browser_WebResourceResponseReceivedChaturbate(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
             await _semaphore.WaitAsync();
             try
@@ -493,7 +530,6 @@ namespace ChatRoomRecorder
                     reqMsg.Headers.Add("Accept-Encoding", "gzip");
                     HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
                     string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
-                    
                     for (int i = 0; i < playlist.Length; i++)
                     {
                         MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
@@ -509,12 +545,25 @@ namespace ChatRoomRecorder
                     status = ChatRoomStatus.Record;
                 }
 
+                if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
+                {
+                    int streamIndex = ChatRoomResolution.FindClosest(_preferredResolution, availableResolutions.ToArray());
+
+                    if (streamIndex == -1)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    if (status == ChatRoomStatus.Record)
+                    {
+                        Record(string.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy", playlistUrl, streamIndex));
+                    }
+                }
+
                 if (status == ChatRoomStatus.Record || status == ChatRoomStatus.Public || status == ChatRoomStatus.Private || status == ChatRoomStatus.Hidden || status == ChatRoomStatus.Away)
                 {
                     _lastSeen = DateTime.Now;
                 }
-
-                MonitorOrRecord(ref status, playlistUrl, availableResolutions);
             }
             catch (Exception)
             {
@@ -539,7 +588,7 @@ namespace ChatRoomRecorder
             UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
-        private async void BongaCams_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
+        private async void _browser_WebResourceResponseReceivedBongaCams(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
             await _semaphore.WaitAsync();
             try
@@ -592,7 +641,6 @@ namespace ChatRoomRecorder
                 {
                     playlistUrl = reqMsg.RequestUri.OriginalString;
                     string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
-
                     for (int i = 0; i < playlist.Length; i++)
                     {
                         MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
@@ -616,12 +664,25 @@ namespace ChatRoomRecorder
                     status = ChatRoomStatus.Offline;
                 }
 
+                if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
+                {
+                    int streamIndex = ChatRoomResolution.FindClosest(_preferredResolution, availableResolutions.ToArray());
+
+                    if (streamIndex == -1)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    if (status == ChatRoomStatus.Record)
+                    {
+                        Record(string.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy", playlistUrl, streamIndex));
+                    }
+                }
+
                 if (status == ChatRoomStatus.Record || status == ChatRoomStatus.Public)
                 {
                     _lastSeen = DateTime.Now;
                 }
-
-                MonitorOrRecord(ref status, playlistUrl, availableResolutions);
             }
             catch (Exception)
             {
@@ -646,45 +707,144 @@ namespace ChatRoomRecorder
             UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
-        private void MonitorOrRecord(ref ChatRoomStatus status, string playlistUrl, List<ChatRoomResolution> availableResolutions)
+        private async void _browser_WebResourceResponseReceivedStripchat(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
-            if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
-            {
-                int streamIndex = ChatRoomResolution.FindClosest(_preferredResolution, availableResolutions.ToArray());
-
-                if (streamIndex == -1)
-                {
-                    throw new ArgumentException();
-                }
-
-                if (status == ChatRoomStatus.Record)
-                {
-                    _fileName = string.Format("{0}{1}{2} {3} {4}.ts", _outputDirectory, Path.DirectorySeparatorChar, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
-                    _fileSize = 0;
-                    string ffmpegArgs = string.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName);
-                    ProcessStartInfo psi = new() { FileName = _ffmpegPath, Arguments = ffmpegArgs, UseShellExecute = false, LoadUserProfile = false, CreateNoWindow = true };
-                    _ffmpegProcess = Process.Start(psi);
-                }
-            }
-        }
-
-        private void CoreWebView2_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
-        {
-            _semaphore.Wait();
+            await _semaphore.WaitAsync();
             try
             {
-                if (_isUpdating && !e.IsSuccess)
+                if (!_isUpdating)
                 {
-                    _status = ChatRoomStatus.Error;
-                    _playlistUrl = String.Empty;
-                    _availableResolutions.Clear();
-                    _isUpdating = false;
+                    return;
                 }
             }
             finally
             {
                 _semaphore.Release();
             }
+
+            ChatRoomStatus status = ChatRoomStatus.Unknown;
+            string playlistUrl = string.Empty;
+            List<ChatRoomResolution> availableResolutions = new List<ChatRoomResolution>();
+
+            try
+            {
+                string respStr = new StreamReader(await e.Response.GetContentAsync()).ReadToEnd();
+                JsonNode rootNode = JsonNode.Parse(respStr);
+                
+                switch ((string)rootNode["user"]["user"]["status"])
+                {
+                    case "public":
+                        status = ChatRoomStatus.Public;
+                        break;
+                    case "virtualPrivate":
+                        status = ChatRoomStatus.Private;
+                        break;
+                    case "private":
+                        status = ChatRoomStatus.Private;
+                        break;
+                    case "p2p":
+                        status = ChatRoomStatus.Private;
+                        break;
+                    case "groupShow":
+                        status = ChatRoomStatus.Group;
+                        break;
+                    case "off":
+                        status = ChatRoomStatus.Offline;
+                        break;
+                }
+
+                if (status == ChatRoomStatus.Public)
+                {
+                    playlistUrl = string.Format("https://b-{0}.doppiocdn.com/hls/{1}/{1}.m3u8", rootNode["cam"]["viewServers"]["flashphoner-hls"], rootNode["cam"]["streamName"]);
+                    availableResolutions.Add(new ChatRoomResolution((short)rootNode["cam"]["broadcastSettings"]["width"], (short)rootNode["cam"]["broadcastSettings"]["height"]));
+                    JsonArray presetsNode = (JsonArray)rootNode["cam"]["broadcastSettings"]["presets"]["default"];
+                    for (int i = 0; i < presetsNode.Count; i++)
+                    {
+                        ChatRoomResolution resolution = ChatRoomResolution.MinValue;
+                        switch ((string)presetsNode[i]["name"])
+                        {
+                            case "1080p":
+                                resolution = new ChatRoomResolution(1920, 1080);
+                                break;
+                            case "720p":
+                                resolution = new ChatRoomResolution(1280, 720);
+                                break;
+                            case "480p":
+                                resolution = new ChatRoomResolution(854, 480);
+                                break;
+                            case "240p":
+                                resolution = new ChatRoomResolution(426, 240);
+                                break;
+                        }
+                        if (resolution != ChatRoomResolution.MinValue && !availableResolutions.Contains(resolution))
+                        {
+                            availableResolutions.Add(resolution);
+                        }
+                    }
+                }
+
+                if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
+                {
+                    status = ChatRoomStatus.Record;
+                }
+
+                if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
+                {
+                    int streamIndex = ChatRoomResolution.FindClosest(_preferredResolution, availableResolutions.ToArray());
+
+                    if (streamIndex == -1)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    if (status == ChatRoomStatus.Record)
+                    {
+                        string streamUrl = playlistUrl;
+                        if (streamIndex > 0)
+                        {
+                            streamUrl = string.Format("{0}_{1}p{2}",
+                                streamUrl.Substring(0, streamUrl.LastIndexOf(".")),
+                                availableResolutions[streamIndex].Height.ToString(),
+                                streamUrl.Substring(streamUrl.LastIndexOf(".")));
+                        }
+                        Record(string.Format("-re -i \"{0}\" -c copy", streamUrl));
+                    }
+                }
+
+                if (status == ChatRoomStatus.Record || status == ChatRoomStatus.Public || status == ChatRoomStatus.Private || status == ChatRoomStatus.Group)
+                {
+                    _lastSeen = DateTime.Now;
+                }
+            }
+            catch (Exception)
+            {
+                status = ChatRoomStatus.Error;
+                playlistUrl = string.Empty;
+                availableResolutions.Clear();
+            }
+
+            await _semaphore.WaitAsync();
+            try
+            {
+                _status = status;
+                _playlistUrl = playlistUrl;
+                _availableResolutions = availableResolutions;
+                _isUpdating = false;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+
+            UpdateCompleted?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void Record(string ffmpegArgs)
+        {
+            _fileName = string.Format("{0}{1}{2} {3} {4}.ts", _outputDirectory, Path.DirectorySeparatorChar, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
+            _fileSize = 0;
+            ProcessStartInfo psi = new() { FileName = _ffmpegPath, Arguments = string.Format("{0} \"{1}\"", ffmpegArgs, _fileName), UseShellExecute = false, LoadUserProfile = false, CreateNoWindow = true };
+            _ffmpegProcess = Process.Start(psi);
         }
 
         public static Tuple<ChatRoomWebsite, string, string> ParseUrl(string url)
@@ -703,16 +863,22 @@ namespace ChatRoomRecorder
             MatchCollection matches;
 
             if ((matches = Regex.Matches(url, @"^https://chaturbate.com/([^/]+)/$", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^chaturbate[ ]+([^ /]+).*$", RegexOptions.IgnoreCase)).Count > 0)
+                (matches = Regex.Matches(url, @"^chaturbate[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
 
             {
                 return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value, string.Format("https://chaturbate.com/{0}/", matches[0].Groups[1].Value));
             }
 
             if ((matches = Regex.Matches(url, @"^https://(?:[^/.]+.)?bongacams[0-9]*.com/([^/]+(?=#!/$)|[^/]+(?=/$))", RegexOptions.IgnoreCase)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^bongacams[ ]+([^ /]+).*$", RegexOptions.IgnoreCase)).Count > 0)
+                (matches = Regex.Matches(url, @"^bongacams[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value, string.Format("https://bongacams.com/{0}/", matches[0].Groups[1].Value));
+            }
+
+            if ((matches = Regex.Matches(url, @"^https://(?:[^.]+.)?stripchat.com/([^/]+)/$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(url, @"^stripchat[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
+            {
+                return Tuple.Create(ChatRoomWebsite.Stripchat, matches[0].Groups[1].Value, string.Format("https://stripchat.com/{0}/", matches[0].Groups[1].Value));
             }
 
             return null;

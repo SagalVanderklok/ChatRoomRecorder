@@ -27,13 +27,19 @@ namespace ChatRoomRecorder
                 ((AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyDescriptionAttribute))).Description,
                 ((AssemblyCopyrightAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyCopyrightAttribute))).Copyright);
 
+            DefaultActionComboBox.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
+            DefaultResolutionComboBox.DataSource = ChatRoomResolution.CommonResolutions;
+
             c_defaultSettings.CopyTo(_settings);
             SettingsBindingSource.DataSource = _settings;
             OutputDirectoryTextBox.DataBindings.Add("Text", SettingsBindingSource, c_outputDirectorySettingName);
             FFmpegPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_ffmpegPathSettingName);
             ChaturbateConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_chaturbateConcurrentUpdatesSettingName);
             BongaCamsConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_bongaCamsConcurrentUpdatesSettingName);
+            StripchatConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_stripchatConcurrentUpdatesSettingName);
             UpdateIntervalNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateIntervalSettingName);
+            DefaultActionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultActionSettingName);
+            DefaultResolutionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultResolutionSettingName);
 
             ChatRoomsBindingSource.DataSource = _chatRoomsList;
             ActionColumn.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
@@ -60,7 +66,7 @@ namespace ChatRoomRecorder
                     ChatRoomsUpdateTimer.Stop();
                     FormCloseTimer.Start();
 
-                    foreach (ChatRoom chatRoom in _chatRoomsList)
+                    foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
                     {
                         chatRoom.Dispose();
                     }
@@ -136,14 +142,14 @@ namespace ChatRoomRecorder
 
         private void NavigateButton_Click(object sender, EventArgs e)
         {
-            NavigateToUrl(AddressBarTextBox.Text);
+            NavigateToUrl();
         }
 
         private void AddressBarTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                NavigateToUrl(AddressBarTextBox.Text);
+                NavigateToUrl();
             }
         }
 
@@ -183,7 +189,8 @@ namespace ChatRoomRecorder
                     Dictionary<ChatRoomWebsite, int> maxUpdateCounts = new()
                     {
                         { ChatRoomWebsite.Chaturbate, _settings.ChaturbateConcurrentUpdates },
-                        { ChatRoomWebsite.BongaCams, _settings.BongaCamsConcurrentUpdates }
+                        { ChatRoomWebsite.BongaCams, _settings.BongaCamsConcurrentUpdates },
+                        { ChatRoomWebsite.Stripchat, _settings.StripchatConcurrentUpdates }
                     };
 
                     Dictionary<ChatRoomWebsite, int> curUpdateCounts = new();
@@ -489,14 +496,14 @@ namespace ChatRoomRecorder
                 switch (e.PropertyName)
                 {
                     case c_outputDirectorySettingName:
-                        foreach (ChatRoom chatRoom in _chatRoomsList)
+                        foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
                         {
                             chatRoom.OutputDirectory = _settings.OutputDirectory;
                         }
                         break;
 
                     case c_ffmpegPathSettingName:
-                        foreach (ChatRoom chatRoom in _chatRoomsList)
+                        foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
                         {
                             chatRoom.FFmpegPath = _settings.FFmpegPath;
                         }
@@ -510,8 +517,20 @@ namespace ChatRoomRecorder
                         //do nothing
                         break;
 
+                    case c_stripchatConcurrentUpdatesSettingName:
+                        //do nothing
+                        break;
+
                     case c_updateIntervalSettingName:
                         ChatRoomsUpdateTimer.Interval = _settings.UpdateInterval * 1000;
+                        break;
+
+                    case c_defaultActionSettingName:
+                        //do nothing
+                        break;
+
+                    case c_defaultResolutionSettingName:
+                        //do nothing
                         break;
                 }
 
@@ -519,11 +538,11 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void NavigateToUrl(string url)
+        private void NavigateToUrl()
         {
-            if (Regex.Matches(url, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
+            if (Regex.Matches(AddressBarTextBox.Text, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
             {
-                WebView2.CoreWebView2.Navigate(url);
+                WebView2.CoreWebView2.Navigate(AddressBarTextBox.Text);
             }
             else
             {
@@ -539,7 +558,7 @@ namespace ChatRoomRecorder
             {
                 bool duplicate = false;
 
-                foreach (ChatRoom chatRoom in _chatRoomsList)
+                foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
                 {
                     if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
                     {
@@ -551,9 +570,10 @@ namespace ChatRoomRecorder
                 if (!duplicate)
                 {
                     ChatRoom chatRoom = new(parsedUrl.Item3);
-                    chatRoom.PreferredResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(c_defaultResolution, ChatRoomResolution.CommonResolutions)];
                     chatRoom.OutputDirectory = _settings.OutputDirectory;
                     chatRoom.FFmpegPath = _settings.FFmpegPath;
+                    chatRoom.Action = _settings.DefaultAction;
+                    chatRoom.PreferredResolution = _settings.DefaultResolution;
                     chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
                     _chatRoomsList.Add(chatRoom);
                     WriteData(c_chatRoomsTableName, chatRoom, 1);
@@ -573,10 +593,11 @@ namespace ChatRoomRecorder
         {
             try
             {
-                _connection = new SqliteConnection(string.Format("data source={0}", c_dbFileName));
+                _connection = new SqliteConnection(string.Format("data source={0}", c_databaseFileName));
                 _connection.Open();
 
                 SqliteCommand command = _connection.CreateCommand();
+
                 command.CommandText = string.Format("create table if not exists {0} ({1} text,{2} text,{3} int,{4} int,{5} int);",
                     c_settingsTableName,
                     c_outputDirectorySettingName,
@@ -584,7 +605,9 @@ namespace ChatRoomRecorder
                     c_chaturbateConcurrentUpdatesSettingName,
                     c_bongaCamsConcurrentUpdatesSettingName,
                     c_updateIntervalSettingName);
-                command.CommandText += string.Format("create table if not exists {0} ({1} text,{2} int,{3} int,{4} int,{5} int);",
+                command.ExecuteNonQuery();
+
+                command.CommandText = string.Format("create table if not exists {0} ({1} text,{2} int,{3} int,{4} int,{5} int);",
                     c_chatRoomsTableName,
                     c_urlPropertyName,
                     c_actionPropertyName,
@@ -592,6 +615,25 @@ namespace ChatRoomRecorder
                     c_updatedPropertyName,
                     c_seenPropertyName);
                 command.ExecuteNonQuery();
+
+                do
+                {
+                    command.CommandText = "select * from pragma_user_version;";
+                    int version = Convert.ToInt32(command.ExecuteScalar());
+                    if (version == 0)
+                    {
+                        command.CommandText =
+                            string.Format("alter table {0} add {1} int;", c_settingsTableName, c_stripchatConcurrentUpdatesSettingName) +
+                            string.Format("alter table {0} add {1} int;", c_settingsTableName, c_defaultActionSettingName) +
+                            string.Format("alter table {0} add {1} int;", c_settingsTableName, c_defaultResolutionSettingName) +
+                            "pragma user_version = 1;";
+                        command.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                } while (true);
             }
             catch (Exception)
             {
@@ -606,11 +648,14 @@ namespace ChatRoomRecorder
                 {
                     while (reader.Read())
                     {
-                        _settings.OutputDirectory = reader.GetString(0);
-                        _settings.FFmpegPath = reader.GetString(1);
-                        _settings.ChaturbateConcurrentUpdates = reader.GetInt32(2);
-                        _settings.BongaCamsConcurrentUpdates = reader.GetInt32(3);
-                        _settings.UpdateInterval = reader.GetInt32(4);
+                        _settings.OutputDirectory = reader.GetString(c_outputDirectorySettingName);
+                        _settings.FFmpegPath = reader.GetString(c_ffmpegPathSettingName);
+                        _settings.ChaturbateConcurrentUpdates = reader.GetInt32(c_chaturbateConcurrentUpdatesSettingName);
+                        _settings.BongaCamsConcurrentUpdates = reader.GetInt32(c_bongaCamsConcurrentUpdatesSettingName);
+                        _settings.StripchatConcurrentUpdates = reader.GetInt32(c_stripchatConcurrentUpdatesSettingName);
+                        _settings.UpdateInterval = reader.GetInt32(c_updateIntervalSettingName);
+                        _settings.DefaultAction = (ChatRoomAction)reader.GetInt32(c_defaultActionSettingName);
+                        _settings.DefaultResolution = ChatRoomResolution.Parse(reader.GetInt32(c_defaultResolutionSettingName));
                     }
                 }
             }
@@ -631,19 +676,19 @@ namespace ChatRoomRecorder
                 {
                     while (reader.Read())
                     {
-                        string url = reader.GetString(0);
-                        ChatRoomAction action = (ChatRoomAction)reader.GetInt32(1);
-                        ChatRoomResolution resolution = ChatRoomResolution.Parse(reader.GetInt32(2));
-                        DateTime updated = new(reader.GetInt64(3));
-                        DateTime seen = new(reader.GetInt64(4));
+                        string url = reader.GetString(c_urlPropertyName);
+                        ChatRoomAction action = (ChatRoomAction)reader.GetInt32(c_actionPropertyName);
+                        ChatRoomResolution resolution = ChatRoomResolution.Parse(reader.GetInt32(c_resolutionPropertyName));
+                        DateTime updated = new(reader.GetInt64(c_updatedPropertyName));
+                        DateTime seen = new(reader.GetInt64(c_seenPropertyName));
 
                         ChatRoom chatRoom = new(url);
+                        chatRoom.OutputDirectory = _settings.OutputDirectory;
+                        chatRoom.FFmpegPath = _settings.FFmpegPath;
                         chatRoom.Action = action;
                         chatRoom.PreferredResolution = resolution;
                         chatRoom.LastUpdated = updated;
                         chatRoom.LastSeen = seen;
-                        chatRoom.OutputDirectory = _settings.OutputDirectory;
-                        chatRoom.FFmpegPath = _settings.FFmpegPath;
                         chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
                         _chatRoomsList.Add(chatRoom);
                     }
@@ -651,7 +696,7 @@ namespace ChatRoomRecorder
             }
             catch (Exception)
             {
-                foreach (ChatRoom chatRoom in _chatRoomsList)
+                foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
                 {
                     chatRoom.Dispose();
                 }
@@ -669,13 +714,16 @@ namespace ChatRoomRecorder
                 {
                     case c_settingsTableName:
 
-                        command.CommandText = string.Format("delete from {0}; insert into {0} values ('{1}','{2}','{3}','{4}','{5}');",
+                        command.CommandText = string.Format("delete from {0}; insert into {0} ({1},{3},{5},{7},{9},{11},{13},{15}) values ('{2}','{4}','{6}','{8}','{10}','{12}','{14}','{16}');",
                             c_settingsTableName,
-                            _settings.OutputDirectory,
-                            _settings.FFmpegPath,
-                            _settings.ChaturbateConcurrentUpdates,
-                            _settings.BongaCamsConcurrentUpdates,
-                            _settings.UpdateInterval);
+                            c_outputDirectorySettingName, _settings.OutputDirectory,
+                            c_ffmpegPathSettingName, _settings.FFmpegPath,
+                            c_chaturbateConcurrentUpdatesSettingName, _settings.ChaturbateConcurrentUpdates,
+                            c_bongaCamsConcurrentUpdatesSettingName, _settings.BongaCamsConcurrentUpdates,
+                            c_stripchatConcurrentUpdatesSettingName, _settings.StripchatConcurrentUpdates,
+                            c_updateIntervalSettingName, _settings.UpdateInterval,
+                            c_defaultActionSettingName, (int)_settings.DefaultAction,
+                            c_defaultResolutionSettingName, _settings.DefaultResolution.ToInt32());
                         break;
 
                     case c_chatRoomsTableName:
@@ -701,13 +749,13 @@ namespace ChatRoomRecorder
                                 break;
 
                             case 1:
-                                command.CommandText = string.Format("insert into {0} values ('{1}','{2}','{3}','{4}','{5}');",
+                                command.CommandText = string.Format("insert into {0} ({1},{3},{5},{7},{9}) values ('{2}','{4}','{6}','{8}','{10}');",
                                     c_chatRoomsTableName,
-                                    chatRoom.ChatRoomUrl,
-                                    (int)chatRoom.Action,
-                                    chatRoom.PreferredResolution.ToInt32(),
-                                    chatRoom.LastUpdated.Ticks,
-                                    chatRoom.LastSeen.Ticks);
+                                    c_actionPropertyName, (int)chatRoom.Action,
+                                    c_resolutionPropertyName, chatRoom.PreferredResolution.ToInt32(),
+                                    c_updatedPropertyName, chatRoom.LastUpdated.Ticks,
+                                    c_seenPropertyName, chatRoom.LastSeen.Ticks,
+                                    c_urlPropertyName, chatRoom.ChatRoomUrl);
                                 break;
                         }
                         break;
@@ -736,11 +784,13 @@ namespace ChatRoomRecorder
             FFmpegPath = new FileInfo(Environment.ProcessPath).Directory.FullName + Path.DirectorySeparatorChar + c_ffmpegBinaryName,
             ChaturbateConcurrentUpdates = 1,
             BongaCamsConcurrentUpdates = 1,
-            UpdateInterval = 5
+            StripchatConcurrentUpdates = 1,
+            UpdateInterval = 5,
+            DefaultAction = ChatRoomAction.None,
+            DefaultResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(new ChatRoomResolution(1920, 1080), ChatRoomResolution.CommonResolutions)]
         };
-        private readonly ChatRoomResolution c_defaultResolution = ChatRoomResolution.Parse("1920x1080");
 
-        private const string c_dbFileName = "ChatRoomRecorder.db";
+        private const string c_databaseFileName = "ChatRoomRecorder.db";
         private const string c_ffmpegBinaryName = "ffmpeg.exe";
         private const string c_thumbnailsDirectoryName = "Thumbnails";
 
@@ -751,7 +801,10 @@ namespace ChatRoomRecorder
         private const string c_ffmpegPathSettingName = "FFmpegPath";
         private const string c_chaturbateConcurrentUpdatesSettingName = "ChaturbateConcurrentUpdates";
         private const string c_bongaCamsConcurrentUpdatesSettingName = "BongaCamsConcurrentUpdates";
+        private const string c_stripchatConcurrentUpdatesSettingName = "StripchatConcurrentUpdates";
         private const string c_updateIntervalSettingName = "UpdateInterval";
+        private const string c_defaultActionSettingName = "DefaultAction";
+        private const string c_defaultResolutionSettingName = "DefaultResolution";
 
         private const string c_urlPropertyName = "URL";
         private const string c_actionPropertyName = "Action";
@@ -760,7 +813,7 @@ namespace ChatRoomRecorder
         private const string c_seenPropertyName = "Seen";
 
         private const string c_unsupportedUrlMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
-        private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate and BongaCams!";
+        private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams and Stripchat!";
         private const string c_duplicateChatRoomMessage = "The chat room is already in the list!";
         private const string c_confirmChatRoomsRemovingMessage = "Do you really want to remove selected chat rooms?";
         private const string c_fileOpeningErrorMessage = "The file can't be opened!";
@@ -780,7 +833,10 @@ namespace ChatRoomRecorder
             settings._ffmpegPath = _ffmpegPath;
             settings._chaturbateConcurrentUpdates = _chaturbateConcurrentUpdates;
             settings._bongaCamsConcurrentUpdates = _bongaCamsConcurrentUpdates;
+            settings._stripchatConcurrentUpdates = _stripchatConcurrentUpdates;
             settings._updateInterval = _updateInterval;
+            settings._defaultAction = _defaultAction;
+            settings._defaultResolution = _defaultResolution;
         }
 
         private void NotifyPropertyChanged(string propertyName = "")
@@ -840,6 +896,19 @@ namespace ChatRoomRecorder
             }
         }
 
+        public int StripchatConcurrentUpdates
+        {
+            get
+            {
+                return _stripchatConcurrentUpdates;
+            }
+            set
+            {
+                _stripchatConcurrentUpdates = value >= 1 ? value : 1;
+                NotifyPropertyChanged(nameof(StripchatConcurrentUpdates));
+            }
+        }
+
         public int UpdateInterval
         {
             get
@@ -853,11 +922,40 @@ namespace ChatRoomRecorder
             }
         }
 
+        public ChatRoomAction DefaultAction
+        {
+            get
+            {
+                return _defaultAction;
+            }
+            set
+            {
+                _defaultAction = value;
+                NotifyPropertyChanged(nameof(DefaultAction));
+            }
+        }
+
+        public ChatRoomResolution DefaultResolution
+        {
+            get
+            {
+                return _defaultResolution;
+            }
+            set
+            {
+                _defaultResolution = value;
+                NotifyPropertyChanged(nameof(DefaultResolution));
+            }
+        }
+
         private string _outputDirectory;
         private string _ffmpegPath;
         private int _chaturbateConcurrentUpdates;
         private int _bongaCamsConcurrentUpdates;
+        private int _stripchatConcurrentUpdates;
         private int _updateInterval;
+        private ChatRoomAction _defaultAction;
+        private ChatRoomResolution _defaultResolution;
     }
 
     public class SortableBindingList<T> : BindingList<T>
@@ -937,6 +1035,24 @@ namespace ChatRoomRecorder
             ListChanged += ChatRoomsBindingList_ListChanged;
         }
 
+        private void ChatRoomsBindingList_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            switch (e.ListChangedType)
+            {
+                case ListChangedType.ItemAdded:
+                    _unfilteredItems.Add(Items[e.NewIndex]);
+                    _filteredItems.Add(Items[e.NewIndex]);
+                    break;
+                case ListChangedType.ItemDeleted:
+                    _unfilteredItems.Remove(_filteredItems[e.NewIndex]);
+                    _filteredItems.RemoveAt(e.NewIndex);
+                    break;
+                case ListChangedType.Reset:
+                    _filteredItems = Items.ToList();
+                    break;
+            }
+        }
+
         public void RemoveAll()
         {
             RaiseListChangedEvents = false;
@@ -957,19 +1073,6 @@ namespace ChatRoomRecorder
         public void RemoveFilter()
         {
             Filter = null;
-        }
-
-        private void ChatRoomsBindingList_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            switch (e.ListChangedType)
-            {
-                case ListChangedType.ItemAdded:
-                    _unfilteredItems.Add(Items[e.NewIndex]);
-                    break;
-                case ListChangedType.ItemDeleted:
-                    _unfilteredItems.RemoveAt(e.NewIndex);
-                    break;
-            }
         }
 
         public bool SupportsAdvancedSorting
@@ -1046,6 +1149,7 @@ namespace ChatRoomRecorder
 
         private string _filter = null;
         private List<ChatRoom> _unfilteredItems = new();
+        private List<ChatRoom> _filteredItems = new();
     }
 
     public class FilesBindingList : SortableBindingList<FileInfo>
