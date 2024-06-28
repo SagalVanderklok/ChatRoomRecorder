@@ -2,7 +2,7 @@
 
 ### Free software for recording live webcam shows with no limitations!
 
-- Multiple websites - Supports the most popular Chaturbate and BongaCams websites
+- Multiple websites - Supports the most popular Chaturbate, BongaCams and Stripchat websites
 - No limitations - Records as many streams as you want
 - Automatic recording - Automatically starts recording when streams are online
 - Open source - Released under GNU GPLv3
