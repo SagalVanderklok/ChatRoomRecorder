@@ -85,12 +85,14 @@
             DefaultActionLabel = new System.Windows.Forms.Label();
             DefaultResolutionLabel = new System.Windows.Forms.Label();
             DefaultActionComboBox = new System.Windows.Forms.ComboBox();
+            DefaultResolutionComboBox = new System.Windows.Forms.ComboBox();
+            StreamlinkPathLabel = new System.Windows.Forms.Label();
+            StreamlinkPathTextBox = new System.Windows.Forms.TextBox();
             AboutTabPage = new System.Windows.Forms.TabPage();
             LicenseTextBox = new System.Windows.Forms.TextBox();
             ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(components);
             FormCloseTimer = new System.Windows.Forms.Timer(components);
             SettingsBindingSource = new System.Windows.Forms.BindingSource(components);
-            DefaultResolutionComboBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)FilesBindingSource).BeginInit();
             TabControl.SuspendLayout();
             WebBrowserTabPage.SuspendLayout();
@@ -566,25 +568,28 @@
             SettingsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             SettingsTableLayoutPanel.Controls.Add(OutputDirectoryTextBox, 2, 0);
             SettingsTableLayoutPanel.Controls.Add(FFmpegPathTextBox, 2, 1);
-            SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesNumericUpDown, 2, 2);
-            SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesNumericUpDown, 2, 3);
-            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalNumericUpDown, 2, 5);
+            SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesNumericUpDown, 2, 3);
+            SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesNumericUpDown, 2, 4);
+            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalNumericUpDown, 2, 6);
             SettingsTableLayoutPanel.Controls.Add(OutputDirectoryLabel, 1, 0);
             SettingsTableLayoutPanel.Controls.Add(FFmpegPathLabel, 1, 1);
-            SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesLabel, 1, 2);
-            SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesLabel, 1, 3);
-            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalLabel, 1, 5);
-            SettingsTableLayoutPanel.Controls.Add(StripchatConcurrentUpdatesLabel, 1, 4);
-            SettingsTableLayoutPanel.Controls.Add(StripchatConcurrentUpdatesNumericUpDown, 2, 4);
-            SettingsTableLayoutPanel.Controls.Add(DefaultActionLabel, 1, 6);
-            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionLabel, 1, 7);
-            SettingsTableLayoutPanel.Controls.Add(DefaultActionComboBox, 2, 6);
-            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionComboBox, 2, 7);
+            SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesLabel, 1, 3);
+            SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesLabel, 1, 4);
+            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalLabel, 1, 6);
+            SettingsTableLayoutPanel.Controls.Add(StripchatConcurrentUpdatesLabel, 1, 5);
+            SettingsTableLayoutPanel.Controls.Add(StripchatConcurrentUpdatesNumericUpDown, 2, 5);
+            SettingsTableLayoutPanel.Controls.Add(DefaultActionLabel, 1, 7);
+            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionLabel, 1, 8);
+            SettingsTableLayoutPanel.Controls.Add(DefaultActionComboBox, 2, 7);
+            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionComboBox, 2, 8);
+            SettingsTableLayoutPanel.Controls.Add(StreamlinkPathLabel, 1, 2);
+            SettingsTableLayoutPanel.Controls.Add(StreamlinkPathTextBox, 2, 2);
             SettingsTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             SettingsTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             SettingsTableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             SettingsTableLayoutPanel.Name = "SettingsTableLayoutPanel";
-            SettingsTableLayoutPanel.RowCount = 9;
+            SettingsTableLayoutPanel.RowCount = 10;
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
@@ -622,7 +627,7 @@
             // ChaturbateConcurrentUpdatesNumericUpDown
             // 
             ChaturbateConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
-            ChaturbateConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 63);
+            ChaturbateConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 92);
             ChaturbateConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             ChaturbateConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
             ChaturbateConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
@@ -635,7 +640,7 @@
             // BongaCamsConcurrentUpdatesNumericUpDown
             // 
             BongaCamsConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
-            BongaCamsConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 92);
+            BongaCamsConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 121);
             BongaCamsConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             BongaCamsConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
             BongaCamsConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
@@ -648,7 +653,7 @@
             // UpdateIntervalNumericUpDown
             // 
             UpdateIntervalNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
-            UpdateIntervalNumericUpDown.Location = new System.Drawing.Point(388, 150);
+            UpdateIntervalNumericUpDown.Location = new System.Drawing.Point(388, 179);
             UpdateIntervalNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             UpdateIntervalNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
             UpdateIntervalNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
@@ -684,7 +689,7 @@
             // 
             ChaturbateConcurrentUpdatesLabel.AutoSize = true;
             ChaturbateConcurrentUpdatesLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            ChaturbateConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 63);
+            ChaturbateConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 92);
             ChaturbateConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             ChaturbateConcurrentUpdatesLabel.Name = "ChaturbateConcurrentUpdatesLabel";
             ChaturbateConcurrentUpdatesLabel.Size = new System.Drawing.Size(350, 24);
@@ -695,7 +700,7 @@
             // 
             BongaCamsConcurrentUpdatesLabel.AutoSize = true;
             BongaCamsConcurrentUpdatesLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            BongaCamsConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 92);
+            BongaCamsConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 121);
             BongaCamsConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             BongaCamsConcurrentUpdatesLabel.Name = "BongaCamsConcurrentUpdatesLabel";
             BongaCamsConcurrentUpdatesLabel.Size = new System.Drawing.Size(350, 24);
@@ -706,7 +711,7 @@
             // 
             UpdateIntervalLabel.AutoSize = true;
             UpdateIntervalLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            UpdateIntervalLabel.Location = new System.Drawing.Point(38, 150);
+            UpdateIntervalLabel.Location = new System.Drawing.Point(38, 179);
             UpdateIntervalLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             UpdateIntervalLabel.Name = "UpdateIntervalLabel";
             UpdateIntervalLabel.Size = new System.Drawing.Size(350, 24);
@@ -717,7 +722,7 @@
             // 
             StripchatConcurrentUpdatesLabel.AutoSize = true;
             StripchatConcurrentUpdatesLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            StripchatConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 121);
+            StripchatConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 150);
             StripchatConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             StripchatConcurrentUpdatesLabel.Name = "StripchatConcurrentUpdatesLabel";
             StripchatConcurrentUpdatesLabel.Size = new System.Drawing.Size(350, 24);
@@ -727,7 +732,7 @@
             // StripchatConcurrentUpdatesNumericUpDown
             // 
             StripchatConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
-            StripchatConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 121);
+            StripchatConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 150);
             StripchatConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             StripchatConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
             StripchatConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
@@ -741,7 +746,7 @@
             // 
             DefaultActionLabel.AutoSize = true;
             DefaultActionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            DefaultActionLabel.Location = new System.Drawing.Point(38, 179);
+            DefaultActionLabel.Location = new System.Drawing.Point(38, 208);
             DefaultActionLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultActionLabel.Name = "DefaultActionLabel";
             DefaultActionLabel.Size = new System.Drawing.Size(350, 24);
@@ -752,7 +757,7 @@
             // 
             DefaultResolutionLabel.AutoSize = true;
             DefaultResolutionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            DefaultResolutionLabel.Location = new System.Drawing.Point(38, 208);
+            DefaultResolutionLabel.Location = new System.Drawing.Point(38, 237);
             DefaultResolutionLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultResolutionLabel.Name = "DefaultResolutionLabel";
             DefaultResolutionLabel.Size = new System.Drawing.Size(350, 24);
@@ -764,11 +769,44 @@
             DefaultActionComboBox.Dock = System.Windows.Forms.DockStyle.Top;
             DefaultActionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             DefaultActionComboBox.FormattingEnabled = true;
-            DefaultActionComboBox.Location = new System.Drawing.Point(388, 179);
+            DefaultActionComboBox.Location = new System.Drawing.Point(388, 208);
             DefaultActionComboBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultActionComboBox.Name = "DefaultActionComboBox";
             DefaultActionComboBox.Size = new System.Drawing.Size(350, 23);
             DefaultActionComboBox.TabIndex = 43;
+            // 
+            // DefaultResolutionComboBox
+            // 
+            DefaultResolutionComboBox.Dock = System.Windows.Forms.DockStyle.Top;
+            DefaultResolutionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            DefaultResolutionComboBox.FormattingEnabled = true;
+            DefaultResolutionComboBox.Location = new System.Drawing.Point(388, 237);
+            DefaultResolutionComboBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            DefaultResolutionComboBox.Name = "DefaultResolutionComboBox";
+            DefaultResolutionComboBox.Size = new System.Drawing.Size(350, 23);
+            DefaultResolutionComboBox.TabIndex = 44;
+            // 
+            // StreamlinkPathLabel
+            // 
+            StreamlinkPathLabel.AutoSize = true;
+            StreamlinkPathLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            StreamlinkPathLabel.Location = new System.Drawing.Point(38, 63);
+            StreamlinkPathLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            StreamlinkPathLabel.Name = "StreamlinkPathLabel";
+            StreamlinkPathLabel.Size = new System.Drawing.Size(350, 24);
+            StreamlinkPathLabel.TabIndex = 45;
+            StreamlinkPathLabel.Text = "Streamlink path";
+            // 
+            // StreamlinkPathTextBox
+            // 
+            StreamlinkPathTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            StreamlinkPathTextBox.Location = new System.Drawing.Point(388, 63);
+            StreamlinkPathTextBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            StreamlinkPathTextBox.Name = "StreamlinkPathTextBox";
+            StreamlinkPathTextBox.ReadOnly = true;
+            StreamlinkPathTextBox.Size = new System.Drawing.Size(350, 23);
+            StreamlinkPathTextBox.TabIndex = 46;
+            StreamlinkPathTextBox.Click += StreamlinkPathTextBox_Click;
             // 
             // AboutTabPage
             // 
@@ -803,17 +841,6 @@
             // 
             FormCloseTimer.Interval = 1000;
             FormCloseTimer.Tick += FormCloseTimer_Tick;
-            // 
-            // DefaultResolutionComboBox
-            // 
-            DefaultResolutionComboBox.Dock = System.Windows.Forms.DockStyle.Top;
-            DefaultResolutionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            DefaultResolutionComboBox.FormattingEnabled = true;
-            DefaultResolutionComboBox.Location = new System.Drawing.Point(388, 208);
-            DefaultResolutionComboBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            DefaultResolutionComboBox.Name = "DefaultResolutionComboBox";
-            DefaultResolutionComboBox.Size = new System.Drawing.Size(350, 23);
-            DefaultResolutionComboBox.TabIndex = 44;
             // 
             // MainForm
             // 
@@ -921,6 +948,8 @@
         private System.Windows.Forms.Label DefaultResolutionLabel;
         private System.Windows.Forms.ComboBox DefaultActionComboBox;
         private System.Windows.Forms.ComboBox DefaultResolutionComboBox;
+        private System.Windows.Forms.Label StreamlinkPathLabel;
+        private System.Windows.Forms.TextBox StreamlinkPathTextBox;
     }
 }
 

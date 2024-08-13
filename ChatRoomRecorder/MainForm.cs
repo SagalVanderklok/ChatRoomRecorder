@@ -34,6 +34,7 @@ namespace ChatRoomRecorder
             SettingsBindingSource.DataSource = _settings;
             OutputDirectoryTextBox.DataBindings.Add("Text", SettingsBindingSource, c_outputDirectorySettingName);
             FFmpegPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_ffmpegPathSettingName);
+            StreamlinkPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_streamlinkPathSettingName);
             ChaturbateConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_chaturbateConcurrentUpdatesSettingName);
             BongaCamsConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_bongaCamsConcurrentUpdatesSettingName);
             StripchatConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_stripchatConcurrentUpdatesSettingName);
@@ -304,6 +305,7 @@ namespace ChatRoomRecorder
                         FileInfo[] files = directory.GetFiles(string.Format("{0} {1} *", chatRoom.Website, chatRoom.Name));
                         foreach (FileInfo file in files)
                         {
+                            file.Refresh();
                             _filesList.Add(file);
                         }
                     }
@@ -320,8 +322,8 @@ namespace ChatRoomRecorder
                     try
                     {
                         ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
-                        string thumbnailDirectory = new FileInfo(Environment.ProcessPath).Directory.FullName + Path.DirectorySeparatorChar + c_thumbnailsDirectoryName;
-                        string thumbnailPath = thumbnailDirectory + Path.DirectorySeparatorChar + chatRoom.Website + " " + chatRoom.Name + ".jpg";
+                        string thumbnailDirectory = string.Format("{0}\\{1}", new FileInfo(Environment.ProcessPath).Directory.FullName, c_thumbnailsDirectoryName);
+                        string thumbnailPath = string.Format("{0}\\{1} {2}.jpg", thumbnailDirectory, chatRoom.Website, chatRoom.Name);
 
                         if (!Directory.Exists(thumbnailDirectory))
                         {
@@ -455,8 +457,8 @@ namespace ChatRoomRecorder
                         try
                         {
                             ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
-                            string thumbnailDirectory = new FileInfo(Environment.ProcessPath).Directory.FullName + Path.DirectorySeparatorChar + c_thumbnailsDirectoryName;
-                            string thumbnailPath = thumbnailDirectory + Path.DirectorySeparatorChar + chatRoom.Website + " " + chatRoom.Name + ".jpg";
+                            string thumbnailDirectory = string.Format("{0}\\{1}", new FileInfo(Environment.ProcessPath).Directory.FullName, c_thumbnailsDirectoryName);
+                            string thumbnailPath = string.Format("{0}\\{1} {2}.jpg", thumbnailDirectory, chatRoom.Website, chatRoom.Name);
 
                             File.Delete(thumbnailPath);
 
@@ -489,6 +491,15 @@ namespace ChatRoomRecorder
             }
         }
 
+        private void StreamlinkPathTextBox_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new() { Multiselect = false, Filter = string.Format("{0}|{0}", c_streamlinkBinaryName) };
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                _settings.StreamlinkPath = ofd.FileName;
+            }
+        }
+
         private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             lock (_lock)
@@ -506,6 +517,13 @@ namespace ChatRoomRecorder
                         foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
                         {
                             chatRoom.FFmpegPath = _settings.FFmpegPath;
+                        }
+                        break;
+
+                    case c_streamlinkPathSettingName:
+                        foreach (ChatRoom chatRoom in _chatRoomsList.UnfilteredItems)
+                        {
+                            chatRoom.StreamlinkPath = _settings.StreamlinkPath;
                         }
                         break;
 
@@ -616,24 +634,32 @@ namespace ChatRoomRecorder
                     c_seenPropertyName);
                 command.ExecuteNonQuery();
 
+                bool schemaIsUpdated = false;
                 do
                 {
                     command.CommandText = "select * from pragma_user_version;";
                     int version = Convert.ToInt32(command.ExecuteScalar());
-                    if (version == 0)
+                    switch (version)
                     {
-                        command.CommandText =
-                            string.Format("alter table {0} add {1} int;", c_settingsTableName, c_stripchatConcurrentUpdatesSettingName) +
-                            string.Format("alter table {0} add {1} int;", c_settingsTableName, c_defaultActionSettingName) +
-                            string.Format("alter table {0} add {1} int;", c_settingsTableName, c_defaultResolutionSettingName) +
-                            "pragma user_version = 1;";
-                        command.ExecuteNonQuery();
+                        case 0:
+                            command.CommandText =
+                                string.Format("alter table {0} add {1} int;", c_settingsTableName, c_stripchatConcurrentUpdatesSettingName) +
+                                string.Format("alter table {0} add {1} int;", c_settingsTableName, c_defaultActionSettingName) +
+                                string.Format("alter table {0} add {1} int;", c_settingsTableName, c_defaultResolutionSettingName) +
+                                "pragma user_version = 1;";
+                            command.ExecuteNonQuery();
+                            break;
+                        case 1:
+                            command.CommandText =
+                                string.Format("alter table {0} add {1} text;", c_settingsTableName, c_streamlinkPathSettingName) +
+                                "pragma user_version = 2;";
+                            command.ExecuteNonQuery();
+                            break;
+                        default:
+                            schemaIsUpdated = true;
+                            break;
                     }
-                    else
-                    {
-                        break;
-                    }
-                } while (true);
+                } while (!schemaIsUpdated);
             }
             catch (Exception)
             {
@@ -650,6 +676,7 @@ namespace ChatRoomRecorder
                     {
                         _settings.OutputDirectory = reader.GetString(c_outputDirectorySettingName);
                         _settings.FFmpegPath = reader.GetString(c_ffmpegPathSettingName);
+                        _settings.StreamlinkPath = reader.GetString(c_streamlinkPathSettingName);
                         _settings.ChaturbateConcurrentUpdates = reader.GetInt32(c_chaturbateConcurrentUpdatesSettingName);
                         _settings.BongaCamsConcurrentUpdates = reader.GetInt32(c_bongaCamsConcurrentUpdatesSettingName);
                         _settings.StripchatConcurrentUpdates = reader.GetInt32(c_stripchatConcurrentUpdatesSettingName);
@@ -685,6 +712,7 @@ namespace ChatRoomRecorder
                         ChatRoom chatRoom = new(url);
                         chatRoom.OutputDirectory = _settings.OutputDirectory;
                         chatRoom.FFmpegPath = _settings.FFmpegPath;
+                        chatRoom.StreamlinkPath = _settings.StreamlinkPath;
                         chatRoom.Action = action;
                         chatRoom.PreferredResolution = resolution;
                         chatRoom.LastUpdated = updated;
@@ -714,10 +742,11 @@ namespace ChatRoomRecorder
                 {
                     case c_settingsTableName:
 
-                        command.CommandText = string.Format("delete from {0}; insert into {0} ({1},{3},{5},{7},{9},{11},{13},{15}) values ('{2}','{4}','{6}','{8}','{10}','{12}','{14}','{16}');",
+                        command.CommandText = string.Format("delete from {0}; insert into {0} ({1},{3},{5},{7},{9},{11},{13},{15},{17}) values ('{2}','{4}','{6}','{8}','{10}','{12}','{14}','{16}','{18}');",
                             c_settingsTableName,
                             c_outputDirectorySettingName, _settings.OutputDirectory,
                             c_ffmpegPathSettingName, _settings.FFmpegPath,
+                            c_streamlinkPathSettingName, _settings.StreamlinkPath,
                             c_chaturbateConcurrentUpdatesSettingName, _settings.ChaturbateConcurrentUpdates,
                             c_bongaCamsConcurrentUpdatesSettingName, _settings.BongaCamsConcurrentUpdates,
                             c_stripchatConcurrentUpdatesSettingName, _settings.StripchatConcurrentUpdates,
@@ -780,8 +809,9 @@ namespace ChatRoomRecorder
 
         private readonly Settings c_defaultSettings = new Settings()
         {
-            OutputDirectory = new FileInfo(Environment.ProcessPath).Directory.FullName,
-            FFmpegPath = new FileInfo(Environment.ProcessPath).Directory.FullName + Path.DirectorySeparatorChar + c_ffmpegBinaryName,
+            OutputDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
+            FFmpegPath = string.Format("{0}\\Streamlink\\ffmpeg\\{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), c_ffmpegBinaryName),
+            StreamlinkPath = string.Format("{0}\\Streamlink\\bin\\{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), c_streamlinkBinaryName),
             ChaturbateConcurrentUpdates = 1,
             BongaCamsConcurrentUpdates = 1,
             StripchatConcurrentUpdates = 1,
@@ -792,6 +822,7 @@ namespace ChatRoomRecorder
 
         private const string c_databaseFileName = "ChatRoomRecorder.db";
         private const string c_ffmpegBinaryName = "ffmpeg.exe";
+        private const string c_streamlinkBinaryName = "streamlink.exe";
         private const string c_thumbnailsDirectoryName = "Thumbnails";
 
         private const string c_settingsTableName = "Settings";
@@ -799,6 +830,7 @@ namespace ChatRoomRecorder
 
         private const string c_outputDirectorySettingName = "OutputDirectory";
         private const string c_ffmpegPathSettingName = "FFmpegPath";
+        private const string c_streamlinkPathSettingName = "StreamlinkPath";
         private const string c_chaturbateConcurrentUpdatesSettingName = "ChaturbateConcurrentUpdates";
         private const string c_bongaCamsConcurrentUpdatesSettingName = "BongaCamsConcurrentUpdates";
         private const string c_stripchatConcurrentUpdatesSettingName = "StripchatConcurrentUpdates";
@@ -831,6 +863,7 @@ namespace ChatRoomRecorder
         {
             settings._outputDirectory = _outputDirectory;
             settings._ffmpegPath = _ffmpegPath;
+            settings._streamlinkPath = _streamlinkPath;
             settings._chaturbateConcurrentUpdates = _chaturbateConcurrentUpdates;
             settings._bongaCamsConcurrentUpdates = _bongaCamsConcurrentUpdates;
             settings._stripchatConcurrentUpdates = _stripchatConcurrentUpdates;
@@ -859,6 +892,7 @@ namespace ChatRoomRecorder
                 NotifyPropertyChanged(nameof(OutputDirectory));
             }
         }
+
         public string FFmpegPath
         {
             get
@@ -871,6 +905,20 @@ namespace ChatRoomRecorder
                 NotifyPropertyChanged(nameof(FFmpegPath));
             }
         }
+
+        public string StreamlinkPath
+        {
+            get
+            {
+                return _streamlinkPath;
+            }
+            set
+            {
+                _streamlinkPath = value;
+                NotifyPropertyChanged(nameof(StreamlinkPath));
+            }
+        }
+
         public int ChaturbateConcurrentUpdates
         {
             get
@@ -883,6 +931,7 @@ namespace ChatRoomRecorder
                 NotifyPropertyChanged(nameof(ChaturbateConcurrentUpdates));
             }
         }
+
         public int BongaCamsConcurrentUpdates
         {
             get
@@ -950,6 +999,7 @@ namespace ChatRoomRecorder
 
         private string _outputDirectory;
         private string _ffmpegPath;
+        private string _streamlinkPath;
         private int _chaturbateConcurrentUpdates;
         private int _bongaCamsConcurrentUpdates;
         private int _stripchatConcurrentUpdates;

@@ -33,6 +33,7 @@ namespace ChatRoomRecorder
         Unknown,
         Error,
         Offline,
+        Idle,
         Away,
         Hidden,
         Group,
@@ -213,8 +214,9 @@ namespace ChatRoomRecorder
                 _availableResolutions = new List<ChatRoomResolution>();
                 _preferredResolution = ChatRoomResolution.MaxValue;
                 _outputDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                _ffmpegPath = string.Format("{0}{1}ffmpeg.exe", new FileInfo(Environment.ProcessPath).Directory.FullName, Path.DirectorySeparatorChar);
-                _ffmpegProcess = null;
+                _ffmpegPath = string.Format("{0}\\Streamlink\\ffmpeg\\ffmpeg.exe", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
+                _streamlinkPath = string.Format("{0}\\Streamlink\\bin\\streamlink.exe", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
+                _processes = new List<Process>();
                 _fileName = string.Empty;
                 _fileSize = -1;
                 _lastUpdated = DateTime.MinValue;
@@ -267,14 +269,14 @@ namespace ChatRoomRecorder
                     {
                         _timer.Stop();
 
-                        if (_ffmpegProcess != null)
+                        foreach (Process process in _processes)
                         {
-                            if (_ffmpegProcess.HasExited == false)
+                            if (process.HasExited == false)
                             {
-                                _ffmpegProcess.Kill();
-                                _ffmpegProcess.WaitForExit();
+                                process.Kill();
+                                process.WaitForExit();
                             }
-                            _ffmpegProcess.Close();
+                            process.Close();
                         }
 
                         if (_browser != null)
@@ -308,37 +310,50 @@ namespace ChatRoomRecorder
 
                 //we're recording and that's what we want - return, otherwise - continue
 
-                if (_action == ChatRoomAction.Record && _status == ChatRoomStatus.Record && _ffmpegProcess != null && _ffmpegProcess.HasExited == false)
+                if (_action == ChatRoomAction.Record && _status == ChatRoomStatus.Record)
                 {
-                    try
+                    if (_processes.Count > 0)
                     {
-                        FileInfo fi = new(_fileName);
-                        if (fi.Length > _fileSize)
-                        {
-                            _fileSize = fi.Length;
-                            _isUpdating = false;
+                        bool processesAreRunning = true;
 
-                            return;
+                        foreach (Process process in _processes)
+                        {
+                            processesAreRunning = processesAreRunning && !process.HasExited;
                         }
-                    }
-                    catch (Exception) 
-                    { 
-                        //do nothing
+
+                        if (processesAreRunning)
+                        {
+                            try
+                            {
+                                FileInfo fi = new(_fileName);
+                                if (fi.Length > _fileSize)
+                                {
+                                    _fileSize = fi.Length;
+                                    _isUpdating = false;
+
+                                    return;
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                //do nothing
+                            }
+                        }
                     }
                 }
 
                 //stop any recording (if we need to restart it, we'll do it later)
 
-                if (_ffmpegProcess != null)
+                foreach (Process process in _processes)
                 {
-                    if (_ffmpegProcess.HasExited == false)
+                    if (process.HasExited == false)
                     {
-                        _ffmpegProcess.Kill();
-                        _ffmpegProcess.WaitForExit();
+                        process.Kill();
+                        process.WaitForExit();
                     }
-                    _ffmpegProcess.Close();
-                    _ffmpegProcess = null;
+                    process.Close();
                 }
+                _processes.Clear();
                 _fileName = string.Empty;
                 _fileSize = -1;
 
@@ -556,7 +571,7 @@ namespace ChatRoomRecorder
 
                     if (status == ChatRoomStatus.Record)
                     {
-                        Record(string.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy", playlistUrl, streamIndex));
+                        Record(playlistUrl, streamIndex);
                     }
                 }
 
@@ -675,7 +690,7 @@ namespace ChatRoomRecorder
 
                     if (status == ChatRoomStatus.Record)
                     {
-                        Record(string.Format("-analyzeduration 15M -i \"{0}\" -map 0:p:{1} -c copy", playlistUrl, streamIndex));
+                        Record(playlistUrl, streamIndex);
                     }
                 }
 
@@ -745,8 +760,14 @@ namespace ChatRoomRecorder
                     case "p2p":
                         status = ChatRoomStatus.Private;
                         break;
+                    case "p2pVoice":
+                        status = ChatRoomStatus.Private;
+                        break;
                     case "groupShow":
                         status = ChatRoomStatus.Group;
+                        break;
+                    case "idle":
+                        status = ChatRoomStatus.Idle;
                         break;
                     case "off":
                         status = ChatRoomStatus.Offline;
@@ -761,7 +782,7 @@ namespace ChatRoomRecorder
                     for (int i = 0; i < presetsNode.Count; i++)
                     {
                         ChatRoomResolution resolution = ChatRoomResolution.MinValue;
-                        switch ((string)presetsNode[i]["name"])
+                        switch ((string)presetsNode[i])
                         {
                             case "1080p":
                                 resolution = new ChatRoomResolution(1920, 1080);
@@ -799,15 +820,15 @@ namespace ChatRoomRecorder
 
                     if (status == ChatRoomStatus.Record)
                     {
-                        string streamUrl = playlistUrl;
                         if (streamIndex > 0)
                         {
-                            streamUrl = string.Format("{0}_{1}p{2}",
-                                streamUrl.Substring(0, streamUrl.LastIndexOf(".")),
+                            playlistUrl = string.Format("{0}_{1}p{2}",
+                                playlistUrl.Substring(0, playlistUrl.LastIndexOf(".")),
                                 availableResolutions[streamIndex].Height.ToString(),
-                                streamUrl.Substring(streamUrl.LastIndexOf(".")));
+                                playlistUrl.Substring(playlistUrl.LastIndexOf(".")));
                         }
-                        Record(string.Format("-re -i \"{0}\" -c copy", streamUrl));
+
+                        Record(playlistUrl, -1);
                     }
                 }
 
@@ -839,12 +860,52 @@ namespace ChatRoomRecorder
             UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
-        private void Record(string ffmpegArgs)
+        private void Record(string playlistUrl, int streamIndex)
         {
-            _fileName = string.Format("{0}{1}{2} {3} {4}.ts", _outputDirectory, Path.DirectorySeparatorChar, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
+            _fileName = string.Format("{0}\\{1} {2} {3}.ts", _outputDirectory, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
             _fileSize = 0;
-            ProcessStartInfo psi = new() { FileName = _ffmpegPath, Arguments = string.Format("{0} \"{1}\"", ffmpegArgs, _fileName), UseShellExecute = false, LoadUserProfile = false, CreateNoWindow = true };
-            _ffmpegProcess = Process.Start(psi);
+
+            List<ProcessStartInfo> psis = new List<ProcessStartInfo>();
+
+            switch (_website)
+            {
+                case ChatRoomWebsite.Chaturbate:
+                    psis.Add(new ProcessStartInfo()
+                    {
+                        FileName = _ffmpegPath,
+                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName)
+                    });
+                    break;
+                case ChatRoomWebsite.BongaCams:
+                    psis.Add(new ProcessStartInfo()
+                    {
+                        FileName = _ffmpegPath,
+                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName)
+                    });
+                    break;
+                case ChatRoomWebsite.Stripchat:
+                    int port = s_random.Next(16384, 65536);
+                    psis.Add(new ProcessStartInfo()
+                    {
+                        FileName = _streamlinkPath,
+                        Arguments = string.Format("--player-external-http --player-external-http-continuous false --player-external-http-interface 127.0.0.1 --player-external-http-port {0} " +
+                            "--default-stream best --stream-segment-timeout 60 --stream-timeout 60 --http-timeout 60 --hls-segment-queue-threshold 99 {1}", port, playlistUrl)
+                    });
+                    psis.Add(new ProcessStartInfo()
+                    {
+                        FileName = _ffmpegPath,
+                        Arguments = string.Format("-reconnect 1 -reconnect_at_eof 1 -reconnect_on_network_error 1 -reconnect_on_http_error 1 -reconnect_streamed 1 -i http://127.0.0.1:{0} -c copy \"{1}\"", port, _fileName)
+                    });
+                    break;
+            }
+
+            foreach (ProcessStartInfo psi in psis)
+            {
+                psi.UseShellExecute = false;
+                psi.LoadUserProfile = false;
+                psi.CreateNoWindow = true;
+                _processes.Add(Process.Start(psi));
+            }
         }
 
         public static Tuple<ChatRoomWebsite, string, string> ParseUrl(string url)
@@ -994,6 +1055,25 @@ namespace ChatRoomRecorder
             }
         }
 
+        public string StreamlinkPath
+        {
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException();
+                }
+                else
+                {
+                    _streamlinkPath = value;
+                }
+            }
+            get
+            {
+                return _streamlinkPath;
+            }
+        }
+
         public DateTime LastUpdated
         {
             set
@@ -1052,7 +1132,8 @@ namespace ChatRoomRecorder
         private ChatRoomResolution _preferredResolution;
         private string _outputDirectory;
         private string _ffmpegPath;
-        private Process _ffmpegProcess;
+        private string _streamlinkPath;
+        private List<Process> _processes;
         private string _fileName;
         private long _fileSize;
         private DateTime _lastUpdated;
@@ -1071,5 +1152,6 @@ namespace ChatRoomRecorder
 
         private static HttpClient s_httpClient = new(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
         private static int s_totalCount = 0;
+        private static Random s_random = new Random();
     }
 }
