@@ -7,7 +7,7 @@
 - Automatic recording - Automatically starts recording when streams are online
 - Open source - Released under GNU GPLv3
 
-### Usage instructions
+### Installation instructions
 
 1. Download and install _.NET Desktop Runtime_ ([x64](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x64-installer) or [x86](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x86-installer)) and _WebView2 Runtime_ ([x64](https://go.microsoft.com/fwlink/?linkid=2124701) or [x86](https://go.microsoft.com/fwlink/?linkid=2099617))
 2. Download and install _Streamlink_ ([x64](https://github.com/streamlink/windows-builds/releases/latest/download/streamlink-6.9.0-1-py312-x86_64.exe) or [x86](https://github.com/streamlink/windows-builds/releases/latest/download/streamlink-6.9.0-1-py312-x86.exe))
