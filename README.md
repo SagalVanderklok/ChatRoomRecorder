@@ -10,11 +10,12 @@
 ### Usage instructions
 
 1. Download and install _.NET Desktop Runtime_ ([x64](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x64-installer) or [x86](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x86-installer)) and _WebView2 Runtime_ ([x64](https://go.microsoft.com/fwlink/?linkid=2124701) or [x86](https://go.microsoft.com/fwlink/?linkid=2099617))
-2. Download and unpack _FFmpeg_ ([x64](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip) or [x86](https://github.com/sudo-nautilus/FFmpeg-Builds-Win32/releases/download/latest/ffmpeg-master-latest-win32-gpl.zip)) and _ChatRoomRecorder_ ([x64](https://github.com/SagalVanderklok/ChatRoomRecorder/releases/latest/download/ChatRoomRecorder_x64.zip) or [x86](https://github.com/SagalVanderklok/ChatRoomRecorder/releases/latest/download/ChatRoomRecorder_x86.zip))
-3. Start ChatRoomRecorder
-4. Open "Settings" tab and specify an ffmpeg binary location and an output directory for downloads
-5. Open "Web browser" tab, visit supported web sites and pass bot protection
-6. Open "Chat rooms" tab, add desired links and start recording
+2. Download and install _Streamlink_ ([x64](https://github.com/streamlink/windows-builds/releases/latest/download/streamlink-6.9.0-1-py312-x86_64.exe) or [x86](https://github.com/streamlink/windows-builds/releases/latest/download/streamlink-6.9.0-1-py312-x86.exe))
+3. Download and unpack _ChatRoomRecorder_ ([x64](https://github.com/SagalVanderklok/ChatRoomRecorder/releases/latest/download/ChatRoomRecorder_x64.zip) or [x86](https://github.com/SagalVanderklok/ChatRoomRecorder/releases/latest/download/ChatRoomRecorder_x86.zip))
+4. Start ChatRoomRecorder
+5. Open "Settings" tab and specify Streamlink and ffmpeg binaries locations and an output directory for downloads
+6. Open "Web browser" tab, visit supported web sites and pass bot protection
+7. Open "Chat rooms" tab, add desired links and start recording
 
 ### Support us
 
