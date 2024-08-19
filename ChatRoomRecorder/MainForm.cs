@@ -590,6 +590,7 @@ namespace ChatRoomRecorder
                     ChatRoom chatRoom = new(parsedUrl.Item3);
                     chatRoom.OutputDirectory = _settings.OutputDirectory;
                     chatRoom.FFmpegPath = _settings.FFmpegPath;
+                    chatRoom.StreamlinkPath = _settings.StreamlinkPath;
                     chatRoom.Action = _settings.DefaultAction;
                     chatRoom.PreferredResolution = _settings.DefaultResolution;
                     chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
