@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             FilesBindingSource = new System.Windows.Forms.BindingSource(components);
             TabControl = new System.Windows.Forms.TabControl();
             WebBrowserTabPage = new System.Windows.Forms.TabPage();
@@ -53,6 +53,13 @@
             UrlTextBox = new System.Windows.Forms.TextBox();
             PlusButton = new System.Windows.Forms.Button();
             ChatRoomsSplitContainer1 = new System.Windows.Forms.SplitContainer();
+            ChatRoomsSplitContainer3 = new System.Windows.Forms.SplitContainer();
+            CategoriesTreeView = new System.Windows.Forms.TreeView();
+            CategoriesContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+            AddCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            RemoveCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            RenameCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            CategoriesImageList = new System.Windows.Forms.ImageList(components);
             ChatRoomsDataGridView = new System.Windows.Forms.DataGridView();
             WebsiteColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             NameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -62,12 +69,19 @@
             UpdatedColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             SeenColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             UrlColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ChatRoomsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+            RemoveChatRoomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ChatRoomsBindingSource = new System.Windows.Forms.BindingSource(components);
             ChatRoomsSplitContainer2 = new System.Windows.Forms.SplitContainer();
             ThumbnailPictureBox = new System.Windows.Forms.PictureBox();
+            ThumbnailContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+            RemoveThumbnailToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             FilesDataGridView = new System.Windows.Forms.DataGridView();
             FileNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             FileSizeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            FilesContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+            OpenFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            RemoveFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             SettingsTabPage = new System.Windows.Forms.TabPage();
             SettingsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             OutputDirectoryTextBox = new System.Windows.Forms.TextBox();
@@ -107,14 +121,22 @@
             ChatRoomsSplitContainer1.Panel1.SuspendLayout();
             ChatRoomsSplitContainer1.Panel2.SuspendLayout();
             ChatRoomsSplitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer3).BeginInit();
+            ChatRoomsSplitContainer3.Panel1.SuspendLayout();
+            ChatRoomsSplitContainer3.Panel2.SuspendLayout();
+            ChatRoomsSplitContainer3.SuspendLayout();
+            CategoriesContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ChatRoomsDataGridView).BeginInit();
+            ChatRoomsContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ChatRoomsBindingSource).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer2).BeginInit();
             ChatRoomsSplitContainer2.Panel1.SuspendLayout();
             ChatRoomsSplitContainer2.Panel2.SuspendLayout();
             ChatRoomsSplitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ThumbnailPictureBox).BeginInit();
+            ThumbnailContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)FilesDataGridView).BeginInit();
+            FilesContextMenuStrip.SuspendLayout();
             SettingsTabPage.SuspendLayout();
             SettingsTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ChaturbateConcurrentUpdatesNumericUpDown).BeginInit();
@@ -327,6 +349,7 @@
             // 
             // UrlTextBox
             // 
+            UrlTextBox.BackColor = System.Drawing.SystemColors.Window;
             UrlTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             UrlTextBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             UrlTextBox.Location = new System.Drawing.Point(52, 0);
@@ -362,7 +385,7 @@
             // ChatRoomsSplitContainer1.Panel1
             // 
             ChatRoomsSplitContainer1.Panel1.BackColor = System.Drawing.Color.Transparent;
-            ChatRoomsSplitContainer1.Panel1.Controls.Add(ChatRoomsDataGridView);
+            ChatRoomsSplitContainer1.Panel1.Controls.Add(ChatRoomsSplitContainer3);
             // 
             // ChatRoomsSplitContainer1.Panel2
             // 
@@ -372,12 +395,95 @@
             ChatRoomsSplitContainer1.SplitterDistance = 351;
             ChatRoomsSplitContainer1.TabIndex = 12;
             // 
+            // ChatRoomsSplitContainer3
+            // 
+            ChatRoomsSplitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+            ChatRoomsSplitContainer3.Location = new System.Drawing.Point(0, 0);
+            ChatRoomsSplitContainer3.Margin = new System.Windows.Forms.Padding(0);
+            ChatRoomsSplitContainer3.Name = "ChatRoomsSplitContainer3";
+            // 
+            // ChatRoomsSplitContainer3.Panel1
+            // 
+            ChatRoomsSplitContainer3.Panel1.Controls.Add(CategoriesTreeView);
+            // 
+            // ChatRoomsSplitContainer3.Panel2
+            // 
+            ChatRoomsSplitContainer3.Panel2.Controls.Add(ChatRoomsDataGridView);
+            ChatRoomsSplitContainer3.Size = new System.Drawing.Size(776, 351);
+            ChatRoomsSplitContainer3.SplitterDistance = 125;
+            ChatRoomsSplitContainer3.TabIndex = 12;
+            // 
+            // CategoriesTreeView
+            // 
+            CategoriesTreeView.AllowDrop = true;
+            CategoriesTreeView.ContextMenuStrip = CategoriesContextMenuStrip;
+            CategoriesTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            CategoriesTreeView.FullRowSelect = true;
+            CategoriesTreeView.HideSelection = false;
+            CategoriesTreeView.HotTracking = true;
+            CategoriesTreeView.ImageIndex = 0;
+            CategoriesTreeView.ImageList = CategoriesImageList;
+            CategoriesTreeView.LabelEdit = true;
+            CategoriesTreeView.Location = new System.Drawing.Point(0, 0);
+            CategoriesTreeView.Margin = new System.Windows.Forms.Padding(0);
+            CategoriesTreeView.Name = "CategoriesTreeView";
+            CategoriesTreeView.SelectedImageIndex = 1;
+            CategoriesTreeView.Size = new System.Drawing.Size(125, 351);
+            CategoriesTreeView.TabIndex = 0;
+            CategoriesTreeView.BeforeLabelEdit += CategoriesTreeView_BeforeLabelEdit;
+            CategoriesTreeView.AfterLabelEdit += CategoriesTreeView_AfterLabelEdit;
+            CategoriesTreeView.AfterCollapse += CategoriesTreeView_AfterCollapse;
+            CategoriesTreeView.AfterExpand += CategoriesTreeView_AfterExpand;
+            CategoriesTreeView.AfterSelect += CategoriesTreeView_AfterSelect;
+            CategoriesTreeView.DragDrop += CategoriesTreeView_DragDrop;
+            CategoriesTreeView.DragEnter += CategoriesTreeView_DragEnter;
+            CategoriesTreeView.DragOver += CategoriesTreeView_DragOver;
+            CategoriesTreeView.KeyDown += CategoriesTreeView_KeyDown;
+            CategoriesTreeView.MouseDown += CategoriesTreeView_MouseDown;
+            // 
+            // CategoriesContextMenuStrip
+            // 
+            CategoriesContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { AddCategoryToolStripMenuItem, RemoveCategoryToolStripMenuItem, RenameCategoryToolStripMenuItem });
+            CategoriesContextMenuStrip.Name = "CategoriesContextMenuStrip";
+            CategoriesContextMenuStrip.Size = new System.Drawing.Size(118, 70);
+            CategoriesContextMenuStrip.Opening += CategoriesContextMenuStrip_Opening;
+            // 
+            // AddCategoryToolStripMenuItem
+            // 
+            AddCategoryToolStripMenuItem.Name = "AddCategoryToolStripMenuItem";
+            AddCategoryToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            AddCategoryToolStripMenuItem.Text = "Add";
+            AddCategoryToolStripMenuItem.Click += AddCategoryToolStripMenuItem_Click;
+            // 
+            // RemoveCategoryToolStripMenuItem
+            // 
+            RemoveCategoryToolStripMenuItem.Name = "RemoveCategoryToolStripMenuItem";
+            RemoveCategoryToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            RemoveCategoryToolStripMenuItem.Text = "Remove";
+            RemoveCategoryToolStripMenuItem.Click += RemoveCategoryToolStripMenuItem_Click;
+            // 
+            // RenameCategoryToolStripMenuItem
+            // 
+            RenameCategoryToolStripMenuItem.Name = "RenameCategoryToolStripMenuItem";
+            RenameCategoryToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            RenameCategoryToolStripMenuItem.Text = "Rename";
+            RenameCategoryToolStripMenuItem.Click += RenameCategoryToolStripMenuItem_Click;
+            // 
+            // CategoriesImageList
+            // 
+            CategoriesImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            CategoriesImageList.ImageStream = (System.Windows.Forms.ImageListStreamer)resources.GetObject("CategoriesImageList.ImageStream");
+            CategoriesImageList.TransparentColor = System.Drawing.Color.Transparent;
+            CategoriesImageList.Images.SetKeyName(0, "collapsed");
+            CategoriesImageList.Images.SetKeyName(1, "expanded");
+            // 
             // ChatRoomsDataGridView
             // 
             ChatRoomsDataGridView.AllowUserToAddRows = false;
             ChatRoomsDataGridView.AllowUserToDeleteRows = false;
             ChatRoomsDataGridView.AutoGenerateColumns = false;
             ChatRoomsDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            ChatRoomsDataGridView.BackgroundColor = System.Drawing.SystemColors.Window;
             ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
@@ -389,6 +495,7 @@
             ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { WebsiteColumn, NameColumn, ActionColumn, ResolutionColumn, StatusColumn, UpdatedColumn, SeenColumn, UrlColumn });
+            ChatRoomsDataGridView.ContextMenuStrip = ChatRoomsContextMenuStrip;
             ChatRoomsDataGridView.DataSource = ChatRoomsBindingSource;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
@@ -411,12 +518,12 @@
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            ChatRoomsDataGridView.Size = new System.Drawing.Size(776, 351);
+            ChatRoomsDataGridView.Size = new System.Drawing.Size(647, 351);
             ChatRoomsDataGridView.TabIndex = 11;
             ChatRoomsDataGridView.CellBeginEdit += ChatRoomsDataGridView_CellBeginEdit;
             ChatRoomsDataGridView.CellEndEdit += ChatRoomsDataGridView_CellEndEdit;
             ChatRoomsDataGridView.CellLeave += ChatRoomsDataGridView_CellLeave;
-            ChatRoomsDataGridView.CellMouseClick += ChatRoomsDataGridView_CellMouseClick;
+            ChatRoomsDataGridView.CellMouseDown += ChatRoomsDataGridView_CellMouseDown;
             ChatRoomsDataGridView.CellValueChanged += ChatRoomsDataGridView_CellValueChanged;
             ChatRoomsDataGridView.SelectionChanged += ChatRoomsDataGridView_SelectionChanged;
             // 
@@ -476,6 +583,20 @@
             UrlColumn.Name = "UrlColumn";
             UrlColumn.ReadOnly = true;
             // 
+            // ChatRoomsContextMenuStrip
+            // 
+            ChatRoomsContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { RemoveChatRoomToolStripMenuItem });
+            ChatRoomsContextMenuStrip.Name = "ChatRoomsContextMenuStrip";
+            ChatRoomsContextMenuStrip.Size = new System.Drawing.Size(118, 26);
+            ChatRoomsContextMenuStrip.Opening += ChatRoomsContextMenuStrip_Opening;
+            // 
+            // RemoveChatRoomToolStripMenuItem
+            // 
+            RemoveChatRoomToolStripMenuItem.Name = "RemoveChatRoomToolStripMenuItem";
+            RemoveChatRoomToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            RemoveChatRoomToolStripMenuItem.Text = "Remove";
+            RemoveChatRoomToolStripMenuItem.Click += RemoveChatRoomToolStripMenuItem_Click;
+            // 
             // ChatRoomsSplitContainer2
             // 
             ChatRoomsSplitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -491,22 +612,36 @@
             // 
             ChatRoomsSplitContainer2.Panel2.Controls.Add(FilesDataGridView);
             ChatRoomsSplitContainer2.Size = new System.Drawing.Size(776, 141);
-            ChatRoomsSplitContainer2.SplitterDistance = 150;
+            ChatRoomsSplitContainer2.SplitterDistance = 125;
             ChatRoomsSplitContainer2.TabIndex = 1;
             // 
             // ThumbnailPictureBox
             // 
-            ThumbnailPictureBox.BackColor = System.Drawing.SystemColors.ControlDark;
+            ThumbnailPictureBox.BackColor = System.Drawing.SystemColors.Window;
             ThumbnailPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            ThumbnailPictureBox.ContextMenuStrip = ThumbnailContextMenuStrip;
             ThumbnailPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             ThumbnailPictureBox.Location = new System.Drawing.Point(0, 0);
             ThumbnailPictureBox.Margin = new System.Windows.Forms.Padding(0);
             ThumbnailPictureBox.Name = "ThumbnailPictureBox";
-            ThumbnailPictureBox.Size = new System.Drawing.Size(150, 141);
+            ThumbnailPictureBox.Size = new System.Drawing.Size(125, 141);
             ThumbnailPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             ThumbnailPictureBox.TabIndex = 0;
             ThumbnailPictureBox.TabStop = false;
-            ThumbnailPictureBox.MouseClick += ThumbnailPictureBox_MouseClick;
+            // 
+            // ThumbnailContextMenuStrip
+            // 
+            ThumbnailContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { RemoveThumbnailToolStripMenuItem });
+            ThumbnailContextMenuStrip.Name = "ThumbnailContextMenuStrip";
+            ThumbnailContextMenuStrip.Size = new System.Drawing.Size(118, 26);
+            ThumbnailContextMenuStrip.Opening += ThumbnailContextMenuStrip_Opening;
+            // 
+            // RemoveThumbnailToolStripMenuItem
+            // 
+            RemoveThumbnailToolStripMenuItem.Name = "RemoveThumbnailToolStripMenuItem";
+            RemoveThumbnailToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            RemoveThumbnailToolStripMenuItem.Text = "Remove";
+            RemoveThumbnailToolStripMenuItem.Click += RemoveThumbnailToolStripMenuItem_Click;
             // 
             // FilesDataGridView
             // 
@@ -514,18 +649,19 @@
             FilesDataGridView.AllowUserToDeleteRows = false;
             FilesDataGridView.AutoGenerateColumns = false;
             FilesDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            FilesDataGridView.BackgroundColor = System.Drawing.SystemColors.Window;
             FilesDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             FilesDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             FilesDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { FileNameColumn, FileSizeColumn });
+            FilesDataGridView.ContextMenuStrip = FilesContextMenuStrip;
             FilesDataGridView.DataSource = FilesBindingSource;
             FilesDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             FilesDataGridView.Location = new System.Drawing.Point(0, 0);
             FilesDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             FilesDataGridView.Name = "FilesDataGridView";
             FilesDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            FilesDataGridView.Size = new System.Drawing.Size(622, 141);
+            FilesDataGridView.Size = new System.Drawing.Size(647, 141);
             FilesDataGridView.TabIndex = 0;
-            FilesDataGridView.CellMouseClick += FilesDataGridView_CellMouseClick;
             FilesDataGridView.CellMouseDoubleClick += FilesDataGridView_CellMouseDoubleClick;
             // 
             // FileNameColumn
@@ -547,6 +683,27 @@
             FileSizeColumn.FillWeight = 50.25381F;
             FileSizeColumn.HeaderText = "File size";
             FileSizeColumn.Name = "FileSizeColumn";
+            // 
+            // FilesContextMenuStrip
+            // 
+            FilesContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { OpenFileToolStripMenuItem, RemoveFileToolStripMenuItem });
+            FilesContextMenuStrip.Name = "FilesContextMenuStrip";
+            FilesContextMenuStrip.Size = new System.Drawing.Size(118, 48);
+            FilesContextMenuStrip.Opening += FilesContextMenuStrip_Opening;
+            // 
+            // OpenFileToolStripMenuItem
+            // 
+            OpenFileToolStripMenuItem.Name = "OpenFileToolStripMenuItem";
+            OpenFileToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            OpenFileToolStripMenuItem.Text = "Open";
+            OpenFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
+            // 
+            // RemoveFileToolStripMenuItem
+            // 
+            RemoveFileToolStripMenuItem.Name = "RemoveFileToolStripMenuItem";
+            RemoveFileToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            RemoveFileToolStripMenuItem.Text = "Remove";
+            RemoveFileToolStripMenuItem.Click += RemoveFileToolStripMenuItem_Click;
             // 
             // SettingsTabPage
             // 
@@ -605,6 +762,7 @@
             // OutputDirectoryTextBox
             // 
             OutputDirectoryTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            OutputDirectoryTextBox.BackColor = System.Drawing.SystemColors.Window;
             OutputDirectoryTextBox.Location = new System.Drawing.Point(388, 5);
             OutputDirectoryTextBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
@@ -616,6 +774,7 @@
             // FFmpegPathTextBox
             // 
             FFmpegPathTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            FFmpegPathTextBox.BackColor = System.Drawing.SystemColors.Window;
             FFmpegPathTextBox.Location = new System.Drawing.Point(388, 34);
             FFmpegPathTextBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             FFmpegPathTextBox.Name = "FFmpegPathTextBox";
@@ -626,6 +785,7 @@
             // 
             // ChaturbateConcurrentUpdatesNumericUpDown
             // 
+            ChaturbateConcurrentUpdatesNumericUpDown.BackColor = System.Drawing.SystemColors.Window;
             ChaturbateConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
             ChaturbateConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 92);
             ChaturbateConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -639,6 +799,7 @@
             // 
             // BongaCamsConcurrentUpdatesNumericUpDown
             // 
+            BongaCamsConcurrentUpdatesNumericUpDown.BackColor = System.Drawing.SystemColors.Window;
             BongaCamsConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
             BongaCamsConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 121);
             BongaCamsConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -652,6 +813,7 @@
             // 
             // UpdateIntervalNumericUpDown
             // 
+            UpdateIntervalNumericUpDown.BackColor = System.Drawing.SystemColors.Window;
             UpdateIntervalNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
             UpdateIntervalNumericUpDown.Location = new System.Drawing.Point(388, 179);
             UpdateIntervalNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -731,6 +893,7 @@
             // 
             // StripchatConcurrentUpdatesNumericUpDown
             // 
+            StripchatConcurrentUpdatesNumericUpDown.BackColor = System.Drawing.SystemColors.Window;
             StripchatConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
             StripchatConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 150);
             StripchatConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -766,6 +929,7 @@
             // 
             // DefaultActionComboBox
             // 
+            DefaultActionComboBox.BackColor = System.Drawing.SystemColors.Window;
             DefaultActionComboBox.Dock = System.Windows.Forms.DockStyle.Top;
             DefaultActionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             DefaultActionComboBox.FormattingEnabled = true;
@@ -800,6 +964,7 @@
             // StreamlinkPathTextBox
             // 
             StreamlinkPathTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            StreamlinkPathTextBox.BackColor = System.Drawing.SystemColors.Window;
             StreamlinkPathTextBox.Location = new System.Drawing.Point(388, 63);
             StreamlinkPathTextBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             StreamlinkPathTextBox.Name = "StreamlinkPathTextBox";
@@ -846,6 +1011,7 @@
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            BackColor = System.Drawing.SystemColors.Window;
             ClientSize = new System.Drawing.Size(784, 561);
             Controls.Add(TabControl);
             Margin = new System.Windows.Forms.Padding(2);
@@ -870,14 +1036,22 @@
             ChatRoomsSplitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer1).EndInit();
             ChatRoomsSplitContainer1.ResumeLayout(false);
+            ChatRoomsSplitContainer3.Panel1.ResumeLayout(false);
+            ChatRoomsSplitContainer3.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer3).EndInit();
+            ChatRoomsSplitContainer3.ResumeLayout(false);
+            CategoriesContextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)ChatRoomsDataGridView).EndInit();
+            ChatRoomsContextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)ChatRoomsBindingSource).EndInit();
             ChatRoomsSplitContainer2.Panel1.ResumeLayout(false);
             ChatRoomsSplitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer2).EndInit();
             ChatRoomsSplitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)ThumbnailPictureBox).EndInit();
+            ThumbnailContextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)FilesDataGridView).EndInit();
+            FilesContextMenuStrip.ResumeLayout(false);
             SettingsTabPage.ResumeLayout(false);
             SettingsTableLayoutPanel.ResumeLayout(false);
             SettingsTableLayoutPanel.PerformLayout();
@@ -950,6 +1124,20 @@
         private System.Windows.Forms.ComboBox DefaultResolutionComboBox;
         private System.Windows.Forms.Label StreamlinkPathLabel;
         private System.Windows.Forms.TextBox StreamlinkPathTextBox;
+        private System.Windows.Forms.SplitContainer ChatRoomsSplitContainer3;
+        private System.Windows.Forms.TreeView CategoriesTreeView;
+        private System.Windows.Forms.ContextMenuStrip ThumbnailContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem RemoveThumbnailToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip FilesContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem OpenFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RemoveFileToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip ChatRoomsContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem RemoveChatRoomToolStripMenuItem;
+        private System.Windows.Forms.ImageList CategoriesImageList;
+        private System.Windows.Forms.ContextMenuStrip CategoriesContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem AddCategoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RemoveCategoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RenameCategoryToolStripMenuItem;
     }
 }
 

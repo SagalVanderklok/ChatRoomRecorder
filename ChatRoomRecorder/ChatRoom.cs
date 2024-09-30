@@ -14,188 +14,6 @@ using System.Threading;
 
 namespace ChatRoomRecorder
 {
-    public enum ChatRoomWebsite
-    {
-        BongaCams,
-        Chaturbate,
-        Stripchat
-    }
-
-    public enum ChatRoomAction
-    {
-        None,
-        Monitor,
-        Record
-    }
-
-    public enum ChatRoomStatus
-    {
-        Unknown,
-        Error,
-        Offline,
-        Idle,
-        Away,
-        Hidden,
-        Group,
-        Private,
-        Public,
-        Record
-    }
-
-    public record struct ChatRoomResolution : IComparable
-    {
-        public ChatRoomResolution(short width, short height)
-        {
-            if (width >= 0 && height >= 0)
-            {
-                _width = width;
-                _height = height;
-            }
-            else
-            {
-                _width = 0;
-                _height = 0;
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0}x{1}", _width, _height);
-        }
-
-        public int ToInt32()
-        {
-            return (int)_width << 16 | _height;
-        }
-
-        public int CompareTo(object resolution)
-        {
-            return TotalPixels.CompareTo(((ChatRoomResolution)resolution).TotalPixels);
-        }
-
-        public static ChatRoomResolution Parse(string resolution)
-        {
-            try
-            {
-                MatchCollection matches = Regex.Matches(resolution, "^([0-9]*)x([0-9]*)$", RegexOptions.IgnoreCase);
-                return new ChatRoomResolution(short.Parse(matches[0].Groups[1].Value), short.Parse(matches[0].Groups[2].Value));
-            }
-            catch (Exception)
-            {
-                return ChatRoomResolution.MinValue;
-            }
-        }
-
-        public static ChatRoomResolution Parse(int resolution)
-        {
-            return new ChatRoomResolution(Convert.ToInt16(resolution >> 16), Convert.ToInt16(resolution << 16 >> 16));
-        }
-
-        public static int FindClosest(ChatRoomResolution desiredResolution, ChatRoomResolution[] allResolutions)
-        {
-            int index = -1;
-            int difference = -1;
-
-            if (allResolutions != null)
-            {
-                for (int i = 0; i < allResolutions.Length; i++)
-                {
-                    if (allResolutions[i] != ChatRoomResolution.MinValue)
-                    {
-                        int current_difference = Math.Abs(desiredResolution.TotalPixels - allResolutions[i].TotalPixels);
-                        if (index == -1 || current_difference < difference)
-                        {
-                            index = i;
-                            difference = current_difference;
-                        }
-                    }
-                }
-            }
-
-            return index;
-        }
-
-        public static bool operator <(ChatRoomResolution left, ChatRoomResolution right)
-        {
-            return left.TotalPixels < right.TotalPixels;
-        }
-
-        public static bool operator >(ChatRoomResolution left, ChatRoomResolution right)
-        {
-            return left.TotalPixels > right.TotalPixels;
-        }
-
-        public static bool operator <=(ChatRoomResolution left, ChatRoomResolution right)
-        {
-            return left.TotalPixels <= right.TotalPixels;
-        }
-
-        public static bool operator >=(ChatRoomResolution left, ChatRoomResolution right)
-        {
-            return left.TotalPixels >= right.TotalPixels;
-        }
-
-        public int TotalPixels
-        {
-            get
-            {
-                return (int)_width * (int)_height;
-            }
-        }
-
-        public short Width
-        {
-            get
-            {
-                return _width;
-            }
-        }
-
-        public short Height
-        {
-            get
-            {
-                return _height;
-            }
-        }
-
-        public static ChatRoomResolution MinValue
-        {
-            get
-            {
-                return new ChatRoomResolution(0, 0);
-            }
-        }
-
-        public static ChatRoomResolution MaxValue
-        {
-            get
-            {
-                return new ChatRoomResolution(short.MaxValue, short.MaxValue);
-            }
-        }
-
-        public static ChatRoomResolution[] CommonResolutions
-        {
-            get
-            {
-                return new ChatRoomResolution[]
-                {
-                    new ChatRoomResolution(640, 360),
-                    new ChatRoomResolution(960, 540),
-                    new ChatRoomResolution(1280, 720),
-                    new ChatRoomResolution(1600, 900),
-                    new ChatRoomResolution(1920, 1080),
-                    new ChatRoomResolution(2560, 1440),
-                    new ChatRoomResolution(3840, 2160)
-                };
-            }
-        }
-
-        private short _width;
-        private short _height;
-    }
-
     public class ChatRoom : IDisposable
     {
         public event EventHandler UpdateCompleted;
@@ -205,6 +23,7 @@ namespace ChatRoomRecorder
             Tuple<ChatRoomWebsite, string, string> parsedUrl = ParseUrl(url);
             if (parsedUrl != null)
             {
+                _id = 0;
                 _website = parsedUrl.Item1;
                 _name = parsedUrl.Item2;
                 _status = ChatRoomStatus.Unknown;
@@ -776,7 +595,7 @@ namespace ChatRoomRecorder
 
                 if (status == ChatRoomStatus.Public)
                 {
-                    playlistUrl = string.Format("https://b-{0}.doppiocdn.com/hls/{1}/{1}.m3u8", rootNode["cam"]["viewServers"]["flashphoner-hls"], rootNode["cam"]["streamName"]);
+                    playlistUrl = string.Format("https://b-hls-{0:00}.doppiocdn.com/hls/{1}/{1}.m3u8", s_random.Next(1, 26), rootNode["cam"]["streamName"]);
                     availableResolutions.Add(new ChatRoomResolution((short)rootNode["cam"]["broadcastSettings"]["width"], (short)rootNode["cam"]["broadcastSettings"]["height"]));
                     JsonArray presetsNode = (JsonArray)rootNode["cam"]["broadcastSettings"]["presets"]["default"];
                     for (int i = 0; i < presetsNode.Count; i++)
@@ -923,26 +742,38 @@ namespace ChatRoomRecorder
 
             MatchCollection matches;
 
-            if ((matches = Regex.Matches(url, @"^https://chaturbate.com/([^/]+)/$", RegexOptions.IgnoreCase)).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://chaturbate.com/([^/]+)/.*$", RegexOptions.IgnoreCase)).Count > 0 ||
                 (matches = Regex.Matches(url, @"^chaturbate[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
 
             {
                 return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value, string.Format("https://chaturbate.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://(?:[^/.]+.)?bongacams[0-9]*.com/([^/]+(?=#!/$)|[^/]+(?=/$))", RegexOptions.IgnoreCase)).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?bongacams[0-9]*.com/([^/]+(?=#!/.*$)|[^/]+(?=/.*$))", RegexOptions.IgnoreCase)).Count > 0 ||
                 (matches = Regex.Matches(url, @"^bongacams[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value, string.Format("https://bongacams.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://(?:[^.]+.)?stripchat.com/([^/]+)/$", RegexOptions.IgnoreCase)).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?stripchat.com/([^/]+)/.*$", RegexOptions.IgnoreCase)).Count > 0 ||
                 (matches = Regex.Matches(url, @"^stripchat[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.Stripchat, matches[0].Groups[1].Value, string.Format("https://stripchat.com/{0}/", matches[0].Groups[1].Value));
             }
 
             return null;
+        }
+
+        public int ID
+        {
+            set
+            {
+                _id = value;
+            }
+            get
+            {
+                return _id;
+            }
         }
 
         public string Name
@@ -1122,6 +953,7 @@ namespace ChatRoomRecorder
             }
         }
 
+        private int _id;
         private string _name;
         private ChatRoomWebsite _website;
         private ChatRoomStatus _status;

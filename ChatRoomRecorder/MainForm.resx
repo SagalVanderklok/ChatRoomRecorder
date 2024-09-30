@@ -118,8 +118,57 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="FilesBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>733, 17</value>
+    <value>543, 21</value>
   </metadata>
+  <metadata name="CategoriesContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>1467, 24</value>
+  </metadata>
+  <metadata name="CategoriesImageList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>1648, 26</value>
+  </metadata>
+  <data name="CategoriesImageList.ImageStream" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAEZTeXN0ZW0uV2luZG93cy5Gb3JtcywgQ3VsdHVyZT1uZXV0cmFs
+        LCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAmU3lzdGVtLldpbmRvd3MuRm9ybXMu
+        SW1hZ2VMaXN0U3RyZWFtZXIBAAAABERhdGEHAgIAAAAJAwAAAA8DAAAARAgAAAJNU0Z0AUkBTAIBAQIB
+        AAFwAQABcAEAARgBAAEYAQAE/wEhAQAI/wFCAU0BNgcAATYDAAEoAwABYAMAARgDAAEBAQABIAYAASQS
+        AMD/wADA/8AAwP/AAMD/wAAE/wLUAdUB/wEuASwBMAH/ASIBIQElAf8BJAEjAScB/wEkASMBJwH/ASQB
+        IwEnAf8BJAEjAScB/wEkASMBJwH/ASQBIwEnAf8BJAEjAScB/wEkASMBJwH/ASQBIwEnAf8BJAEjAScB
+        /wEkASMBJwH/ASQBIwEnAf8BJAEjAScB/wEkASMBJwH/ASQBIwEnAf8BJAEjAScB/wEiASABJAH/ATMB
+        MgE1Af8C4gHjCf8BrQGsAa4B/wE1ATQBNwH/ATYBNQE5Af8BNwE2ATkB/wE3ATYBOQH/ATcBNgE5Af8B
+        NwE2ATkB/wE3ATYBOQH/ATcBNgE5Af8BNwE2ATkB/wE3ATYBOQH/ATcBNgE5Af8BNwE2ATkB/wE3ATYB
+        OQH/ATcBNgE5Af8BNwE2ATkB/wE0ATMBNgH/AVYBVQFXFf/AAAT/AwAB/wPJAf8D5wH/AuMB5AH/AuMB
+        5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB
+        5AH/AuMB5AH/AuMB5AH/AuMB5AH/AuMB5AH/AegB5wHoAf8DvgH/AwAJ/wMAAf8BnwGeAaAB/wPXAf8B
+        zwHRAdAB/wHPAtAB/wHPAtAB/wHPAtAB/wHPAtAB/wHPAtAB/wHPAtAB/wHPAtAB/wHPAtAB/wHPAtAB
+        /wHPAtAB/wHPAtAB/wHPAdEB0AH/A90B/wI5AToB/wGnAaYBqBH/wAAD2gH/ATUBMwE2Uf8BHAEaAR8B
+        /wPwAf8C3wHgAf8DAAH/AnkBej3/AtQB1QH/ARcBFQEYBf8D/gn/wAAD3AH/ATMBMgE1Uf8BHQEbASEB
+        /wHxAfIB8QH/Ad0C3gH/ATcBNgE6Af8BCQEIAQpB/wEaARkBGwH/AdMB0gHTDf/AAAHcAd0B3AH/ATMB
+        MQE1Uf8BHAEbASAB/wLyAfEB/wPbAf8CRQFIAf8BbAFrAW0B/wGXAZYBlz3/AaoBqQGrAf8BQwFCAUUN
+        /8AAAdwB3QHcAf8BMwExATVR/wEdARsBIAH/AvIB8QH/AtsB3AH/ATkBOAE6Af8D9QH/AQ4BDQEQQf8D
+        AAH/A/kJ/8AAAdwB3QHcAf8BMwExATVR/wEdARsBIAH/AvIB8QH/AtsB3AH/ATMBMgE0Bf8CIgEkAf8D
+        yz3/AX0BfAF+Af8BcgFxAXMJ/8AAAdwB3QHcAf8BMwExATVR/wEdARsBIAH/AvIB8QH/AtsB3AH/ATMB
+        MgE0Bf8CqwGsAf8BQgFBAUNB/wMACf/AAAHcAd0B3AH/ATMBMQE1Uf8BHQEbASAB/wLyAfEB/wLbAdwB
+        /wEzATIBNAn/AwBB/wJQAVIB/wOcBf/AAAHcAd0B3AH/ATMBMQE1Uf8BHQEcASEB/wLyAfEB/wLbAdwB
+        /wEzATIBNAn/AWwBawFuAf8D/T3/AfUB9AH1Af8BEAEPARIF/8AAAdwB3QHcAf8BMwExATVR/wEZARgB
+        GwH/A/IB/wLbAdwB/wEzATIBNAn/AvsB+gH/AwAB/wEHAQYBCgH/AQcBBgELAf8BBwEGAQsB/wEHAQYB
+        CwH/AQcBBgELAf8BCgEJAQ4B/wEOAQ0BEgH/AQ4BDQERAf8BDgENAREB/wEOAQ0BEQH/AQ4BDQERAf8B
+        EQEPARQB/wEfAR4BIgH/AQsBCgEOAf8BBwEGAQsB/wEHAQYBCwH/AToBOQE7Bf/AAAHcAd0B3AH/ATMB
+        MQE1Mf8DqwH/AqEBowH/AaIBowGlAf8BogGjAaUB/wGiAaMBpQH/AaIBowGlAf8BpwGmAagB/wF8AXsB
+        fgH/AwAB/wH2AfcB9gH/AtsB3AH/ATMBMgE0Jf8B/AL7Af8BzgLNAf8B0QLQAf8B0QLQAf8B0QLQAf8B
+        0wLSAf8ByQHIAckB/wIAAQIB/wHoAucR/8AAAdwB3QHcAf8BMwEyATUt/wELAQoBDgH/AlABUgH/AWsB
+        agFsAf8BaAFnAWkB/wFoAWcBaQH/AWgBZwFpAf8BaAFnAWkB/wFmAWUBZwH/AZMBkgGTAf8BIQEgASMB
+        /wLxAfAB/wLbAdwB/wEzATIBNCH/ArMBtAH/AwAB/wFAAT8BQgH/ATwBOwE+Af8BPAE7AT4B/wE8ATsB
+        PgH/ATsBOgE9Af8BPQE8AT8B/wLGAccV/8AAAdkB2gHZAf8BNQE0ATgp/wEXARUBGQH/A6od/wH6AvsB
+        /wMABf8C2QHaAf8BNgE1ATcd/wG4AbcBuAH/AwA1/8AAAf0B/AH9Af8DAAP/Af4h/wEcARsBHwH/AQwB
+        CwEPAf8BCgEIAQwB/wMAAf8DAAH/AwAB/wMAAf8DAAH/AwAB/wMAAf8BBwEGAQoB/wPGBf8B8gHxAfIB
+        /wEBAQABBBn/A70B/wMAAf8C+wH6Nf/AAAT/Aa0BrAGvAf8CAAEBAf8CAAEBAf8CAAECAf8CAAECAf8C
+        AAECAf8CAAECAf8CAAECAf8CAAEBAf8DAAH/AZoBmQGaLf8D/gX/An4BfwH/AwAB/wEVARQBFgH/ARMB
+        EgEVAf8BEwESARUB/wEUARIBFQH/AQ8BDgEQAf8BBwEGAQkB/wP1Of/AAGz/A/IB/wPzAf8D8wH/A/MB
+        /wPyQf/AAMD/wADA/8AAwP/AAAFCAU0BPgcAAT4DAAEoAwABYAMAARgDAAEBAQABAQUAASABARYAA///
+        ACIACw==
+</value>
+  </data>
   <metadata name="WebsiteColumn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -144,14 +193,23 @@
   <metadata name="UrlColumn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <metadata name="ChatRoomsContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>1258, 21</value>
+  </metadata>
   <metadata name="ChatRoomsBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>540, 17</value>
+    <value>348, 19</value>
+  </metadata>
+  <metadata name="ThumbnailContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>873, 22</value>
   </metadata>
   <metadata name="FileNameColumn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="FileSizeColumn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
+  </metadata>
+  <metadata name="FilesContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>1082, 24</value>
   </metadata>
   <data name="LicenseTextBox.Text" xml:space="preserve">
     <value>
@@ -165,9 +223,9 @@ You should have received a copy of the GNU General Public License along with thi
     <value>17, 17</value>
   </metadata>
   <metadata name="FormCloseTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>399, 17</value>
+    <value>193, 20</value>
   </metadata>
   <metadata name="SettingsBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>887, 17</value>
+    <value>694, 21</value>
   </metadata>
 </root>
