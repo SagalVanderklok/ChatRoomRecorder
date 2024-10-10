@@ -1138,6 +1138,7 @@
         private System.Windows.Forms.ToolStripMenuItem AddCategoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RemoveCategoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RenameCategoryToolStripMenuItem;
+        private System.Windows.Forms.Button button1;
     }
 }
 

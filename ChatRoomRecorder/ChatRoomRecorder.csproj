@@ -7,7 +7,7 @@
     <IsPublishable>True</IsPublishable>
 	<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	<VersionPrefix>1.6.0</VersionPrefix>
+	<VersionPrefix>1.6.1</VersionPrefix>
 	<Copyright>Copyright (C) 2024 Sagal Vanderklok</Copyright>
 	<Description>https://chatroomrecorder.com | https://github.com/sagalvanderklok/chatroomrecorder</Description>
 	<Platforms>AnyCPU;x86;x64</Platforms>
@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.5" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2478.35" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
     <PackageReference Include="System.Text.Json" Version="6.0.9" />
   </ItemGroup>
   <ItemGroup>

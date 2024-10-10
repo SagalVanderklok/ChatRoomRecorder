@@ -1,61 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace ChatRoomRecorder
 {
     public class BindingListChatRooms : BindingListSortable<ChatRoom>, IBindingListView
     {
-        public BindingListChatRooms()
+        public void Append(List<ChatRoom> chatRooms)
         {
-            ListChanged += BindingListChatRooms_ListChanged;
-        }
-
-        private void BindingListChatRooms_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            switch (e.ListChangedType)
-            {
-                case ListChangedType.ItemAdded:
-                    _unfilteredItems.Add(Items[e.NewIndex]);
-                    _filteredItems.Add(Items[e.NewIndex]);
-                    break;
-                case ListChangedType.ItemDeleted:
-                    _unfilteredItems.Remove(_filteredItems[e.NewIndex]);
-                    _filteredItems.RemoveAt(e.NewIndex);
-                    break;
-                case ListChangedType.Reset:
-                    _filteredItems = Items.ToList();
-                    break;
-            }
-        }
-
-        public void Add(List<ChatRoom> chatRooms)
-        {
-            RaiseListChangedEvents = false;
-
-            foreach (ChatRoom chatRoom in chatRooms)
-            {
-                _unfilteredItems.Add(chatRoom);
-            }
+            _unfilteredItems.AddRange(chatRooms);
 
             FilterItems();
-
-            RaiseListChangedEvents = true;
-
-            OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
 
-        public void RemoveAll()
+        public void Flush()
         {
-            RaiseListChangedEvents = false;
-
-            Items.Clear();
             _unfilteredItems.Clear();
 
-            RaiseListChangedEvents = true;
-
-            OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+            FilterItems();
         }
 
         public void ApplySort(ListSortDescriptionCollection sorts)
@@ -111,20 +73,16 @@ namespace ChatRoomRecorder
                 {
                     _filter = value;
 
-                    RaiseListChangedEvents = false;
-
                     FilterItems();
-
-                    RaiseListChangedEvents = true;
-
-                    OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
                 }
             }
         }
 
         private void FilterItems()
         {
-            ClearItems();
+            RaiseListChangedEvents = false;
+
+            Items.Clear();
             Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(_filter);
             foreach (ChatRoom chatRoom in _unfilteredItems)
             {
@@ -135,18 +93,18 @@ namespace ChatRoomRecorder
                     Items.Add(chatRoom);
                 }
             }
-        }
 
-        public List<ChatRoom> UnfilteredItems
-        {
-            get
+            if (_isSorted)
             {
-                return _unfilteredItems;
+                ApplySortCore(_propertyDescriptor, _sortDirection);
             }
+
+            RaiseListChangedEvents = true;
+
+            OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
 
         private string _filter = null;
         private List<ChatRoom> _unfilteredItems = new();
-        private List<ChatRoom> _filteredItems = new();
     }
 }

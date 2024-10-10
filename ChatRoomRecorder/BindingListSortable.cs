@@ -69,8 +69,8 @@ namespace ChatRoomRecorder
             }
         }
 
-        private bool _isSorted;
-        private PropertyDescriptor _propertyDescriptor;
-        private ListSortDirection _sortDirection;
+        protected bool _isSorted;
+        protected PropertyDescriptor _propertyDescriptor;
+        protected ListSortDirection _sortDirection;
     }
 }
