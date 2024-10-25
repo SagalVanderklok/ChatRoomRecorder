@@ -7,7 +7,7 @@
     <IsPublishable>True</IsPublishable>
 	<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	<VersionPrefix>1.6.1</VersionPrefix>
+	<VersionPrefix>1.6.2</VersionPrefix>
 	<Copyright>Copyright (C) 2024 Sagal Vanderklok</Copyright>
 	<Description>https://chatroomrecorder.com | https://github.com/sagalvanderklok/chatroomrecorder</Description>
 	<Platforms>AnyCPU;x86;x64</Platforms>
@@ -19,6 +19,16 @@
     <PackageReference Include="System.Text.Json" Version="6.0.9" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

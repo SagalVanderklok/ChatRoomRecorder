@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -142,6 +143,8 @@ namespace ChatRoomRecorder
         private void ChatRoom_UpdateCompleted(object sender, EventArgs e)
         {
             SaveChatRoom((ChatRoom)sender, true);
+
+            UpdateLog((ChatRoom)sender);
         }
 
         private void UpdateChatRooms()
@@ -220,6 +223,18 @@ namespace ChatRoomRecorder
             }
         }
 
+        private void UpdateLog(ChatRoom chatRoom)
+        {
+            lock (_lock)
+            {
+                Tuple<DateTime, string> entry = null;
+                while (chatRoom.Log.TryDequeue(out entry))
+                {
+                    LogListBox.Items.Add(string.Format("{0:yyyy/MM/dd HH:mm:ss} - {1} - {2} - {3}", entry.Item1, chatRoom.Website, chatRoom.Name, entry.Item2).ToLower());
+                }
+            }
+        }
+
         #endregion
 
         #region Web browser functioning
@@ -273,17 +288,19 @@ namespace ChatRoomRecorder
 
         #region Chat rooms adding and filtering
 
-        private void PlusButton_Click(object sender, EventArgs e)
+        private void AddChatRoomFromUrlButton_Click(object sender, EventArgs e)
         {
-            AddChatRoom();
+            AddChatRoomFromUrl();
         }
 
-        private void UrlTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void AddChatRoomsFromFileButton_Click(object sender, EventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-            {
-                AddChatRoom();
-            }
+            AddChatRoomsFromFile();
+        }
+
+        private void AddChatRoomsFromFolderButton_Click(object sender, EventArgs e)
+        {
+            AddChatRoomsFromFolder();
         }
 
         private void UrlTextBox_TextChanged(object sender, EventArgs e)
@@ -291,54 +308,27 @@ namespace ChatRoomRecorder
             FilterChatRooms();
         }
 
-        private void AddChatRoom()
+        private void UrlTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                AddChatRoomFromUrl();
+            }
+        }
+
+        private void AddChatRoomFromUrl()
         {
             Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(UrlTextBox.Text);
 
             if (parsedUrl != null)
             {
-                bool duplicate = false;
-
-                Stack<Category> cs = new Stack<Category>();
-                cs.Push(_root);
-                while (cs.Count > 0 && !duplicate)
+                if (!ChatRoomExists(parsedUrl))
                 {
-                    Category parent = cs.Pop();
-                    foreach (Category category in parent.Categories)
-                    {
-                        cs.Push(category);
-                    }
-                    foreach (ChatRoom chatRoom in parent.ChatRooms)
-                    {
-                        if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
-                        {
-                            duplicate = true;
-                            break;
-                        }
-                    }
-                }
+                    AddChatRoom(parsedUrl);
 
-                if (!duplicate)
-                {
-                    lock (_lock)
-                    {
-                        ChatRoom chatRoom = new(parsedUrl.Item3);
-                        chatRoom.OutputDirectory = _settings.OutputDirectory;
-                        chatRoom.FFmpegPath = _settings.FFmpegPath;
-                        chatRoom.StreamlinkPath = _settings.StreamlinkPath;
-                        chatRoom.Action = _settings.DefaultAction;
-                        chatRoom.PreferredResolution = _settings.DefaultResolution;
-                        chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
-
-                        Category category = (Category)CategoriesTreeView.SelectedNode.Tag;
-                        category.ChatRooms.Add(chatRoom);
-
-                        WriteData(c_chatRoomsTableName, 1, chatRoom, category, null);
-
-                        TreeNode node = CategoriesTreeView.SelectedNode;
-                        CategoriesTreeView.SelectedNode = null;
-                        CategoriesTreeView.SelectedNode = node;
-                    }
+                    TreeNode node = CategoriesTreeView.SelectedNode;
+                    CategoriesTreeView.SelectedNode = null;
+                    CategoriesTreeView.SelectedNode = node;
                 }
                 else
                 {
@@ -348,6 +338,114 @@ namespace ChatRoomRecorder
             else
             {
                 MessageBox.Show(c_unsupportedWebSiteMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void AddChatRoomsFromFile()
+        {
+            OpenFileDialog ofd = new() { Multiselect = false, Filter = string.Format("{0}|{0}", "*.txt") };
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    string[] urls = File.ReadAllLines(ofd.FileName);
+                    foreach (string url in urls)
+                    {
+                        Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(url);
+                        if (parsedUrl != null && !ChatRoomExists(parsedUrl))
+                        {
+                            AddChatRoom(parsedUrl);
+                        }
+                    }
+
+                    TreeNode node = CategoriesTreeView.SelectedNode;
+                    CategoriesTreeView.SelectedNode = null;
+                    CategoriesTreeView.SelectedNode = node;
+
+                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show(c_chatRoomsAddingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void AddChatRoomsFromFolder()
+        {
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    HashSet<Tuple<ChatRoomWebsite, string, string>> parsedUrls = new();
+
+                    DirectoryInfo directory = new(fbd.SelectedPath);
+                    FileInfo[] files = directory.GetFiles("*.ts");
+                    foreach (FileInfo file in files)
+                    {
+                        parsedUrls.Add(ChatRoom.ParseUrl(file.Name));
+                    }
+
+                    foreach (Tuple<ChatRoomWebsite, string, string> parsedUrl in parsedUrls)
+                    {
+                        if (!ChatRoomExists(parsedUrl))
+                        {
+                            AddChatRoom(parsedUrl);
+                        }
+                    }
+
+                    TreeNode node = CategoriesTreeView.SelectedNode;
+                    CategoriesTreeView.SelectedNode = null;
+                    CategoriesTreeView.SelectedNode = node;
+
+                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show(c_chatRoomsAddingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private bool ChatRoomExists(Tuple<ChatRoomWebsite, string, string> parsedUrl)
+        {
+            Stack<Category> cs = new Stack<Category>();
+            cs.Push(_root);
+            while (cs.Count > 0)
+            {
+                Category parent = cs.Pop();
+                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                {
+                    if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
+                    {
+                        return true;
+                    }
+                }
+                foreach (Category child in parent.Categories)
+                {
+                    cs.Push(child);
+                }
+            }
+            return false;
+        }
+
+        private void AddChatRoom(Tuple<ChatRoomWebsite, string, string> parsedUrl)
+        {
+            lock (_lock)
+            {
+                ChatRoom chatRoom = new(parsedUrl.Item3);
+                chatRoom.OutputDirectory = _settings.OutputDirectory;
+                chatRoom.FFmpegPath = _settings.FFmpegPath;
+                chatRoom.StreamlinkPath = _settings.StreamlinkPath;
+                chatRoom.Action = _settings.DefaultAction;
+                chatRoom.PreferredResolution = _settings.DefaultResolution;
+                chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
+
+                Category category = (Category)CategoriesTreeView.SelectedNode.Tag;
+                category.ChatRooms.Add(chatRoom);
+
+                WriteData(c_chatRoomsTableName, 1, chatRoom, category, null);
             }
         }
 
@@ -780,165 +878,6 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region Drag and drop
-
-        private void ChatRoomsDataGridView_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                if (e.RowIndex != -1 && ChatRoomsDataGridView.SelectedRows.Contains(ChatRoomsDataGridView.Rows[e.RowIndex]) && e.ColumnIndex != 2 && e.ColumnIndex != 3)
-                {
-                    ChatRoomsDataGridView.DoDragDrop(ChatRoomsDataGridView.SelectedRows, DragDropEffects.Move);
-                }
-            }
-        }
-
-        private void CategoriesTreeView_MouseDown(object sender, MouseEventArgs e)
-        {
-            switch (e.Button)
-            {
-                case MouseButtons.Left:
-                    if (CategoriesTreeView.GetNodeAt(new Point(e.X, e.Y)) == CategoriesTreeView.SelectedNode && CategoriesTreeView.SelectedNode != CategoriesTreeView.Nodes[0])
-                    {
-                        CategoriesTreeView.DoDragDrop(CategoriesTreeView.SelectedNode, DragDropEffects.Move);
-                    }
-                    break;
-                case MouseButtons.Right:
-                    TreeNode node = CategoriesTreeView.GetNodeAt(new Point(e.X, e.Y));
-                    if (node != null)
-                    {
-                        CategoriesTreeView.SelectedNode = node;
-                    }
-                    break;
-            }
-        }
-
-        private void CategoriesTreeView_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(DataGridViewSelectedRowCollection)) || e.Data.GetDataPresent(typeof(TreeNode)))
-            {
-                e.Effect = DragDropEffects.Move;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-        }
-
-        private void CategoriesTreeView_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(TreeNode)))
-            {
-                bool found = false;
-
-                TreeNode curNode = CategoriesTreeView.SelectedNode;
-                TreeNode dstNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(new Point(e.X, e.Y)));
-
-                Stack<TreeNode> ns = new Stack<TreeNode>();
-                ns.Push(curNode);
-                while (ns.Count > 0 && !found)
-                {
-                    TreeNodeCollection nodes = ns.Pop().Nodes;
-                    if (!nodes.Contains(dstNode))
-                    {
-                        foreach (TreeNode node in nodes)
-                        {
-                            ns.Push(node);
-                        }
-                    }
-                    else
-                    {
-                        found = true;
-                    }
-                }
-
-                if (!found)
-                {
-                    e.Effect = DragDropEffects.Move;
-                }
-                else
-                {
-                    e.Effect = DragDropEffects.None;
-                }
-            }
-        }
-
-        private void CategoriesTreeView_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(DataGridViewSelectedRowCollection)))
-            {
-                MoveChatRooms(new Point(e.X, e.Y));
-            }
-            else if (e.Data.GetDataPresent(typeof(TreeNode)))
-            {
-                MoveCategories(new Point(e.X, e.Y));
-            }
-        }
-
-        private void MoveChatRooms(Point point)
-        {
-            lock (_lock)
-            {
-                TreeNode oldNode = CategoriesTreeView.SelectedNode;
-                TreeNode newNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(point));
-
-                if (newNode != oldNode)
-                {
-                    Category oldCategory = (Category)oldNode.Tag;
-                    Category newCategory = (Category)newNode.Tag;
-
-                    foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
-                    {
-                        ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
-
-                        WriteData(c_chatRoomsTableName, 0, chatRoom, null, newCategory);
-
-                        oldCategory.ChatRooms.Remove(chatRoom);
-                        newCategory.ChatRooms.Add(chatRoom);
-                    }
-
-                    CategoriesTreeView.SelectedNode = null;
-                    CategoriesTreeView.SelectedNode = oldNode;
-                }
-            }
-        }
-
-        private void MoveCategories(Point point)
-        {
-            lock (_lock)
-            {
-                TreeNode curNode = CategoriesTreeView.SelectedNode;
-                TreeNode dstNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(point));
-                TreeNode parentNode = curNode.Parent;
-
-                if (dstNode != curNode && dstNode != parentNode)
-                {
-                    Category curCategory = (Category)curNode.Tag;
-                    Category dstCategory = (Category)dstNode.Tag;
-                    Category parentCategory = (Category)parentNode.Tag;
-
-                    WriteData(c_categoriesTableName, 0, null, curCategory, dstCategory);
-
-                    parentCategory.Categories.Remove(curCategory);
-                    dstCategory.Categories.Add(curCategory);
-
-                    if (parentNode.Nodes.Count == 1)
-                    {
-                        parentNode.Collapse();
-                    }
-                    dstNode.Expand();
-
-                    parentNode.Nodes.Remove(curNode);
-                    dstNode.Nodes.Add(curNode);
-
-                    CategoriesTreeView.SelectedNode = null;
-                    CategoriesTreeView.SelectedNode = curNode;
-                }
-            }
-        }
-
-        #endregion
-
         #region Settings managing
 
         private void OutputDirectoryTextBox_Click(object sender, EventArgs e)
@@ -1065,6 +1004,181 @@ namespace ChatRoomRecorder
                 }
 
                 WriteData(c_settingsTableName, 0, null, null, null);
+            }
+        }
+
+        #endregion
+
+        #region Logging managing
+        private void CopyLogToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(string.Join("\r\n", LogListBox.SelectedItems.Cast<string>().ToArray()));
+        }
+
+        private void LogContextMenuStrip_Opening(object sender, CancelEventArgs e)
+        {
+            LogContextMenuStrip.Enabled = LogListBox.SelectedItems.Count > 0;
+        }
+        #endregion
+
+        #region Drag and drop
+
+        private void ChatRoomsDataGridView_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if (e.RowIndex != -1 && e.ColumnIndex != 2 && e.ColumnIndex != 3 && ChatRoomsDataGridView.SelectedRows.Contains(ChatRoomsDataGridView.Rows[e.RowIndex]))
+                {
+                    ChatRoomsDataGridView.DoDragDrop(ChatRoomsDataGridView.SelectedRows, DragDropEffects.Move);
+                }
+            }
+        }
+
+        private void CategoriesTreeView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                CategoriesTreeView.Tag = new object();
+            }
+        }
+
+        private void CategoriesTreeView_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                CategoriesTreeView.Tag = null;
+            }
+        }
+
+        private void CategoriesTreeView_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && CategoriesTreeView.Tag != null && CategoriesTreeView.GetNodeAt(new Point(e.X, e.Y)) != CategoriesTreeView.SelectedNode)
+            {
+                CategoriesTreeView.DoDragDrop(CategoriesTreeView.SelectedNode, DragDropEffects.Move);
+            }
+        }
+
+        private void CategoriesTreeView_QueryContinueDrag(object sender, QueryContinueDragEventArgs e)
+        {
+            if (e.Action == DragAction.Cancel || e.Action == DragAction.Drop)
+            {
+                CategoriesTreeView.Tag = null;
+            }
+        }
+
+        private void CategoriesTreeView_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(DataGridViewSelectedRowCollection)))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else if (e.Data.GetDataPresent(typeof(TreeNode)))
+            {
+                bool found = false;
+
+                TreeNode curNode = CategoriesTreeView.SelectedNode;
+                TreeNode dstNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(new Point(e.X, e.Y)));
+
+                Stack<TreeNode> ns = new Stack<TreeNode>();
+                ns.Push(curNode);
+                while (ns.Count > 0 && !found)
+                {
+                    TreeNodeCollection nodes = ns.Pop().Nodes;
+                    if (!nodes.Contains(dstNode))
+                    {
+                        foreach (TreeNode node in nodes)
+                        {
+                            ns.Push(node);
+                        }
+                    }
+                    else
+                    {
+                        found = true;
+                    }
+                }
+
+                if (!found)
+                {
+                    e.Effect = DragDropEffects.Move;
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                }
+            }
+        }
+
+        private void CategoriesTreeView_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(DataGridViewSelectedRowCollection)))
+            {
+                MoveChatRooms(new Point(e.X, e.Y));
+            }
+            else if (e.Data.GetDataPresent(typeof(TreeNode)))
+            {
+                MoveCategories(new Point(e.X, e.Y));
+            }
+        }
+
+        private void MoveChatRooms(Point point)
+        {
+            lock (_lock)
+            {
+                TreeNode oldNode = CategoriesTreeView.SelectedNode;
+                TreeNode newNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(point));
+
+                if (newNode != oldNode)
+                {
+                    Category oldCategory = (Category)oldNode.Tag;
+                    Category newCategory = (Category)newNode.Tag;
+
+                    foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+                    {
+                        ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
+
+                        WriteData(c_chatRoomsTableName, 0, chatRoom, null, newCategory);
+
+                        oldCategory.ChatRooms.Remove(chatRoom);
+                        newCategory.ChatRooms.Add(chatRoom);
+                    }
+
+                    CategoriesTreeView.SelectedNode = null;
+                    CategoriesTreeView.SelectedNode = oldNode;
+                }
+            }
+        }
+
+        private void MoveCategories(Point point)
+        {
+            lock (_lock)
+            {
+                TreeNode curNode = CategoriesTreeView.SelectedNode;
+                TreeNode dstNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(point));
+                TreeNode parentNode = curNode.Parent;
+
+                if (dstNode != curNode && dstNode != parentNode)
+                {
+                    Category curCategory = (Category)curNode.Tag;
+                    Category dstCategory = (Category)dstNode.Tag;
+                    Category parentCategory = (Category)parentNode.Tag;
+
+                    WriteData(c_categoriesTableName, 0, null, curCategory, dstCategory);
+
+                    parentCategory.Categories.Remove(curCategory);
+                    dstCategory.Categories.Add(curCategory);
+
+                    if (parentNode.Nodes.Count == 1)
+                    {
+                        parentNode.Collapse();
+                    }
+                    dstNode.Expand();
+
+                    parentNode.Nodes.Remove(curNode);
+                    dstNode.Nodes.Add(curNode);
+
+                    CategoriesTreeView.SelectedNode = null;
+                    CategoriesTreeView.SelectedNode = curNode;
+                }
             }
         }
 
@@ -1479,7 +1593,7 @@ namespace ChatRoomRecorder
 
         private const string c_unsupportedUrlMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
         private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams and Stripchat!";
-        private const string c_duplicateChatRoomMessage = "The chat room is already in the list!";
+        private const string c_duplicateChatRoomMessage = "The chat room is already existed!";
         private const string c_confirmCategoryRemovingMessage = "Do you really want to remove selected category?";
         private const string c_categoryNotEmptyMessage = "The category is not empty!";
         private const string c_confirmChatRoomsRemovingMessage = "Do you really want to remove selected chat rooms?";
@@ -1488,6 +1602,8 @@ namespace ChatRoomRecorder
         private const string c_fileRemovingErrorMessage = "The file can't be removed!";
         private const string c_confirmThumbnailRemovingMessage = "Do you really want to remove this thumbnail?";
         private const string c_thumbnailRemovingErrorMessage = "The thumbnail can't be removed!";
+        private const string c_chatRoomsAddingErrorMessage = "The chat rooms can't be added!";
+        private const string c_chatRoomsAddedMessage = "The chat rooms have been added!";
 
         #endregion
     }

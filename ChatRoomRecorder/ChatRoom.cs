@@ -1,6 +1,7 @@
 ﻿using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -51,6 +52,7 @@ namespace ChatRoomRecorder
                 _timer.Interval = 1000;
                 _timer.Tick += _timer_Tick;
                 _semaphore = new SemaphoreSlim(1, 1);
+                _log = new ConcurrentQueue<Tuple<DateTime, string>>();
                 Interlocked.Increment(ref s_totalCount);
             }
             else
@@ -357,9 +359,14 @@ namespace ChatRoomRecorder
                         break;
                 }
 
+                AddLogEntry(string.Format("{0} - {1}", c_statusObtainedLogMessage, doc.RootElement.GetProperty("room_status").GetString()));
+
                 if (status == ChatRoomStatus.Public)
                 {
                     playlistUrl = doc.RootElement.GetProperty("url").GetString();
+
+                    AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
+
                     HttpRequestMessage reqMsg = new(HttpMethod.Get, playlistUrl);
                     reqMsg.Headers.Add("Accept-Encoding", "gzip");
                     HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
@@ -372,6 +379,8 @@ namespace ChatRoomRecorder
                             availableResolutions.Add(ChatRoomResolution.Parse(matches[0].Groups[1].Value));
                         }
                     }
+
+                    AddLogEntry(string.Format("{0} - {1}", c_resolutionsObtainedLogMessage, string.Join(", ", availableResolutions)));
                 }
 
                 if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
@@ -404,6 +413,8 @@ namespace ChatRoomRecorder
                 status = ChatRoomStatus.Error;
                 playlistUrl = string.Empty;
                 availableResolutions.Clear();
+
+                AddLogEntry(c_errorOccuredLogMessage);
             }
 
             await _semaphore.WaitAsync();
@@ -468,12 +479,25 @@ namespace ChatRoomRecorder
                     throw new ArgumentException();
                 }
 
-                HttpRequestMessage reqMsg = new(HttpMethod.Get, String.Format("https://{0}.bcvcdn.com/hls/stream_{1}/playlist.m3u8", esid, (string)modelNode["username"]));
-                HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
+                playlistUrl = string.Format("https://{0}.bcvcdn.com/hls/stream_{1}/playlist.m3u8", esid, (string)modelNode["username"]);
 
+                HttpRequestMessage reqMsg = new(HttpMethod.Get, playlistUrl);
+                HttpResponseMessage respMsg = await s_httpClient.SendAsync(reqMsg, _cancellationToken);
                 if (respMsg.IsSuccessStatusCode)
                 {
-                    playlistUrl = reqMsg.RequestUri.OriginalString;
+                    status = ChatRoomStatus.Public;
+                }
+                else
+                {
+                    status = ChatRoomStatus.Offline;
+                }
+
+                AddLogEntry(string.Format("{0} - {1}", c_statusObtainedLogMessage, status));
+
+                if (status == ChatRoomStatus.Public)
+                {
+                    AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
+
                     string[] playlist = (await respMsg.Content.ReadAsStringAsync()).Split('\n');
                     for (int i = 0; i < playlist.Length; i++)
                     {
@@ -484,18 +508,12 @@ namespace ChatRoomRecorder
                         }
                     }
 
-                    if (_action == ChatRoomAction.Record)
-                    {
-                        status = ChatRoomStatus.Record;
-                    }
-                    else
-                    {
-                        status = ChatRoomStatus.Public;
-                    }
+                    AddLogEntry(string.Format("{0} - {1}", c_resolutionsObtainedLogMessage, string.Join(", ", availableResolutions)));
                 }
-                else
+
+                if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
                 {
-                    status = ChatRoomStatus.Offline;
+                    status = ChatRoomStatus.Record;
                 }
 
                 if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
@@ -523,6 +541,8 @@ namespace ChatRoomRecorder
                 status = ChatRoomStatus.Error;
                 playlistUrl = String.Empty;
                 availableResolutions.Clear();
+
+                AddLogEntry(c_errorOccuredLogMessage);
             }
 
             await _semaphore.WaitAsync();
@@ -593,9 +613,14 @@ namespace ChatRoomRecorder
                         break;
                 }
 
+                AddLogEntry(string.Format("{0} - {1}", c_statusObtainedLogMessage, rootNode["user"]["user"]["status"]));
+
                 if (status == ChatRoomStatus.Public)
                 {
                     playlistUrl = string.Format("https://b-hls-{0:00}.doppiocdn.com/hls/{1}/{1}.m3u8", s_random.Next(1, 26), rootNode["cam"]["streamName"]);
+
+                    AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
+
                     availableResolutions.Add(new ChatRoomResolution((short)rootNode["cam"]["broadcastSettings"]["width"], (short)rootNode["cam"]["broadcastSettings"]["height"]));
                     JsonArray presetsNode = (JsonArray)rootNode["cam"]["broadcastSettings"]["presets"]["default"];
                     for (int i = 0; i < presetsNode.Count; i++)
@@ -621,6 +646,8 @@ namespace ChatRoomRecorder
                             availableResolutions.Add(resolution);
                         }
                     }
+
+                    AddLogEntry(string.Format("{0} - {1}", c_resolutionsObtainedLogMessage, string.Join(", ", availableResolutions)));
                 }
 
                 if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
@@ -661,6 +688,8 @@ namespace ChatRoomRecorder
                 status = ChatRoomStatus.Error;
                 playlistUrl = string.Empty;
                 availableResolutions.Clear();
+
+                AddLogEntry(c_errorOccuredLogMessage);
             }
 
             await _semaphore.WaitAsync();
@@ -724,7 +753,14 @@ namespace ChatRoomRecorder
                 psi.LoadUserProfile = false;
                 psi.CreateNoWindow = true;
                 _processes.Add(Process.Start(psi));
+
+                AddLogEntry(string.Format("{0} - {1} {2}", c_recordingStartedLogMessage, psi.FileName, psi.Arguments));
             }
+        }
+
+        private void AddLogEntry(string info)
+        {
+            _log.Enqueue(new Tuple<DateTime, string>(DateTime.Now, info));
         }
 
         public static Tuple<ChatRoomWebsite, string, string> ParseUrl(string url)
@@ -945,6 +981,14 @@ namespace ChatRoomRecorder
             }
         }
 
+        public ConcurrentQueue<Tuple<DateTime, string>> Log
+        {
+            get
+            {
+                return _log;
+            }
+        }
+
         public static int TotalCount
         {
             get
@@ -979,11 +1023,18 @@ namespace ChatRoomRecorder
         private bool _browserInitialized;
         private System.Windows.Forms.Timer _timer;
         private SemaphoreSlim _semaphore;
+        private ConcurrentQueue<Tuple<DateTime, string>> _log;
 
         private const int c_updateLimit = 60;
 
         private static HttpClient s_httpClient = new(new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip });
-        private static int s_totalCount = 0;
         private static Random s_random = new Random();
+        private static int s_totalCount = 0;
+
+        private const string c_statusObtainedLogMessage = "status";
+        private const string c_playlistObtainedLogMessage = "playlist";
+        private const string c_resolutionsObtainedLogMessage = "resolutions";
+        private const string c_recordingStartedLogMessage = "recording";
+        private const string c_errorOccuredLogMessage = "error occured";
     }
 }

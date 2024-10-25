@@ -51,7 +51,9 @@
             ChatRoomsTableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             ChatRoomsTableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             UrlTextBox = new System.Windows.Forms.TextBox();
-            PlusButton = new System.Windows.Forms.Button();
+            AddChatRoomFromUrlButton = new System.Windows.Forms.Button();
+            AddChatRoomsFromFileButton = new System.Windows.Forms.Button();
+            AddChatRoomsFromFolderButton = new System.Windows.Forms.Button();
             ChatRoomsSplitContainer1 = new System.Windows.Forms.SplitContainer();
             ChatRoomsSplitContainer3 = new System.Windows.Forms.SplitContainer();
             CategoriesTreeView = new System.Windows.Forms.TreeView();
@@ -102,11 +104,15 @@
             DefaultResolutionComboBox = new System.Windows.Forms.ComboBox();
             StreamlinkPathLabel = new System.Windows.Forms.Label();
             StreamlinkPathTextBox = new System.Windows.Forms.TextBox();
+            LogTabPage = new System.Windows.Forms.TabPage();
+            LogListBox = new System.Windows.Forms.ListBox();
             AboutTabPage = new System.Windows.Forms.TabPage();
             LicenseTextBox = new System.Windows.Forms.TextBox();
             ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(components);
             FormCloseTimer = new System.Windows.Forms.Timer(components);
             SettingsBindingSource = new System.Windows.Forms.BindingSource(components);
+            LogContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+            CopyLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)FilesBindingSource).BeginInit();
             TabControl.SuspendLayout();
             WebBrowserTabPage.SuspendLayout();
@@ -143,8 +149,10 @@
             ((System.ComponentModel.ISupportInitialize)BongaCamsConcurrentUpdatesNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)UpdateIntervalNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StripchatConcurrentUpdatesNumericUpDown).BeginInit();
+            LogTabPage.SuspendLayout();
             AboutTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)SettingsBindingSource).BeginInit();
+            LogContextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
             // TabControl
@@ -152,6 +160,7 @@
             TabControl.Controls.Add(WebBrowserTabPage);
             TabControl.Controls.Add(ChatRoomsTabPage);
             TabControl.Controls.Add(SettingsTabPage);
+            TabControl.Controls.Add(LogTabPage);
             TabControl.Controls.Add(AboutTabPage);
             TabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             TabControl.Enabled = false;
@@ -333,11 +342,15 @@
             // 
             // ChatRoomsTableLayoutPanel2
             // 
-            ChatRoomsTableLayoutPanel2.ColumnCount = 2;
+            ChatRoomsTableLayoutPanel2.ColumnCount = 4;
+            ChatRoomsTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            ChatRoomsTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             ChatRoomsTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             ChatRoomsTableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            ChatRoomsTableLayoutPanel2.Controls.Add(UrlTextBox, 1, 0);
-            ChatRoomsTableLayoutPanel2.Controls.Add(PlusButton, 0, 0);
+            ChatRoomsTableLayoutPanel2.Controls.Add(UrlTextBox, 3, 0);
+            ChatRoomsTableLayoutPanel2.Controls.Add(AddChatRoomFromUrlButton, 0, 0);
+            ChatRoomsTableLayoutPanel2.Controls.Add(AddChatRoomsFromFileButton, 1, 0);
+            ChatRoomsTableLayoutPanel2.Controls.Add(AddChatRoomsFromFolderButton, 2, 0);
             ChatRoomsTableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             ChatRoomsTableLayoutPanel2.Location = new System.Drawing.Point(0, 5);
             ChatRoomsTableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0, 5, 0, 5);
@@ -352,26 +365,53 @@
             UrlTextBox.BackColor = System.Drawing.SystemColors.Window;
             UrlTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             UrlTextBox.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            UrlTextBox.Location = new System.Drawing.Point(52, 0);
+            UrlTextBox.Location = new System.Drawing.Point(152, 0);
             UrlTextBox.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
             UrlTextBox.Name = "UrlTextBox";
-            UrlTextBox.Size = new System.Drawing.Size(724, 23);
+            UrlTextBox.Size = new System.Drawing.Size(624, 23);
             UrlTextBox.TabIndex = 6;
+            UrlTextBox.WordWrap = false;
             UrlTextBox.TextChanged += UrlTextBox_TextChanged;
             UrlTextBox.KeyDown += UrlTextBox_KeyDown;
             // 
-            // PlusButton
+            // AddChatRoomFromUrlButton
             // 
-            PlusButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            PlusButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            PlusButton.Location = new System.Drawing.Point(0, 0);
-            PlusButton.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
-            PlusButton.Name = "PlusButton";
-            PlusButton.Size = new System.Drawing.Size(48, 23);
-            PlusButton.TabIndex = 7;
-            PlusButton.Text = "+";
-            PlusButton.UseVisualStyleBackColor = true;
-            PlusButton.Click += PlusButton_Click;
+            AddChatRoomFromUrlButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            AddChatRoomFromUrlButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            AddChatRoomFromUrlButton.Image = (System.Drawing.Image)resources.GetObject("AddChatRoomFromUrlButton.Image");
+            AddChatRoomFromUrlButton.Location = new System.Drawing.Point(0, 0);
+            AddChatRoomFromUrlButton.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
+            AddChatRoomFromUrlButton.Name = "AddChatRoomFromUrlButton";
+            AddChatRoomFromUrlButton.Size = new System.Drawing.Size(48, 23);
+            AddChatRoomFromUrlButton.TabIndex = 7;
+            AddChatRoomFromUrlButton.UseVisualStyleBackColor = true;
+            AddChatRoomFromUrlButton.Click += AddChatRoomFromUrlButton_Click;
+            // 
+            // AddChatRoomsFromFileButton
+            // 
+            AddChatRoomsFromFileButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            AddChatRoomsFromFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            AddChatRoomsFromFileButton.Image = (System.Drawing.Image)resources.GetObject("AddChatRoomsFromFileButton.Image");
+            AddChatRoomsFromFileButton.Location = new System.Drawing.Point(52, 0);
+            AddChatRoomsFromFileButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            AddChatRoomsFromFileButton.Name = "AddChatRoomsFromFileButton";
+            AddChatRoomsFromFileButton.Size = new System.Drawing.Size(46, 23);
+            AddChatRoomsFromFileButton.TabIndex = 8;
+            AddChatRoomsFromFileButton.UseVisualStyleBackColor = true;
+            AddChatRoomsFromFileButton.Click += AddChatRoomsFromFileButton_Click;
+            // 
+            // AddChatRoomsFromFolderButton
+            // 
+            AddChatRoomsFromFolderButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            AddChatRoomsFromFolderButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            AddChatRoomsFromFolderButton.Image = (System.Drawing.Image)resources.GetObject("AddChatRoomsFromFolderButton.Image");
+            AddChatRoomsFromFolderButton.Location = new System.Drawing.Point(102, 0);
+            AddChatRoomsFromFolderButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            AddChatRoomsFromFolderButton.Name = "AddChatRoomsFromFolderButton";
+            AddChatRoomsFromFolderButton.Size = new System.Drawing.Size(46, 23);
+            AddChatRoomsFromFolderButton.TabIndex = 9;
+            AddChatRoomsFromFolderButton.UseVisualStyleBackColor = true;
+            AddChatRoomsFromFolderButton.Click += AddChatRoomsFromFolderButton_Click;
             // 
             // ChatRoomsSplitContainer1
             // 
@@ -418,6 +458,7 @@
             CategoriesTreeView.AllowDrop = true;
             CategoriesTreeView.ContextMenuStrip = CategoriesContextMenuStrip;
             CategoriesTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            CategoriesTreeView.ForeColor = System.Drawing.SystemColors.WindowText;
             CategoriesTreeView.FullRowSelect = true;
             CategoriesTreeView.HideSelection = false;
             CategoriesTreeView.HotTracking = true;
@@ -436,10 +477,12 @@
             CategoriesTreeView.AfterExpand += CategoriesTreeView_AfterExpand;
             CategoriesTreeView.AfterSelect += CategoriesTreeView_AfterSelect;
             CategoriesTreeView.DragDrop += CategoriesTreeView_DragDrop;
-            CategoriesTreeView.DragEnter += CategoriesTreeView_DragEnter;
             CategoriesTreeView.DragOver += CategoriesTreeView_DragOver;
+            CategoriesTreeView.QueryContinueDrag += CategoriesTreeView_QueryContinueDrag;
             CategoriesTreeView.KeyDown += CategoriesTreeView_KeyDown;
             CategoriesTreeView.MouseDown += CategoriesTreeView_MouseDown;
+            CategoriesTreeView.MouseMove += CategoriesTreeView_MouseMove;
+            CategoriesTreeView.MouseUp += CategoriesTreeView_MouseUp;
             // 
             // CategoriesContextMenuStrip
             // 
@@ -973,6 +1016,33 @@
             StreamlinkPathTextBox.TabIndex = 46;
             StreamlinkPathTextBox.Click += StreamlinkPathTextBox_Click;
             // 
+            // LogTabPage
+            // 
+            LogTabPage.Controls.Add(LogListBox);
+            LogTabPage.Location = new System.Drawing.Point(4, 28);
+            LogTabPage.Margin = new System.Windows.Forms.Padding(0);
+            LogTabPage.Name = "LogTabPage";
+            LogTabPage.Size = new System.Drawing.Size(776, 529);
+            LogTabPage.TabIndex = 4;
+            LogTabPage.Text = "Log";
+            LogTabPage.UseVisualStyleBackColor = true;
+            // 
+            // LogListBox
+            // 
+            LogListBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            LogListBox.ContextMenuStrip = LogContextMenuStrip;
+            LogListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            LogListBox.FormattingEnabled = true;
+            LogListBox.HorizontalScrollbar = true;
+            LogListBox.IntegralHeight = false;
+            LogListBox.ItemHeight = 15;
+            LogListBox.Location = new System.Drawing.Point(0, 0);
+            LogListBox.Name = "LogListBox";
+            LogListBox.ScrollAlwaysVisible = true;
+            LogListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            LogListBox.Size = new System.Drawing.Size(776, 529);
+            LogListBox.TabIndex = 0;
+            // 
             // AboutTabPage
             // 
             AboutTabPage.Controls.Add(LicenseTextBox);
@@ -1006,6 +1076,20 @@
             // 
             FormCloseTimer.Interval = 1000;
             FormCloseTimer.Tick += FormCloseTimer_Tick;
+            // 
+            // LogContextMenuStrip
+            // 
+            LogContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { CopyLogToolStripMenuItem });
+            LogContextMenuStrip.Name = "LogContextMenuStrip";
+            LogContextMenuStrip.Size = new System.Drawing.Size(103, 26);
+            LogContextMenuStrip.Opening += LogContextMenuStrip_Opening;
+            // 
+            // CopyLogToolStripMenuItem
+            // 
+            CopyLogToolStripMenuItem.Name = "CopyLogToolStripMenuItem";
+            CopyLogToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+            CopyLogToolStripMenuItem.Text = "Copy";
+            CopyLogToolStripMenuItem.Click += CopyLogToolStripMenuItem_Click;
             // 
             // MainForm
             // 
@@ -1059,9 +1143,11 @@
             ((System.ComponentModel.ISupportInitialize)BongaCamsConcurrentUpdatesNumericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)UpdateIntervalNumericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)StripchatConcurrentUpdatesNumericUpDown).EndInit();
+            LogTabPage.ResumeLayout(false);
             AboutTabPage.ResumeLayout(false);
             AboutTabPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)SettingsBindingSource).EndInit();
+            LogContextMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -1070,7 +1156,6 @@
         private System.Windows.Forms.TabPage ChatRoomsTabPage;
         private System.Windows.Forms.TabPage SettingsTabPage;
         private System.Windows.Forms.DataGridView ChatRoomsDataGridView;
-        private System.Windows.Forms.Button PlusButton;
         private System.Windows.Forms.TextBox UrlTextBox;
         private System.Windows.Forms.TextBox FFmpegPathTextBox;
         private System.Windows.Forms.TextBox OutputDirectoryTextBox;
@@ -1139,6 +1224,13 @@
         private System.Windows.Forms.ToolStripMenuItem RemoveCategoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RenameCategoryToolStripMenuItem;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button AddChatRoomFromUrlButton;
+        private System.Windows.Forms.Button AddChatRoomsFromFileButton;
+        private System.Windows.Forms.Button AddChatRoomsFromFolderButton;
+        private System.Windows.Forms.TabPage LogTabPage;
+        private System.Windows.Forms.ListBox LogListBox;
+        private System.Windows.Forms.ContextMenuStrip LogContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem CopyLogToolStripMenuItem;
     }
 }
 
