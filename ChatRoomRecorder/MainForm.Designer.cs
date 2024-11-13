@@ -72,6 +72,9 @@
             SeenColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             UrlColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ChatRoomsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+            CopyUrlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            SetActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            SetResolutionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             RemoveChatRoomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ChatRoomsBindingSource = new System.Windows.Forms.BindingSource(components);
             ChatRoomsSplitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -106,13 +109,13 @@
             StreamlinkPathTextBox = new System.Windows.Forms.TextBox();
             LogTabPage = new System.Windows.Forms.TabPage();
             LogListBox = new System.Windows.Forms.ListBox();
+            LogContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
+            CopyLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             AboutTabPage = new System.Windows.Forms.TabPage();
             LicenseTextBox = new System.Windows.Forms.TextBox();
             ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(components);
             FormCloseTimer = new System.Windows.Forms.Timer(components);
             SettingsBindingSource = new System.Windows.Forms.BindingSource(components);
-            LogContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
-            CopyLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)FilesBindingSource).BeginInit();
             TabControl.SuspendLayout();
             WebBrowserTabPage.SuspendLayout();
@@ -150,9 +153,9 @@
             ((System.ComponentModel.ISupportInitialize)UpdateIntervalNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StripchatConcurrentUpdatesNumericUpDown).BeginInit();
             LogTabPage.SuspendLayout();
+            LogContextMenuStrip.SuspendLayout();
             AboutTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)SettingsBindingSource).BeginInit();
-            LogContextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
             // TabControl
@@ -170,7 +173,7 @@
             TabControl.Padding = new System.Drawing.Point(5, 5);
             TabControl.SelectedIndex = 0;
             TabControl.Size = new System.Drawing.Size(784, 561);
-            TabControl.TabIndex = 19;
+            TabControl.TabIndex = 0;
             // 
             // WebBrowserTabPage
             // 
@@ -225,12 +228,12 @@
             // 
             StopButton.Dock = System.Windows.Forms.DockStyle.Fill;
             StopButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            StopButton.Image = Properties.Resources.stop;
             StopButton.Location = new System.Drawing.Point(102, 0);
             StopButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             StopButton.Name = "StopButton";
             StopButton.Size = new System.Drawing.Size(46, 23);
-            StopButton.TabIndex = 40;
-            StopButton.Text = "×";
+            StopButton.TabIndex = 3;
             StopButton.UseVisualStyleBackColor = true;
             StopButton.Click += StopButton_Click;
             // 
@@ -238,12 +241,12 @@
             // 
             ForwardButton.Dock = System.Windows.Forms.DockStyle.Fill;
             ForwardButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            ForwardButton.Image = Properties.Resources.forward;
             ForwardButton.Location = new System.Drawing.Point(52, 0);
             ForwardButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             ForwardButton.Name = "ForwardButton";
             ForwardButton.Size = new System.Drawing.Size(46, 23);
-            ForwardButton.TabIndex = 10;
-            ForwardButton.Text = "→";
+            ForwardButton.TabIndex = 2;
             ForwardButton.UseVisualStyleBackColor = true;
             ForwardButton.Click += ForwardButton_Click;
             // 
@@ -251,12 +254,12 @@
             // 
             BackButton.Dock = System.Windows.Forms.DockStyle.Fill;
             BackButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            BackButton.Image = Properties.Resources.back;
             BackButton.Location = new System.Drawing.Point(0, 0);
             BackButton.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
             BackButton.Name = "BackButton";
             BackButton.Size = new System.Drawing.Size(48, 23);
-            BackButton.TabIndex = 9;
-            BackButton.Text = "←";
+            BackButton.TabIndex = 1;
             BackButton.UseVisualStyleBackColor = true;
             BackButton.Click += BackButton_Click;
             // 
@@ -264,12 +267,12 @@
             // 
             NavigateButton.Dock = System.Windows.Forms.DockStyle.Fill;
             NavigateButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            NavigateButton.Image = Properties.Resources.enter;
             NavigateButton.Location = new System.Drawing.Point(152, 0);
             NavigateButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             NavigateButton.Name = "NavigateButton";
             NavigateButton.Size = new System.Drawing.Size(46, 23);
-            NavigateButton.TabIndex = 7;
-            NavigateButton.Text = "↩";
+            NavigateButton.TabIndex = 4;
             NavigateButton.UseVisualStyleBackColor = true;
             NavigateButton.Click += NavigateButton_Click;
             // 
@@ -282,7 +285,7 @@
             AddressBarTextBox.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
             AddressBarTextBox.Name = "AddressBarTextBox";
             AddressBarTextBox.Size = new System.Drawing.Size(574, 23);
-            AddressBarTextBox.TabIndex = 8;
+            AddressBarTextBox.TabIndex = 5;
             AddressBarTextBox.KeyDown += AddressBarTextBox_KeyDown;
             // 
             // WebView2Panel
@@ -307,7 +310,7 @@
             WebView2.Name = "WebView2";
             WebView2.Size = new System.Drawing.Size(774, 494);
             WebView2.Source = new System.Uri("about:blank", System.UriKind.Absolute);
-            WebView2.TabIndex = 42;
+            WebView2.TabIndex = 6;
             WebView2.ZoomFactor = 1D;
             WebView2.CoreWebView2InitializationCompleted += WebView2_CoreWebView2InitializationCompleted;
             WebView2.ContentLoading += WebView2_ContentLoading;
@@ -369,7 +372,7 @@
             UrlTextBox.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
             UrlTextBox.Name = "UrlTextBox";
             UrlTextBox.Size = new System.Drawing.Size(624, 23);
-            UrlTextBox.TabIndex = 6;
+            UrlTextBox.TabIndex = 4;
             UrlTextBox.WordWrap = false;
             UrlTextBox.TextChanged += UrlTextBox_TextChanged;
             UrlTextBox.KeyDown += UrlTextBox_KeyDown;
@@ -378,12 +381,12 @@
             // 
             AddChatRoomFromUrlButton.Dock = System.Windows.Forms.DockStyle.Fill;
             AddChatRoomFromUrlButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            AddChatRoomFromUrlButton.Image = (System.Drawing.Image)resources.GetObject("AddChatRoomFromUrlButton.Image");
+            AddChatRoomFromUrlButton.Image = Properties.Resources.url;
             AddChatRoomFromUrlButton.Location = new System.Drawing.Point(0, 0);
             AddChatRoomFromUrlButton.Margin = new System.Windows.Forms.Padding(0, 0, 2, 0);
             AddChatRoomFromUrlButton.Name = "AddChatRoomFromUrlButton";
             AddChatRoomFromUrlButton.Size = new System.Drawing.Size(48, 23);
-            AddChatRoomFromUrlButton.TabIndex = 7;
+            AddChatRoomFromUrlButton.TabIndex = 1;
             AddChatRoomFromUrlButton.UseVisualStyleBackColor = true;
             AddChatRoomFromUrlButton.Click += AddChatRoomFromUrlButton_Click;
             // 
@@ -391,12 +394,12 @@
             // 
             AddChatRoomsFromFileButton.Dock = System.Windows.Forms.DockStyle.Fill;
             AddChatRoomsFromFileButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            AddChatRoomsFromFileButton.Image = (System.Drawing.Image)resources.GetObject("AddChatRoomsFromFileButton.Image");
+            AddChatRoomsFromFileButton.Image = Properties.Resources.file;
             AddChatRoomsFromFileButton.Location = new System.Drawing.Point(52, 0);
             AddChatRoomsFromFileButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             AddChatRoomsFromFileButton.Name = "AddChatRoomsFromFileButton";
             AddChatRoomsFromFileButton.Size = new System.Drawing.Size(46, 23);
-            AddChatRoomsFromFileButton.TabIndex = 8;
+            AddChatRoomsFromFileButton.TabIndex = 2;
             AddChatRoomsFromFileButton.UseVisualStyleBackColor = true;
             AddChatRoomsFromFileButton.Click += AddChatRoomsFromFileButton_Click;
             // 
@@ -404,12 +407,12 @@
             // 
             AddChatRoomsFromFolderButton.Dock = System.Windows.Forms.DockStyle.Fill;
             AddChatRoomsFromFolderButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            AddChatRoomsFromFolderButton.Image = (System.Drawing.Image)resources.GetObject("AddChatRoomsFromFolderButton.Image");
+            AddChatRoomsFromFolderButton.Image = Properties.Resources.folder;
             AddChatRoomsFromFolderButton.Location = new System.Drawing.Point(102, 0);
             AddChatRoomsFromFolderButton.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             AddChatRoomsFromFolderButton.Name = "AddChatRoomsFromFolderButton";
             AddChatRoomsFromFolderButton.Size = new System.Drawing.Size(46, 23);
-            AddChatRoomsFromFolderButton.TabIndex = 9;
+            AddChatRoomsFromFolderButton.TabIndex = 3;
             AddChatRoomsFromFolderButton.UseVisualStyleBackColor = true;
             AddChatRoomsFromFolderButton.Click += AddChatRoomsFromFolderButton_Click;
             // 
@@ -434,6 +437,7 @@
             ChatRoomsSplitContainer1.Size = new System.Drawing.Size(776, 496);
             ChatRoomsSplitContainer1.SplitterDistance = 351;
             ChatRoomsSplitContainer1.TabIndex = 12;
+            ChatRoomsSplitContainer1.TabStop = false;
             // 
             // ChatRoomsSplitContainer3
             // 
@@ -452,6 +456,7 @@
             ChatRoomsSplitContainer3.Size = new System.Drawing.Size(776, 351);
             ChatRoomsSplitContainer3.SplitterDistance = 125;
             ChatRoomsSplitContainer3.TabIndex = 12;
+            ChatRoomsSplitContainer3.TabStop = false;
             // 
             // CategoriesTreeView
             // 
@@ -470,7 +475,7 @@
             CategoriesTreeView.Name = "CategoriesTreeView";
             CategoriesTreeView.SelectedImageIndex = 1;
             CategoriesTreeView.Size = new System.Drawing.Size(125, 351);
-            CategoriesTreeView.TabIndex = 0;
+            CategoriesTreeView.TabIndex = 5;
             CategoriesTreeView.BeforeLabelEdit += CategoriesTreeView_BeforeLabelEdit;
             CategoriesTreeView.AfterLabelEdit += CategoriesTreeView_AfterLabelEdit;
             CategoriesTreeView.AfterCollapse += CategoriesTreeView_AfterCollapse;
@@ -562,7 +567,7 @@
             ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             ChatRoomsDataGridView.Size = new System.Drawing.Size(647, 351);
-            ChatRoomsDataGridView.TabIndex = 11;
+            ChatRoomsDataGridView.TabIndex = 6;
             ChatRoomsDataGridView.CellBeginEdit += ChatRoomsDataGridView_CellBeginEdit;
             ChatRoomsDataGridView.CellEndEdit += ChatRoomsDataGridView_CellEndEdit;
             ChatRoomsDataGridView.CellLeave += ChatRoomsDataGridView_CellLeave;
@@ -628,15 +633,34 @@
             // 
             // ChatRoomsContextMenuStrip
             // 
-            ChatRoomsContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { RemoveChatRoomToolStripMenuItem });
+            ChatRoomsContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { CopyUrlToolStripMenuItem, SetActionToolStripMenuItem, SetResolutionToolStripMenuItem, RemoveChatRoomToolStripMenuItem });
             ChatRoomsContextMenuStrip.Name = "ChatRoomsContextMenuStrip";
-            ChatRoomsContextMenuStrip.Size = new System.Drawing.Size(118, 26);
+            ChatRoomsContextMenuStrip.Size = new System.Drawing.Size(147, 92);
             ChatRoomsContextMenuStrip.Opening += ChatRoomsContextMenuStrip_Opening;
+            // 
+            // CopyUrlToolStripMenuItem
+            // 
+            CopyUrlToolStripMenuItem.Name = "CopyUrlToolStripMenuItem";
+            CopyUrlToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            CopyUrlToolStripMenuItem.Text = "Copy URL";
+            CopyUrlToolStripMenuItem.Click += CopyUrlToolStripMenuItem_Click;
+            // 
+            // SetActionToolStripMenuItem
+            // 
+            SetActionToolStripMenuItem.Name = "SetActionToolStripMenuItem";
+            SetActionToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            SetActionToolStripMenuItem.Text = "Set action";
+            // 
+            // SetResolutionToolStripMenuItem
+            // 
+            SetResolutionToolStripMenuItem.Name = "SetResolutionToolStripMenuItem";
+            SetResolutionToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            SetResolutionToolStripMenuItem.Text = "Set resolution";
             // 
             // RemoveChatRoomToolStripMenuItem
             // 
             RemoveChatRoomToolStripMenuItem.Name = "RemoveChatRoomToolStripMenuItem";
-            RemoveChatRoomToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            RemoveChatRoomToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             RemoveChatRoomToolStripMenuItem.Text = "Remove";
             RemoveChatRoomToolStripMenuItem.Click += RemoveChatRoomToolStripMenuItem_Click;
             // 
@@ -657,6 +681,7 @@
             ChatRoomsSplitContainer2.Size = new System.Drawing.Size(776, 141);
             ChatRoomsSplitContainer2.SplitterDistance = 125;
             ChatRoomsSplitContainer2.TabIndex = 1;
+            ChatRoomsSplitContainer2.TabStop = false;
             // 
             // ThumbnailPictureBox
             // 
@@ -704,8 +729,9 @@
             FilesDataGridView.Name = "FilesDataGridView";
             FilesDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             FilesDataGridView.Size = new System.Drawing.Size(647, 141);
-            FilesDataGridView.TabIndex = 0;
+            FilesDataGridView.TabIndex = 7;
             FilesDataGridView.CellMouseDoubleClick += FilesDataGridView_CellMouseDoubleClick;
+            FilesDataGridView.KeyDown += FilesDataGridView_KeyDown;
             // 
             // FileNameColumn
             // 
@@ -811,7 +837,7 @@
             OutputDirectoryTextBox.Name = "OutputDirectoryTextBox";
             OutputDirectoryTextBox.ReadOnly = true;
             OutputDirectoryTextBox.Size = new System.Drawing.Size(350, 23);
-            OutputDirectoryTextBox.TabIndex = 24;
+            OutputDirectoryTextBox.TabIndex = 1;
             OutputDirectoryTextBox.Click += OutputDirectoryTextBox_Click;
             // 
             // FFmpegPathTextBox
@@ -823,7 +849,7 @@
             FFmpegPathTextBox.Name = "FFmpegPathTextBox";
             FFmpegPathTextBox.ReadOnly = true;
             FFmpegPathTextBox.Size = new System.Drawing.Size(350, 23);
-            FFmpegPathTextBox.TabIndex = 22;
+            FFmpegPathTextBox.TabIndex = 2;
             FFmpegPathTextBox.Click += FFmpegPathTextBox_Click;
             // 
             // ChaturbateConcurrentUpdatesNumericUpDown
@@ -836,7 +862,7 @@
             ChaturbateConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             ChaturbateConcurrentUpdatesNumericUpDown.Name = "ChaturbateConcurrentUpdatesNumericUpDown";
             ChaturbateConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(350, 23);
-            ChaturbateConcurrentUpdatesNumericUpDown.TabIndex = 35;
+            ChaturbateConcurrentUpdatesNumericUpDown.TabIndex = 4;
             ChaturbateConcurrentUpdatesNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             ChaturbateConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
@@ -850,7 +876,7 @@
             BongaCamsConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             BongaCamsConcurrentUpdatesNumericUpDown.Name = "BongaCamsConcurrentUpdatesNumericUpDown";
             BongaCamsConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(350, 23);
-            BongaCamsConcurrentUpdatesNumericUpDown.TabIndex = 36;
+            BongaCamsConcurrentUpdatesNumericUpDown.TabIndex = 5;
             BongaCamsConcurrentUpdatesNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             BongaCamsConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
@@ -864,7 +890,7 @@
             UpdateIntervalNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             UpdateIntervalNumericUpDown.Name = "UpdateIntervalNumericUpDown";
             UpdateIntervalNumericUpDown.Size = new System.Drawing.Size(350, 23);
-            UpdateIntervalNumericUpDown.TabIndex = 38;
+            UpdateIntervalNumericUpDown.TabIndex = 7;
             UpdateIntervalNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             UpdateIntervalNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
@@ -944,7 +970,7 @@
             StripchatConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             StripchatConcurrentUpdatesNumericUpDown.Name = "StripchatConcurrentUpdatesNumericUpDown";
             StripchatConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(350, 23);
-            StripchatConcurrentUpdatesNumericUpDown.TabIndex = 40;
+            StripchatConcurrentUpdatesNumericUpDown.TabIndex = 6;
             StripchatConcurrentUpdatesNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             StripchatConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
@@ -980,7 +1006,7 @@
             DefaultActionComboBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultActionComboBox.Name = "DefaultActionComboBox";
             DefaultActionComboBox.Size = new System.Drawing.Size(350, 23);
-            DefaultActionComboBox.TabIndex = 43;
+            DefaultActionComboBox.TabIndex = 8;
             // 
             // DefaultResolutionComboBox
             // 
@@ -991,7 +1017,7 @@
             DefaultResolutionComboBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultResolutionComboBox.Name = "DefaultResolutionComboBox";
             DefaultResolutionComboBox.Size = new System.Drawing.Size(350, 23);
-            DefaultResolutionComboBox.TabIndex = 44;
+            DefaultResolutionComboBox.TabIndex = 9;
             // 
             // StreamlinkPathLabel
             // 
@@ -1013,7 +1039,7 @@
             StreamlinkPathTextBox.Name = "StreamlinkPathTextBox";
             StreamlinkPathTextBox.ReadOnly = true;
             StreamlinkPathTextBox.Size = new System.Drawing.Size(350, 23);
-            StreamlinkPathTextBox.TabIndex = 46;
+            StreamlinkPathTextBox.TabIndex = 3;
             StreamlinkPathTextBox.Click += StreamlinkPathTextBox_Click;
             // 
             // LogTabPage
@@ -1042,6 +1068,20 @@
             LogListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             LogListBox.Size = new System.Drawing.Size(776, 529);
             LogListBox.TabIndex = 0;
+            // 
+            // LogContextMenuStrip
+            // 
+            LogContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { CopyLogToolStripMenuItem });
+            LogContextMenuStrip.Name = "LogContextMenuStrip";
+            LogContextMenuStrip.Size = new System.Drawing.Size(103, 26);
+            LogContextMenuStrip.Opening += LogContextMenuStrip_Opening;
+            // 
+            // CopyLogToolStripMenuItem
+            // 
+            CopyLogToolStripMenuItem.Name = "CopyLogToolStripMenuItem";
+            CopyLogToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+            CopyLogToolStripMenuItem.Text = "Copy";
+            CopyLogToolStripMenuItem.Click += CopyLogToolStripMenuItem_Click;
             // 
             // AboutTabPage
             // 
@@ -1076,20 +1116,6 @@
             // 
             FormCloseTimer.Interval = 1000;
             FormCloseTimer.Tick += FormCloseTimer_Tick;
-            // 
-            // LogContextMenuStrip
-            // 
-            LogContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { CopyLogToolStripMenuItem });
-            LogContextMenuStrip.Name = "LogContextMenuStrip";
-            LogContextMenuStrip.Size = new System.Drawing.Size(103, 26);
-            LogContextMenuStrip.Opening += LogContextMenuStrip_Opening;
-            // 
-            // CopyLogToolStripMenuItem
-            // 
-            CopyLogToolStripMenuItem.Name = "CopyLogToolStripMenuItem";
-            CopyLogToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
-            CopyLogToolStripMenuItem.Text = "Copy";
-            CopyLogToolStripMenuItem.Click += CopyLogToolStripMenuItem_Click;
             // 
             // MainForm
             // 
@@ -1144,10 +1170,10 @@
             ((System.ComponentModel.ISupportInitialize)UpdateIntervalNumericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)StripchatConcurrentUpdatesNumericUpDown).EndInit();
             LogTabPage.ResumeLayout(false);
+            LogContextMenuStrip.ResumeLayout(false);
             AboutTabPage.ResumeLayout(false);
             AboutTabPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)SettingsBindingSource).EndInit();
-            LogContextMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -1223,7 +1249,6 @@
         private System.Windows.Forms.ToolStripMenuItem AddCategoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RemoveCategoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RenameCategoryToolStripMenuItem;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button AddChatRoomFromUrlButton;
         private System.Windows.Forms.Button AddChatRoomsFromFileButton;
         private System.Windows.Forms.Button AddChatRoomsFromFolderButton;
@@ -1231,6 +1256,9 @@
         private System.Windows.Forms.ListBox LogListBox;
         private System.Windows.Forms.ContextMenuStrip LogContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem CopyLogToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SetActionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SetResolutionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CopyUrlToolStripMenuItem;
     }
 }
 

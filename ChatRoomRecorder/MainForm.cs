@@ -19,43 +19,64 @@ namespace ChatRoomRecorder
 
         public MainForm()
         {
-            InitializeComponent();
-
-            Text = string.Format("{0} {1}", Assembly.GetEntryAssembly().GetName().Name, Assembly.GetEntryAssembly().GetName().Version.ToString(3));
-
-            LicenseTextBox.Text = string.Format("{0}\r\n\r\n{1}\r\n\r\n{2}",
-                LicenseTextBox.Text,
-                ((AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyDescriptionAttribute))).Description,
-                ((AssemblyCopyrightAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyCopyrightAttribute))).Copyright);
-
-            DefaultActionComboBox.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
-            DefaultResolutionComboBox.DataSource = ChatRoomResolution.CommonResolutions;
-
-            c_defaultSettings.CopyTo(_settings);
-            SettingsBindingSource.DataSource = _settings;
-            OutputDirectoryTextBox.DataBindings.Add("Text", SettingsBindingSource, c_outputDirectorySettingName);
-            FFmpegPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_ffmpegPathSettingName);
-            StreamlinkPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_streamlinkPathSettingName);
-            ChaturbateConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_chaturbateConcurrentUpdatesSettingName);
-            BongaCamsConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_bongaCamsConcurrentUpdatesSettingName);
-            StripchatConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_stripchatConcurrentUpdatesSettingName);
-            UpdateIntervalNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateIntervalSettingName);
-            DefaultActionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultActionSettingName);
-            DefaultResolutionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultResolutionSettingName);
-            _settings.PropertyChanged += Settings_PropertyChanged;
-
-            ChatRoomsBindingSource.DataSource = _chatRoomsList;
-            ActionColumn.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
-            ResolutionColumn.DataSource = ChatRoomResolution.CommonResolutions;
-
-            FilesBindingSource.DataSource = _filesList;
-
-            foreach (ChatRoomWebsite website in Enum.GetValues(typeof(ChatRoomWebsite)))
+            lock (_lock)
             {
-                _lastUpdates.Add(website, DateTime.Now);
-            }
+                InitializeComponent();
 
-            ReadData();
+                Text = string.Format("{0} {1}", Assembly.GetEntryAssembly().GetName().Name, Assembly.GetEntryAssembly().GetName().Version.ToString(3));
+
+                ChatRoomsBindingSource.DataSource = _chatRoomsList;
+                ActionColumn.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
+                ResolutionColumn.DataSource = ChatRoomResolution.CommonResolutions;
+
+                foreach (ChatRoomAction action in Enum.GetValues(typeof(ChatRoomAction)))
+                {
+                    ToolStripMenuItem item = new();
+                    item.Text = action.ToString();
+                    item.Tag = action;
+                    item.Click += SetActionChatRoomToolStripMenuItem_Click;
+                    SetActionToolStripMenuItem.DropDownItems.Add(item);
+                }
+
+                foreach (ChatRoomResolution resolution in ChatRoomResolution.CommonResolutions)
+                {
+                    ToolStripMenuItem item = new();
+                    item.Text = resolution.ToString();
+                    item.Tag = resolution;
+                    item.Click += SetResolutionChatRoomToolStripMenuItem_Click;
+                    SetResolutionToolStripMenuItem.DropDownItems.Add(item);
+                }
+
+                FilesBindingSource.DataSource = _filesList;
+
+                DefaultActionComboBox.DataSource = new ChatRoomAction[] { ChatRoomAction.None, ChatRoomAction.Monitor, ChatRoomAction.Record };
+                DefaultResolutionComboBox.DataSource = ChatRoomResolution.CommonResolutions;
+
+                c_defaultSettings.CopyTo(_settings);
+                SettingsBindingSource.DataSource = _settings;
+                OutputDirectoryTextBox.DataBindings.Add("Text", SettingsBindingSource, c_outputDirectorySettingName);
+                FFmpegPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_ffmpegPathSettingName);
+                StreamlinkPathTextBox.DataBindings.Add("Text", SettingsBindingSource, c_streamlinkPathSettingName);
+                ChaturbateConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_chaturbateConcurrentUpdatesSettingName);
+                BongaCamsConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_bongaCamsConcurrentUpdatesSettingName);
+                StripchatConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_stripchatConcurrentUpdatesSettingName);
+                UpdateIntervalNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateIntervalSettingName);
+                DefaultActionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultActionSettingName);
+                DefaultResolutionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultResolutionSettingName);
+                _settings.PropertyChanged += Settings_PropertyChanged;
+
+                LicenseTextBox.Text = string.Format("{0}\r\n\r\n{1}\r\n\r\n{2}",
+                    LicenseTextBox.Text,
+                    ((AssemblyDescriptionAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyDescriptionAttribute))).Description,
+                    ((AssemblyCopyrightAttribute)AssemblyDescriptionAttribute.GetCustomAttribute(Assembly.GetEntryAssembly(), typeof(AssemblyCopyrightAttribute))).Copyright);
+
+                foreach (ChatRoomWebsite website in Enum.GetValues(typeof(ChatRoomWebsite)))
+                {
+                    _lastUpdates.Add(website, DateTime.Now);
+                }
+
+                ReadData();
+            }
         }
 
         private void WebView2_CoreWebView2InitializationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs e)
@@ -206,7 +227,7 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void SaveChatRoom(ChatRoom chatRoom, bool updateRow)
+        private void SaveChatRoom(ChatRoom chatRoom, bool resetItem)
         {
             lock (_lock)
             {
@@ -215,9 +236,9 @@ namespace ChatRoomRecorder
                 {
                     WriteData(c_chatRoomsTableName, 0, chatRoom, null, null);
 
-                    if (updateRow)
+                    if (resetItem)
                     {
-                        ChatRoomsDataGridView.InvalidateRow(index);
+                        _chatRoomsList.ResetItem(index);
                     }
                 }
             }
@@ -324,11 +345,17 @@ namespace ChatRoomRecorder
             {
                 if (!ChatRoomExists(parsedUrl))
                 {
-                    AddChatRoom(parsedUrl);
+                    List<ChatRoom> chatRooms = new();
 
-                    TreeNode node = CategoriesTreeView.SelectedNode;
-                    CategoriesTreeView.SelectedNode = null;
-                    CategoriesTreeView.SelectedNode = node;
+                    chatRooms.Add(AddChatRoom(parsedUrl));
+
+                    ShowChatRooms(chatRooms, false);
+
+                    UrlTextBox.Text = string.Empty;
+
+                    int index = _chatRoomsList.IndexOf(chatRooms[0]);
+                    ChatRoomsDataGridView.Rows[index].Selected = true;
+                    ChatRoomsDataGridView.FirstDisplayedScrollingRowIndex = index;
                 }
                 else
                 {
@@ -348,19 +375,25 @@ namespace ChatRoomRecorder
             {
                 try
                 {
+                    HashSet<Tuple<ChatRoomWebsite, string, string>> parsedUrls = new();
+
                     string[] urls = File.ReadAllLines(ofd.FileName);
                     foreach (string url in urls)
                     {
-                        Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(url);
-                        if (parsedUrl != null && !ChatRoomExists(parsedUrl))
+                        parsedUrls.Add(ChatRoom.ParseUrl(url));
+                    }
+
+                    List<ChatRoom> chatRooms = new();
+
+                    foreach (Tuple<ChatRoomWebsite, string, string> parsedUrl in parsedUrls)
+                    {
+                        if (!ChatRoomExists(parsedUrl))
                         {
-                            AddChatRoom(parsedUrl);
+                            chatRooms.Add(AddChatRoom(parsedUrl));
                         }
                     }
 
-                    TreeNode node = CategoriesTreeView.SelectedNode;
-                    CategoriesTreeView.SelectedNode = null;
-                    CategoriesTreeView.SelectedNode = node;
+                    ShowChatRooms(chatRooms, false);
 
                     MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -387,17 +420,17 @@ namespace ChatRoomRecorder
                         parsedUrls.Add(ChatRoom.ParseUrl(file.Name));
                     }
 
+                    List<ChatRoom> chatRooms = new();
+
                     foreach (Tuple<ChatRoomWebsite, string, string> parsedUrl in parsedUrls)
                     {
                         if (!ChatRoomExists(parsedUrl))
                         {
-                            AddChatRoom(parsedUrl);
+                            chatRooms.Add(AddChatRoom(parsedUrl));
                         }
                     }
 
-                    TreeNode node = CategoriesTreeView.SelectedNode;
-                    CategoriesTreeView.SelectedNode = null;
-                    CategoriesTreeView.SelectedNode = node;
+                    ShowChatRooms(chatRooms, false);
 
                     MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -430,7 +463,7 @@ namespace ChatRoomRecorder
             return false;
         }
 
-        private void AddChatRoom(Tuple<ChatRoomWebsite, string, string> parsedUrl)
+        private ChatRoom AddChatRoom(Tuple<ChatRoomWebsite, string, string> parsedUrl)
         {
             lock (_lock)
             {
@@ -446,6 +479,8 @@ namespace ChatRoomRecorder
                 category.ChatRooms.Add(chatRoom);
 
                 WriteData(c_chatRoomsTableName, 1, chatRoom, category, null);
+
+                return chatRoom;
             }
         }
 
@@ -454,6 +489,8 @@ namespace ChatRoomRecorder
             lock (_lock)
             {
                 _chatRoomsList.Filter = UrlTextBox.Text;
+
+                ChatRoomsDataGridView.ClearSelection();
             }
         }
 
@@ -489,7 +526,7 @@ namespace ChatRoomRecorder
 
         private void CategoriesTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            ShowChatRooms();
+            ShowChatRooms(((Category)CategoriesTreeView.SelectedNode.Tag).ChatRooms, true);
         }
 
         private void AddCategoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -525,12 +562,16 @@ namespace ChatRoomRecorder
             RenameCategoryToolStripMenuItem.Enabled = CategoriesTreeView.SelectedNode != null && CategoriesTreeView.SelectedNode.Tag != _root;
         }
 
-        private void ShowChatRooms()
+        private void ShowChatRooms(List<ChatRoom> chatRooms, bool flush)
         {
             lock (_lock)
             {
-                _chatRoomsList.Flush();
-                _chatRoomsList.Append(((Category)CategoriesTreeView.SelectedNode.Tag).ChatRooms);
+                if (flush)
+                {
+                    _chatRoomsList.Flush();
+                }
+
+                _chatRoomsList.Append(chatRooms);
             }
         }
 
@@ -552,7 +593,7 @@ namespace ChatRoomRecorder
 
         private void RemoveCategory()
         {
-            if (MessageBox.Show(c_confirmCategoryRemovingMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show(c_confirmCategoryRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 TreeNode currentNode = CategoriesTreeView.SelectedNode;
                 TreeNode parentNode = currentNode.Parent;
@@ -643,6 +684,36 @@ namespace ChatRoomRecorder
             ShowThumbnail();
         }
 
+        private void CopyUrlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> urls = new();
+            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+            {
+                urls.Add(_chatRoomsList[selectedRow.Index].ChatRoomUrl);
+            }
+            Clipboard.SetText(string.Join("\r\n", urls));
+        }
+
+        private void SetActionChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+            {
+                _chatRoomsList[selectedRow.Index].Action = (ChatRoomAction)((ToolStripMenuItem)sender).Tag;
+
+                SaveChatRoom(_chatRoomsList[selectedRow.Index], true);
+            }
+        }
+
+        private void SetResolutionChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+            {
+                _chatRoomsList[selectedRow.Index].PreferredResolution = (ChatRoomResolution)((ToolStripMenuItem)sender).Tag;
+
+                SaveChatRoom(_chatRoomsList[selectedRow.Index], true);
+            }
+        }
+
         private void RemoveChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RemoveChatRoom();
@@ -650,9 +721,11 @@ namespace ChatRoomRecorder
 
         private void ChatRoomsContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
+            CopyUrlToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
+            SetActionToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
+            SetResolutionToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
             RemoveChatRoomToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
         }
-
 
         private void ShowFiles()
         {
@@ -732,7 +805,7 @@ namespace ChatRoomRecorder
 
         private void RemoveChatRoom()
         {
-            if (MessageBox.Show(c_confirmChatRoomsRemovingMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show(c_confirmChatRoomsRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 lock (_lock)
                 {
@@ -743,33 +816,16 @@ namespace ChatRoomRecorder
                         chatRooms.Add(_chatRoomsList[row.Index]);
                     }
 
+                    _chatRoomsList.Delete(chatRooms);
+
                     foreach (ChatRoom chatRoom in chatRooms)
                     {
-                        WriteData(c_chatRoomsTableName, -1, chatRoom, null, null);
+                        ((Category)CategoriesTreeView.SelectedNode.Tag).ChatRooms.Remove(chatRoom);
 
-                        Stack<Category> cs = new Stack<Category>();
-                        cs.Push(_root);
-                        while (cs.Count > 0)
-                        {
-                            if (!cs.Peek().ChatRooms.Remove(chatRoom))
-                            {
-                                foreach (Category category in cs.Pop().Categories)
-                                {
-                                    cs.Push(category);
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
+                        WriteData(c_chatRoomsTableName, -1, chatRoom, null, null);
 
                         chatRoom.Dispose();
                     }
-
-                    TreeNode node = CategoriesTreeView.SelectedNode;
-                    CategoriesTreeView.SelectedNode = null;
-                    CategoriesTreeView.SelectedNode = node;
                 }
             }
         }
@@ -777,6 +833,21 @@ namespace ChatRoomRecorder
         #endregion
 
         #region FilesDataGridView functioning
+
+        private void FilesDataGridView_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    OpenFile();
+                    e.Handled = true;
+                    break;
+                case Keys.Delete:
+                    RemoveFile();
+                    e.Handled = true;
+                    break;
+            }
+        }
 
         private void FilesDataGridView_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
@@ -817,7 +888,7 @@ namespace ChatRoomRecorder
 
         private void RemoveFile()
         {
-            if (MessageBox.Show(c_confirmFilesRemovingMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show(c_confirmFilesRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 try
                 {
@@ -857,7 +928,7 @@ namespace ChatRoomRecorder
 
         private void RemoveThumbnail()
         {
-            if (MessageBox.Show(c_confirmThumbnailRemovingMessage, string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show(c_confirmThumbnailRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 try
                 {
@@ -1129,21 +1200,22 @@ namespace ChatRoomRecorder
 
                 if (newNode != oldNode)
                 {
-                    Category oldCategory = (Category)oldNode.Tag;
-                    Category newCategory = (Category)newNode.Tag;
+                    List<ChatRoom> chatRooms = new List<ChatRoom>();
 
-                    foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+                    foreach (DataGridViewRow row in ChatRoomsDataGridView.SelectedRows)
                     {
-                        ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
-
-                        WriteData(c_chatRoomsTableName, 0, chatRoom, null, newCategory);
-
-                        oldCategory.ChatRooms.Remove(chatRoom);
-                        newCategory.ChatRooms.Add(chatRoom);
+                        chatRooms.Add(_chatRoomsList[row.Index]);
                     }
 
-                    CategoriesTreeView.SelectedNode = null;
-                    CategoriesTreeView.SelectedNode = oldNode;
+                    _chatRoomsList.Delete(chatRooms);
+
+                    foreach (ChatRoom chatRoom in chatRooms)
+                    {
+                        ((Category)oldNode.Tag).ChatRooms.Remove(chatRoom);
+                        ((Category)newNode.Tag).ChatRooms.Add(chatRoom);
+
+                        WriteData(c_chatRoomsTableName, 0, chatRoom, null, (Category)newNode.Tag);
+                    }
                 }
             }
         }
@@ -1162,8 +1234,6 @@ namespace ChatRoomRecorder
                     Category dstCategory = (Category)dstNode.Tag;
                     Category parentCategory = (Category)parentNode.Tag;
 
-                    WriteData(c_categoriesTableName, 0, null, curCategory, dstCategory);
-
                     parentCategory.Categories.Remove(curCategory);
                     dstCategory.Categories.Add(curCategory);
 
@@ -1178,6 +1248,8 @@ namespace ChatRoomRecorder
 
                     CategoriesTreeView.SelectedNode = null;
                     CategoriesTreeView.SelectedNode = curNode;
+
+                    WriteData(c_categoriesTableName, 0, null, curCategory, dstCategory);
                 }
             }
         }
@@ -1594,13 +1666,13 @@ namespace ChatRoomRecorder
         private const string c_unsupportedUrlMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
         private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams and Stripchat!";
         private const string c_duplicateChatRoomMessage = "The chat room is already existed!";
-        private const string c_confirmCategoryRemovingMessage = "Do you really want to remove selected category?";
+        private const string c_confirmCategoryRemovingMessage = "The category will be removed!";
         private const string c_categoryNotEmptyMessage = "The category is not empty!";
-        private const string c_confirmChatRoomsRemovingMessage = "Do you really want to remove selected chat rooms?";
+        private const string c_confirmChatRoomsRemovingMessage = "The selected chat rooms will be removed!";
         private const string c_fileOpeningErrorMessage = "The file can't be opened!";
-        private const string c_confirmFilesRemovingMessage = "Do you really want to remove selected files?";
+        private const string c_confirmFilesRemovingMessage = "The selected files will be removed!";
         private const string c_fileRemovingErrorMessage = "The file can't be removed!";
-        private const string c_confirmThumbnailRemovingMessage = "Do you really want to remove this thumbnail?";
+        private const string c_confirmThumbnailRemovingMessage = "The thumbnail will be removed!";
         private const string c_thumbnailRemovingErrorMessage = "The thumbnail can't be removed!";
         private const string c_chatRoomsAddingErrorMessage = "The chat rooms can't be added!";
         private const string c_chatRoomsAddedMessage = "The chat rooms have been added!";

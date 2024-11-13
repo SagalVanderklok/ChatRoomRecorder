@@ -13,6 +13,16 @@ namespace ChatRoomRecorder
             FilterItems();
         }
 
+        public void Delete(List<ChatRoom> chatRooms)
+        {
+            foreach (ChatRoom chatRoom in chatRooms)
+            {
+                _unfilteredItems.Remove(chatRoom);
+            }
+
+            FilterItems();
+        }
+
         public void Flush()
         {
             _unfilteredItems.Clear();
