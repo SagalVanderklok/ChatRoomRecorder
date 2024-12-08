@@ -24,7 +24,3 @@ If you like this application and want it to evolve please consider supporting us
 - ETH (ERC20) 0x12ed0CDaD7a0698F0Caa4aDe8cb22063e6A00901
 - LTC (LTC20) LNsi1hqY1vLRh9KfCjJ1BR1PQquRSaX74F
 - USDT (TRC20) TBhH93q3kUfNAG3SkUYMoaxcE5NWG4Gx87
-
-### Visit our website
-
-Check out our website [right here](https://chatroomrecorder.com)
