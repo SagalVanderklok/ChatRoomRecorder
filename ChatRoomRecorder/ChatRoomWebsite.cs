@@ -4,6 +4,7 @@
     {
         BongaCams,
         Chaturbate,
-        Stripchat
+        Stripchat,
+        Flirt4Free
     }
 }

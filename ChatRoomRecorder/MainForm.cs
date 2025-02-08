@@ -60,6 +60,8 @@ namespace ChatRoomRecorder
                 ChaturbateConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_chaturbateConcurrentUpdatesSettingName);
                 BongaCamsConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_bongaCamsConcurrentUpdatesSettingName);
                 StripchatConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_stripchatConcurrentUpdatesSettingName);
+                Flirt4FreeConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_flirt4FreeConcurrentUpdatesSettingName);
+                UpdateDelayNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateDelaySettingName);
                 UpdateIntervalNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateIntervalSettingName);
                 DefaultActionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultActionSettingName);
                 DefaultResolutionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultResolutionSettingName);
@@ -178,7 +180,8 @@ namespace ChatRoomRecorder
                     {
                         { ChatRoomWebsite.Chaturbate, _settings.ChaturbateConcurrentUpdates },
                         { ChatRoomWebsite.BongaCams, _settings.BongaCamsConcurrentUpdates },
-                        { ChatRoomWebsite.Stripchat, _settings.StripchatConcurrentUpdates }
+                        { ChatRoomWebsite.Stripchat, _settings.StripchatConcurrentUpdates },
+                        { ChatRoomWebsite.Flirt4Free, _settings.Flirt4FreeConcurrentUpdates }
                     };
 
                     Dictionary<ChatRoomWebsite, int> curUpdateCounts = new();
@@ -248,11 +251,15 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
+                LogListBox.BeginUpdate();
+
                 Tuple<DateTime, string> entry = null;
                 while (chatRoom.Log.TryDequeue(out entry))
                 {
-                    LogListBox.Items.Add(string.Format("{0:yyyy/MM/dd HH:mm:ss} - {1} - {2} - {3}", entry.Item1, chatRoom.Website, chatRoom.Name, entry.Item2).ToLower());
+                    LogListBox.Items.Add(string.Format("{0:yyyy/MM/dd HH:mm:ss:ffffff} - {1} - {2} - {3}", entry.Item1, chatRoom.Website, chatRoom.Name, entry.Item2).ToLower());
                 }
+
+                LogListBox.EndUpdate();
             }
         }
 
@@ -1061,6 +1068,30 @@ namespace ChatRoomRecorder
                         //do nothing
                         break;
 
+                    case c_flirt4FreeConcurrentUpdatesSettingName:
+                        //do nothing
+                        break;
+
+                    case c_updateDelaySettingName:
+                        if (_root != null)
+                        {
+                            Stack<Category> cs = new Stack<Category>();
+                            cs.Push(_root);
+                            while (cs.Count > 0)
+                            {
+                                Category parent = cs.Pop();
+                                foreach (Category category in parent.Categories)
+                                {
+                                    cs.Push(category);
+                                }
+                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                {
+                                    chatRoom.Delay = _settings.UpdateDelay;
+                                }
+                            }
+                        }
+                        break;
+
                     case c_updateIntervalSettingName:
                         ChatRoomsUpdateTimer.Interval = _settings.UpdateInterval * 1000;
                         break;
@@ -1139,43 +1170,49 @@ namespace ChatRoomRecorder
 
         private void CategoriesTreeView_DragOver(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(DataGridViewSelectedRowCollection)))
+            TreeNode dstNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(new Point(e.X, e.Y)));
+
+            if (dstNode != null)
             {
-                e.Effect = DragDropEffects.Move;
-            }
-            else if (e.Data.GetDataPresent(typeof(TreeNode)))
-            {
-                bool found = false;
-
-                TreeNode curNode = CategoriesTreeView.SelectedNode;
-                TreeNode dstNode = CategoriesTreeView.GetNodeAt(CategoriesTreeView.PointToClient(new Point(e.X, e.Y)));
-
-                Stack<TreeNode> ns = new Stack<TreeNode>();
-                ns.Push(curNode);
-                while (ns.Count > 0 && !found)
-                {
-                    TreeNodeCollection nodes = ns.Pop().Nodes;
-                    if (!nodes.Contains(dstNode))
-                    {
-                        foreach (TreeNode node in nodes)
-                        {
-                            ns.Push(node);
-                        }
-                    }
-                    else
-                    {
-                        found = true;
-                    }
-                }
-
-                if (!found)
+                if (e.Data.GetDataPresent(typeof(DataGridViewSelectedRowCollection)))
                 {
                     e.Effect = DragDropEffects.Move;
                 }
-                else
+                else if (e.Data.GetDataPresent(typeof(TreeNode)))
                 {
-                    e.Effect = DragDropEffects.None;
+                    bool cancel = false;
+
+                    Stack<TreeNode> ns = new Stack<TreeNode>();
+                    ns.Push(CategoriesTreeView.SelectedNode);
+                    while (ns.Count > 0 && !cancel)
+                    {
+                        TreeNodeCollection nodes = ns.Pop().Nodes;
+                        if (!nodes.Contains(dstNode))
+                        {
+                            foreach (TreeNode node in nodes)
+                            {
+                                ns.Push(node);
+                            }
+                        }
+                        else
+                        {
+                            cancel = true;
+                        }
+                    };
+
+                    if (!cancel)
+                    {
+                        e.Effect = DragDropEffects.Move;
+                    }
+                    else
+                    {
+                        e.Effect = DragDropEffects.None;
+                    }
                 }
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
             }
         }
 
@@ -1354,6 +1391,17 @@ namespace ChatRoomRecorder
                                 "pragma user_version = 3;";
                             _command.ExecuteNonQuery();
                             break;
+                        case 3:
+                            _command.CommandText =
+                                string.Format("alter table {0} add {1} integer;",
+                                    c_settingsTableName,
+                                    c_settingsTableFlirt4FreeConcurrentUpdatesColumnName) +
+                                string.Format("alter table {0} add {1} integer;",
+                                    c_settingsTableName,
+                                    c_settingsTableUpdateDelayColumnName) +
+                                "pragma user_version = 4;";
+                            _command.ExecuteNonQuery();
+                            break;
                         default:
                             schemaIsUpdated = true;
                             break;
@@ -1380,6 +1428,8 @@ namespace ChatRoomRecorder
                         _settings.ChaturbateConcurrentUpdates = reader.GetInt32(c_settingsTableChaturbateConcurrentUpdatesColumnName);
                         _settings.BongaCamsConcurrentUpdates = reader.GetInt32(c_settingsTableBongaCamsConcurrentUpdatesColumnName);
                         _settings.StripchatConcurrentUpdates = reader.GetInt32(c_settingsTableStripchatConcurrentUpdatesColumnName);
+                        _settings.Flirt4FreeConcurrentUpdates = reader.GetInt32(c_settingsTableFlirt4FreeConcurrentUpdatesColumnName);
+                        _settings.UpdateDelay = reader.GetInt32(c_settingsTableUpdateDelayColumnName);
                         _settings.UpdateInterval = reader.GetInt32(c_settingsTableUpdateIntervalColumnName);
                         _settings.DefaultAction = (ChatRoomAction)reader.GetInt32(c_settingsTableDefaultActionColumnName);
                         _settings.DefaultResolution = ChatRoomResolution.Parse(reader.GetInt32(c_settingsTableDefaultResolutionColumnName));
@@ -1438,6 +1488,7 @@ namespace ChatRoomRecorder
                             chatRoom.ID = id;
                             chatRoom.Action = action;
                             chatRoom.PreferredResolution = resolution;
+                            chatRoom.Delay = _settings.UpdateDelay;
                             chatRoom.LastUpdated = updated;
                             chatRoom.LastSeen = seen;
                             chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
@@ -1482,7 +1533,7 @@ namespace ChatRoomRecorder
                 {
                     case c_settingsTableName:
 
-                        _command.CommandText = string.Format("delete from {0}; insert into {0} ({1},{3},{5},{7},{9},{11},{13},{15},{17}) values ('{2}','{4}','{6}','{8}','{10}','{12}','{14}','{16}','{18}');",
+                        _command.CommandText = string.Format("delete from {0}; insert into {0} ({1},{3},{5},{7},{9},{11},{13},{15},{17},{19},{21}) values ('{2}','{4}','{6}','{8}','{10}','{12}','{14}','{16}','{18}','{20}','{22}');",
                             c_settingsTableName,
                             c_settingsTableOutputDirectoryColumnName, _settings.OutputDirectory,
                             c_settingsTableFFmpegPathColumnName, _settings.FFmpegPath,
@@ -1490,6 +1541,8 @@ namespace ChatRoomRecorder
                             c_settingsTableChaturbateConcurrentUpdatesColumnName, _settings.ChaturbateConcurrentUpdates,
                             c_settingsTableBongaCamsConcurrentUpdatesColumnName, _settings.BongaCamsConcurrentUpdates,
                             c_settingsTableStripchatConcurrentUpdatesColumnName, _settings.StripchatConcurrentUpdates,
+                            c_settingsTableFlirt4FreeConcurrentUpdatesColumnName, _settings.Flirt4FreeConcurrentUpdates,
+                            c_settingsTableUpdateDelayColumnName, _settings.UpdateDelay,
                             c_settingsTableUpdateIntervalColumnName, _settings.UpdateInterval,
                             c_settingsTableDefaultActionColumnName, (int)_settings.DefaultAction,
                             c_settingsTableDefaultResolutionColumnName, _settings.DefaultResolution.ToInt32());
@@ -1617,7 +1670,9 @@ namespace ChatRoomRecorder
             ChaturbateConcurrentUpdates = 1,
             BongaCamsConcurrentUpdates = 1,
             StripchatConcurrentUpdates = 1,
-            UpdateInterval = 5,
+            Flirt4FreeConcurrentUpdates = 1,
+            UpdateDelay = 15,
+            UpdateInterval = 60,
             DefaultAction = ChatRoomAction.None,
             DefaultResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(new ChatRoomResolution(1920, 1080), ChatRoomResolution.CommonResolutions)]
         };
@@ -1635,6 +1690,8 @@ namespace ChatRoomRecorder
         private const string c_settingsTableChaturbateConcurrentUpdatesColumnName = "ChaturbateConcurrentUpdates";
         private const string c_settingsTableBongaCamsConcurrentUpdatesColumnName = "BongaCamsConcurrentUpdates";
         private const string c_settingsTableStripchatConcurrentUpdatesColumnName = "StripchatConcurrentUpdates";
+        private const string c_settingsTableFlirt4FreeConcurrentUpdatesColumnName = "Flirt4FreeConcurrentUpdates";
+        private const string c_settingsTableUpdateDelayColumnName = "UpdateDelay";
         private const string c_settingsTableUpdateIntervalColumnName = "UpdateInterval";
         private const string c_settingsTableDefaultActionColumnName = "DefaultAction";
         private const string c_settingsTableDefaultResolutionColumnName = "DefaultResolution";
@@ -1659,6 +1716,8 @@ namespace ChatRoomRecorder
         private const string c_chaturbateConcurrentUpdatesSettingName = "ChaturbateConcurrentUpdates";
         private const string c_bongaCamsConcurrentUpdatesSettingName = "BongaCamsConcurrentUpdates";
         private const string c_stripchatConcurrentUpdatesSettingName = "StripchatConcurrentUpdates";
+        private const string c_flirt4FreeConcurrentUpdatesSettingName = "Flirt4FreeConcurrentUpdates";
+        private const string c_updateDelaySettingName = "UpdateDelay";
         private const string c_updateIntervalSettingName = "UpdateInterval";
         private const string c_defaultActionSettingName = "DefaultAction";
         private const string c_defaultResolutionSettingName = "DefaultResolution";

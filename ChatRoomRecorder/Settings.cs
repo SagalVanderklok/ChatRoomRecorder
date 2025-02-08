@@ -14,6 +14,8 @@ namespace ChatRoomRecorder
             settings._chaturbateConcurrentUpdates = _chaturbateConcurrentUpdates;
             settings._bongaCamsConcurrentUpdates = _bongaCamsConcurrentUpdates;
             settings._stripchatConcurrentUpdates = _stripchatConcurrentUpdates;
+            settings._flirt4FreeConcurrentUpdates = _flirt4FreeConcurrentUpdates;
+            settings._updateDelay = _updateDelay;
             settings._updateInterval = _updateInterval;
             settings._defaultAction = _defaultAction;
             settings._defaultResolution = _defaultResolution;
@@ -105,6 +107,32 @@ namespace ChatRoomRecorder
             }
         }
 
+        public int Flirt4FreeConcurrentUpdates
+        {
+            get
+            {
+                return _flirt4FreeConcurrentUpdates;
+            }
+            set
+            {
+                _flirt4FreeConcurrentUpdates = value >= 1 ? value : 1;
+                NotifyPropertyChanged(nameof(Flirt4FreeConcurrentUpdates));
+            }
+        }
+
+        public int UpdateDelay
+        {
+            get
+            {
+                return _updateDelay;
+            }
+            set
+            {
+                _updateDelay = value >= 0 ? value : 0;
+                NotifyPropertyChanged(nameof(UpdateDelay));
+            }
+        }
+
         public int UpdateInterval
         {
             get
@@ -150,6 +178,8 @@ namespace ChatRoomRecorder
         private int _chaturbateConcurrentUpdates;
         private int _bongaCamsConcurrentUpdates;
         private int _stripchatConcurrentUpdates;
+        private int _flirt4FreeConcurrentUpdates;
+        private int _updateDelay;
         private int _updateInterval;
         private ChatRoomAction _defaultAction;
         private ChatRoomResolution _defaultResolution;
