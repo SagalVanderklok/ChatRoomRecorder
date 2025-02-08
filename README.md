@@ -2,7 +2,7 @@
 
 ### Free software for recording live webcam shows with no limitations!
 
-- Multiple websites - Supports the most popular Chaturbate, BongaCams and Stripchat websites
+- Multiple websites - Supports the most popular Chaturbate, BongaCams, Stripchat and Flirt4Free websites
 - No limitations - Records as many streams as you want
 - Automatic recording - Automatically starts recording when streams are online
 - Open source - Released under GNU GPLv3
@@ -10,7 +10,7 @@
 ### Installation instructions
 
 1. Download and install _.NET Desktop Runtime_ ([x64](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x64-installer) or [x86](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.26-windows-x86-installer)) and _WebView2 Runtime_ ([x64](https://go.microsoft.com/fwlink/?linkid=2124701) or [x86](https://go.microsoft.com/fwlink/?linkid=2099617))
-2. Download and install _Streamlink_ ([x64](https://github.com/streamlink/windows-builds/releases/latest/download/streamlink-6.9.0-1-py312-x86_64.exe) or [x86](https://github.com/streamlink/windows-builds/releases/latest/download/streamlink-6.9.0-1-py312-x86.exe))
+2. Download and install _Streamlink_ ([x64](https://github.com/streamlink/windows-builds/releases/download/6.9.0-1/streamlink-6.9.0-1-py312-x86_64.exe) or [x86](https://github.com/streamlink/windows-builds/releases/download/6.9.0-1/streamlink-6.9.0-1-py312-x86.exe))
 3. Download and unpack _ChatRoomRecorder_ ([x64](https://github.com/SagalVanderklok/ChatRoomRecorder/releases/latest/download/ChatRoomRecorder_x64.zip) or [x86](https://github.com/SagalVanderklok/ChatRoomRecorder/releases/latest/download/ChatRoomRecorder_x86.zip))
 4. Start ChatRoomRecorder
 5. Open "Settings" tab and specify Streamlink and ffmpeg binaries locations and an output directory for downloads
