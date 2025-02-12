@@ -61,10 +61,12 @@ namespace ChatRoomRecorder
                 BongaCamsConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_bongaCamsConcurrentUpdatesSettingName);
                 StripchatConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_stripchatConcurrentUpdatesSettingName);
                 Flirt4FreeConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_flirt4FreeConcurrentUpdatesSettingName);
+                CamSodaConcurrentUpdatesNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_camSodaConcurrentUpdatesSettingName);
                 UpdateDelayNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateDelaySettingName);
                 UpdateIntervalNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_updateIntervalSettingName);
                 DefaultActionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultActionSettingName);
                 DefaultResolutionComboBox.DataBindings.Add("SelectedItem", SettingsBindingSource, c_defaultResolutionSettingName);
+                LogSizeNumericUpDown.DataBindings.Add("Value", SettingsBindingSource, c_logSizeSettingName);
                 _settings.PropertyChanged += Settings_PropertyChanged;
 
                 LicenseTextBox.Text = string.Format("{0}\r\n\r\n{1}\r\n\r\n{2}",
@@ -181,7 +183,8 @@ namespace ChatRoomRecorder
                         { ChatRoomWebsite.Chaturbate, _settings.ChaturbateConcurrentUpdates },
                         { ChatRoomWebsite.BongaCams, _settings.BongaCamsConcurrentUpdates },
                         { ChatRoomWebsite.Stripchat, _settings.StripchatConcurrentUpdates },
-                        { ChatRoomWebsite.Flirt4Free, _settings.Flirt4FreeConcurrentUpdates }
+                        { ChatRoomWebsite.Flirt4Free, _settings.Flirt4FreeConcurrentUpdates },
+                        { ChatRoomWebsite.CamSoda, _settings.CamSodaConcurrentUpdates }
                     };
 
                     Dictionary<ChatRoomWebsite, int> curUpdateCounts = new();
@@ -253,10 +256,30 @@ namespace ChatRoomRecorder
             {
                 LogListBox.BeginUpdate();
 
-                Tuple<DateTime, string> entry = null;
-                while (chatRoom.Log.TryDequeue(out entry))
+                if (_settings.LogSize > 0)
                 {
-                    LogListBox.Items.Add(string.Format("{0:yyyy/MM/dd HH:mm:ss:ffffff} - {1} - {2} - {3}", entry.Item1, chatRoom.Website, chatRoom.Name, entry.Item2).ToLower());
+                    if (LogListBox.Items.Count > 1.1 * _settings.LogSize)
+                    {
+                        for (int i = 0; i < _settings.LogSize; i++)
+                        {
+                            LogListBox.Items[i] = LogListBox.Items[LogListBox.Items.Count - _settings.LogSize + i];
+                        }
+                        while (LogListBox.Items.Count > _settings.LogSize)
+                        {
+                            LogListBox.Items.RemoveAt(LogListBox.Items.Count - 1);
+                        }
+                    }
+
+                    Tuple<DateTime, string> entry = null;
+                    while (chatRoom.Log.TryDequeue(out entry))
+                    {
+                        LogListBox.Items.Add(string.Format("{0:yyyy/MM/dd HH:mm:ss:ffffff} - {1} - {2} - {3}", entry.Item1, chatRoom.Website, chatRoom.Name, entry.Item2).ToLower());
+                    }
+                }
+                else
+                {
+                    chatRoom.Log.Clear();
+                    LogListBox.Items.Clear();
                 }
 
                 LogListBox.EndUpdate();
@@ -871,10 +894,16 @@ namespace ChatRoomRecorder
             RemoveFile();
         }
 
+        private void ShowFileInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowFileInExplorer();
+        }
+
         private void FilesContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             OpenFileToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
             RemoveFileToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 0;
+            ShowFileInExplorerToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
         }
 
         private void OpenFile()
@@ -916,6 +945,23 @@ namespace ChatRoomRecorder
                 {
                     MessageBox.Show(c_fileRemovingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private void ShowFileInExplorer()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    UseShellExecute = true,
+                    FileName = "explorer",
+                    Arguments = string.Format("/select,\"{0}\"", _filesList[FilesDataGridView.SelectedRows[0].Index].FullName)
+                });
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(c_fileShowingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1072,6 +1118,10 @@ namespace ChatRoomRecorder
                         //do nothing
                         break;
 
+                    case c_camSodaConcurrentUpdatesSettingName:
+                        //do nothing
+                        break;
+
                     case c_updateDelaySettingName:
                         if (_root != null)
                         {
@@ -1101,6 +1151,10 @@ namespace ChatRoomRecorder
                         break;
 
                     case c_defaultResolutionSettingName:
+                        //do nothing
+                        break;
+
+                    case c_logSizeSettingName:
                         //do nothing
                         break;
                 }
@@ -1402,6 +1456,17 @@ namespace ChatRoomRecorder
                                 "pragma user_version = 4;";
                             _command.ExecuteNonQuery();
                             break;
+                        case 4:
+                            _command.CommandText =
+                                string.Format("alter table {0} add {1} integer;",
+                                    c_settingsTableName,
+                                    c_settingsTableCamSodaConcurrentUpdatesColumnName) +
+                                string.Format("alter table {0} add {1} integer;",
+                                    c_settingsTableName,
+                                    c_settingsTableLogSizeColumnName) +
+                                "pragma user_version = 5;";
+                            _command.ExecuteNonQuery();
+                            break;
                         default:
                             schemaIsUpdated = true;
                             break;
@@ -1429,10 +1494,12 @@ namespace ChatRoomRecorder
                         _settings.BongaCamsConcurrentUpdates = reader.GetInt32(c_settingsTableBongaCamsConcurrentUpdatesColumnName);
                         _settings.StripchatConcurrentUpdates = reader.GetInt32(c_settingsTableStripchatConcurrentUpdatesColumnName);
                         _settings.Flirt4FreeConcurrentUpdates = reader.GetInt32(c_settingsTableFlirt4FreeConcurrentUpdatesColumnName);
+                        _settings.CamSodaConcurrentUpdates = reader.GetInt32(c_settingsTableCamSodaConcurrentUpdatesColumnName);
                         _settings.UpdateDelay = reader.GetInt32(c_settingsTableUpdateDelayColumnName);
                         _settings.UpdateInterval = reader.GetInt32(c_settingsTableUpdateIntervalColumnName);
                         _settings.DefaultAction = (ChatRoomAction)reader.GetInt32(c_settingsTableDefaultActionColumnName);
                         _settings.DefaultResolution = ChatRoomResolution.Parse(reader.GetInt32(c_settingsTableDefaultResolutionColumnName));
+                        _settings.LogSize = reader.GetInt32(c_settingsTableLogSizeColumnName);
                     }
                 }
             }
@@ -1533,7 +1600,7 @@ namespace ChatRoomRecorder
                 {
                     case c_settingsTableName:
 
-                        _command.CommandText = string.Format("delete from {0}; insert into {0} ({1},{3},{5},{7},{9},{11},{13},{15},{17},{19},{21}) values ('{2}','{4}','{6}','{8}','{10}','{12}','{14}','{16}','{18}','{20}','{22}');",
+                        _command.CommandText = string.Format("delete from {0}; insert into {0} ({1},{3},{5},{7},{9},{11},{13},{15},{17},{19},{21},{23},{25}) values ('{2}','{4}','{6}','{8}','{10}','{12}','{14}','{16}','{18}','{20}','{22}','{24}','{26}');",
                             c_settingsTableName,
                             c_settingsTableOutputDirectoryColumnName, _settings.OutputDirectory,
                             c_settingsTableFFmpegPathColumnName, _settings.FFmpegPath,
@@ -1542,10 +1609,12 @@ namespace ChatRoomRecorder
                             c_settingsTableBongaCamsConcurrentUpdatesColumnName, _settings.BongaCamsConcurrentUpdates,
                             c_settingsTableStripchatConcurrentUpdatesColumnName, _settings.StripchatConcurrentUpdates,
                             c_settingsTableFlirt4FreeConcurrentUpdatesColumnName, _settings.Flirt4FreeConcurrentUpdates,
+                            c_settingsTableCamSodaConcurrentUpdatesColumnName, _settings.CamSodaConcurrentUpdates,
                             c_settingsTableUpdateDelayColumnName, _settings.UpdateDelay,
                             c_settingsTableUpdateIntervalColumnName, _settings.UpdateInterval,
                             c_settingsTableDefaultActionColumnName, (int)_settings.DefaultAction,
-                            c_settingsTableDefaultResolutionColumnName, _settings.DefaultResolution.ToInt32());
+                            c_settingsTableDefaultResolutionColumnName, _settings.DefaultResolution.ToInt32(),
+                            c_settingsTableLogSizeColumnName, _settings.LogSize);
                         _command.ExecuteNonQuery();
                         break;
 
@@ -1671,10 +1740,12 @@ namespace ChatRoomRecorder
             BongaCamsConcurrentUpdates = 1,
             StripchatConcurrentUpdates = 1,
             Flirt4FreeConcurrentUpdates = 1,
+            CamSodaConcurrentUpdates = 1,
             UpdateDelay = 15,
             UpdateInterval = 60,
             DefaultAction = ChatRoomAction.None,
-            DefaultResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(new ChatRoomResolution(1920, 1080), ChatRoomResolution.CommonResolutions)]
+            DefaultResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(new ChatRoomResolution(1920, 1080), ChatRoomResolution.CommonResolutions)],
+            LogSize = 5000
         };
 
         private const string c_databaseFileName = "ChatRoomRecorder.db";
@@ -1691,10 +1762,12 @@ namespace ChatRoomRecorder
         private const string c_settingsTableBongaCamsConcurrentUpdatesColumnName = "BongaCamsConcurrentUpdates";
         private const string c_settingsTableStripchatConcurrentUpdatesColumnName = "StripchatConcurrentUpdates";
         private const string c_settingsTableFlirt4FreeConcurrentUpdatesColumnName = "Flirt4FreeConcurrentUpdates";
+        private const string c_settingsTableCamSodaConcurrentUpdatesColumnName = "CamSodaConcurrentUpdates";
         private const string c_settingsTableUpdateDelayColumnName = "UpdateDelay";
         private const string c_settingsTableUpdateIntervalColumnName = "UpdateInterval";
         private const string c_settingsTableDefaultActionColumnName = "DefaultAction";
         private const string c_settingsTableDefaultResolutionColumnName = "DefaultResolution";
+        private const string c_settingsTableLogSizeColumnName = "LogSize";
 
         private const string c_chatRoomsTableName = "ChatRooms";
         private const string c_chatRoomsTableIdColumnName = "ID";
@@ -1717,13 +1790,15 @@ namespace ChatRoomRecorder
         private const string c_bongaCamsConcurrentUpdatesSettingName = "BongaCamsConcurrentUpdates";
         private const string c_stripchatConcurrentUpdatesSettingName = "StripchatConcurrentUpdates";
         private const string c_flirt4FreeConcurrentUpdatesSettingName = "Flirt4FreeConcurrentUpdates";
+        private const string c_camSodaConcurrentUpdatesSettingName = "CamSodaConcurrentUpdates";
         private const string c_updateDelaySettingName = "UpdateDelay";
         private const string c_updateIntervalSettingName = "UpdateInterval";
         private const string c_defaultActionSettingName = "DefaultAction";
         private const string c_defaultResolutionSettingName = "DefaultResolution";
+        private const string c_logSizeSettingName = "LogSize";
 
         private const string c_unsupportedUrlMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
-        private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams and Stripchat!";
+        private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams, Stripchat, Flirt4Free and CamSoda!";
         private const string c_duplicateChatRoomMessage = "The chat room is already existed!";
         private const string c_confirmCategoryRemovingMessage = "The category will be removed!";
         private const string c_categoryNotEmptyMessage = "The category is not empty!";
@@ -1731,6 +1806,7 @@ namespace ChatRoomRecorder
         private const string c_fileOpeningErrorMessage = "The file can't be opened!";
         private const string c_confirmFilesRemovingMessage = "The selected files will be removed!";
         private const string c_fileRemovingErrorMessage = "The file can't be removed!";
+        private const string c_fileShowingErrorMessage = "The file can't be shown!";
         private const string c_confirmThumbnailRemovingMessage = "The thumbnail will be removed!";
         private const string c_thumbnailRemovingErrorMessage = "The thumbnail can't be removed!";
         private const string c_chatRoomsAddingErrorMessage = "The chat rooms can't be added!";

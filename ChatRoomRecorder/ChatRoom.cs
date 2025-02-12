@@ -57,6 +57,12 @@ namespace ChatRoomRecorder
                 return Tuple.Create(ChatRoomWebsite.Flirt4Free, matches[0].Groups[1].Value, string.Format("https://www.flirt4free.com/?model={0}/", matches[0].Groups[1].Value));
             }
 
+            if ((matches = Regex.Matches(url, @"^https://www.camsoda.com/([^/]+)/.*$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(url, @"^camsoda[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
+            {
+                return Tuple.Create(ChatRoomWebsite.CamSoda, matches[0].Groups[1].Value, string.Format("https://www.camsoda.com/{0}/", matches[0].Groups[1].Value));
+            }
+
             return null;
         }
 
@@ -231,6 +237,9 @@ namespace ChatRoomRecorder
                         case ChatRoomWebsite.Flirt4Free:
                             SendRequestFlirt4Free();
                             break;
+                        case ChatRoomWebsite.CamSoda:
+                            SendRequestCamSoda();
+                            break;
                     }
                 }
             }
@@ -326,6 +335,9 @@ namespace ChatRoomRecorder
                                     break;
                                 case ChatRoomWebsite.Flirt4Free:
                                     ProcessResponseFlirt4Free(response);
+                                    break;
+                                case ChatRoomWebsite.CamSoda:
+                                    ProcessResponseCamSoda(response);
                                     break;
                             }
 
@@ -437,6 +449,27 @@ namespace ChatRoomRecorder
                 await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
 
                 _uri = "https://www.flirt4free.com/?tpl=index2&model=json";
+
+                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                    _uri,
+                    "GET",
+                    null,
+                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+            }
+            catch
+            {
+                //do nothing
+            }
+        }
+
+        private async void SendRequestCamSoda()
+        {
+            try
+            {
+                await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
+
+                _uri = string.Format("https://www.camsoda.com/api/v1/video/vtoken/{0}", _name);
 
                 CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
                     _uri,
@@ -750,7 +783,7 @@ namespace ChatRoomRecorder
                                 playlistUrl.Substring(playlistUrl.LastIndexOf(".")));
                         }
 
-                        Record(playlistUrl, -1);
+                        Record(playlistUrl, null);
                     }
                 }
             }
@@ -892,10 +925,101 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void Record(string playlistUrl, int streamIndex)
+        private void ProcessResponseCamSoda(string response)
+        {
+            ChatRoomStatus status = ChatRoomStatus.Unknown;
+            string playlistUrl = string.Empty;
+            List<ChatRoomResolution> availableResolutions = new List<ChatRoomResolution>();
+
+            try
+            {
+                JsonNode chatRoomNode = JsonNode.Parse(response);
+                JsonArray serversNode = (JsonArray)chatRoomNode["edge_servers"];
+                string streamName = (string)chatRoomNode["stream_name"];
+
+                if (streamName == string.Empty)
+                {
+                    status = ChatRoomStatus.Offline;
+                } 
+                else if (serversNode.Count == 0)
+                {
+                    status = ChatRoomStatus.Private;
+                } 
+                else
+                {
+                    status = ChatRoomStatus.Public;
+                }
+
+                AddLogEntry(string.Format("{0} - {1}", c_statusObtainedLogMessage, status));
+
+                if (status == ChatRoomStatus.Public)
+                {
+                    playlistUrl = string.Format("https://{0}/{1}_v1/playlist.m3u8", (string)serversNode[0], streamName);
+
+                    AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
+
+                    HttpRequestMessage reqMsg = new(HttpMethod.Get, playlistUrl);
+                    HttpResponseMessage respMsg = s_httpClient.Send(reqMsg, _cancellationToken);
+                    string[] playlist = new StreamReader(respMsg.Content.ReadAsStream()).ReadToEnd().Split('\n');
+                    for (int i = 0; i < playlist.Length; i++)
+                    {
+                        MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
+                        if (matches.Count > 0)
+                        {
+                            availableResolutions.Add(ChatRoomResolution.Parse(matches[0].Groups[1].Value));
+                        }
+                    }
+
+                    AddLogEntry(string.Format("{0} - {1}", c_resolutionsObtainedLogMessage, string.Join(", ", availableResolutions)));
+                }
+
+                if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
+                {
+                    status = ChatRoomStatus.Record;
+                }
+
+                if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
+                {
+                    int streamIndex = ChatRoomResolution.FindClosest(_preferredResolution, availableResolutions.ToArray());
+
+                    if (streamIndex == -1)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    if (status == ChatRoomStatus.Record)
+                    {
+                        Record(playlistUrl, string.Format("{0}p", availableResolutions[streamIndex].Height.ToString()));
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                status = ChatRoomStatus.Error;
+                playlistUrl = String.Empty;
+                availableResolutions.Clear();
+
+                AddLogEntry(string.Format("{0} - {1}", c_errorOccuredLogMessage, exception.Message));
+            }
+            finally
+            {
+                _status = status;
+                _playlistUrl = playlistUrl;
+                _availableResolutions = availableResolutions;
+            }
+
+            if (_status != ChatRoomStatus.Offline && _status != ChatRoomStatus.Error && _status != ChatRoomStatus.Unknown)
+            {
+                _lastSeen = DateTime.Now;
+            }
+        }
+
+        private void Record(string playlistUrl, object stream)
         {
             _fileName = string.Format("{0}\\{1} {2} {3}.ts", _outputDirectory, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
             _fileSize = 0;
+            
+            int port = s_random.Next(16384, 65536);
 
             List<ProcessStartInfo> psis = new List<ProcessStartInfo>();
 
@@ -905,18 +1029,17 @@ namespace ChatRoomRecorder
                     psis.Add(new ProcessStartInfo()
                     {
                         FileName = _ffmpegPath,
-                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName)
+                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, Convert.ToInt32(stream), _fileName)
                     });
                     break;
                 case ChatRoomWebsite.BongaCams:
                     psis.Add(new ProcessStartInfo()
                     {
                         FileName = _ffmpegPath,
-                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName)
+                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, Convert.ToInt32(stream), _fileName)
                     });
                     break;
                 case ChatRoomWebsite.Stripchat:
-                    int port = s_random.Next(16384, 65536);
                     psis.Add(new ProcessStartInfo()
                     {
                         FileName = _streamlinkPath,
@@ -933,7 +1056,20 @@ namespace ChatRoomRecorder
                     psis.Add(new ProcessStartInfo()
                     {
                         FileName = _ffmpegPath,
-                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, streamIndex, _fileName)
+                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, Convert.ToInt32(stream), _fileName)
+                    });
+                    break;
+                case ChatRoomWebsite.CamSoda:
+                    psis.Add(new ProcessStartInfo()
+                    {
+                        FileName = _streamlinkPath,
+                        Arguments = string.Format("--player-external-http --player-external-http-continuous false --player-external-http-interface 127.0.0.1 --player-external-http-port {0} " +
+                            "--default-stream {1} --stream-segment-timeout 60 --stream-timeout 60 --http-timeout 60 --hls-segment-queue-threshold 99 {2}", port, stream, playlistUrl)
+                    });
+                    psis.Add(new ProcessStartInfo()
+                    {
+                        FileName = _ffmpegPath,
+                        Arguments = string.Format("-reconnect 1 -reconnect_at_eof 1 -reconnect_on_network_error 1 -reconnect_on_http_error 1 -reconnect_streamed 1 -i http://127.0.0.1:{0} -c copy \"{1}\"", port, _fileName)
                     });
                     break;
             }

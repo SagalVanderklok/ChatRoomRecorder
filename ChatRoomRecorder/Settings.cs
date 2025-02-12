@@ -15,10 +15,12 @@ namespace ChatRoomRecorder
             settings._bongaCamsConcurrentUpdates = _bongaCamsConcurrentUpdates;
             settings._stripchatConcurrentUpdates = _stripchatConcurrentUpdates;
             settings._flirt4FreeConcurrentUpdates = _flirt4FreeConcurrentUpdates;
+            settings._camSodaConcurrentUpdates = _camSodaConcurrentUpdates;
             settings._updateDelay = _updateDelay;
             settings._updateInterval = _updateInterval;
             settings._defaultAction = _defaultAction;
             settings._defaultResolution = _defaultResolution;
+            settings._logSize = _logSize;
         }
 
         private void NotifyPropertyChanged(string propertyName = "")
@@ -76,7 +78,7 @@ namespace ChatRoomRecorder
             }
             set
             {
-                _chaturbateConcurrentUpdates = value >= 1 ? value : 1;
+                _chaturbateConcurrentUpdates = value > 1 ? value : 1;
                 NotifyPropertyChanged(nameof(ChaturbateConcurrentUpdates));
             }
         }
@@ -89,7 +91,7 @@ namespace ChatRoomRecorder
             }
             set
             {
-                _bongaCamsConcurrentUpdates = value >= 1 ? value : 1;
+                _bongaCamsConcurrentUpdates = value > 1 ? value : 1;
                 NotifyPropertyChanged(nameof(BongaCamsConcurrentUpdates));
             }
         }
@@ -102,7 +104,7 @@ namespace ChatRoomRecorder
             }
             set
             {
-                _stripchatConcurrentUpdates = value >= 1 ? value : 1;
+                _stripchatConcurrentUpdates = value > 1 ? value : 1;
                 NotifyPropertyChanged(nameof(StripchatConcurrentUpdates));
             }
         }
@@ -115,8 +117,21 @@ namespace ChatRoomRecorder
             }
             set
             {
-                _flirt4FreeConcurrentUpdates = value >= 1 ? value : 1;
+                _flirt4FreeConcurrentUpdates = value > 1 ? value : 1;
                 NotifyPropertyChanged(nameof(Flirt4FreeConcurrentUpdates));
+            }
+        }
+
+        public int CamSodaConcurrentUpdates
+        {
+            get
+            {
+                return _camSodaConcurrentUpdates;
+            }
+            set
+            {
+                _camSodaConcurrentUpdates = value > 1 ? value : 1;
+                NotifyPropertyChanged(nameof(CamSodaConcurrentUpdates));
             }
         }
 
@@ -128,7 +143,7 @@ namespace ChatRoomRecorder
             }
             set
             {
-                _updateDelay = value >= 0 ? value : 0;
+                _updateDelay = value > 0 ? value : 0;
                 NotifyPropertyChanged(nameof(UpdateDelay));
             }
         }
@@ -141,7 +156,7 @@ namespace ChatRoomRecorder
             }
             set
             {
-                _updateInterval = value >= 1 ? value : 1;
+                _updateInterval = value > 1 ? value : 1;
                 NotifyPropertyChanged(nameof(UpdateInterval));
             }
         }
@@ -172,6 +187,19 @@ namespace ChatRoomRecorder
             }
         }
 
+        public int LogSize
+        {
+            get
+            {
+                return _logSize;
+            }
+            set
+            {
+                _logSize = value > 0 ? value : 0;
+                NotifyPropertyChanged(nameof(LogSize));
+            }
+        }
+
         private string _outputDirectory;
         private string _ffmpegPath;
         private string _streamlinkPath;
@@ -179,9 +207,11 @@ namespace ChatRoomRecorder
         private int _bongaCamsConcurrentUpdates;
         private int _stripchatConcurrentUpdates;
         private int _flirt4FreeConcurrentUpdates;
+        private int _camSodaConcurrentUpdates;
         private int _updateDelay;
         private int _updateInterval;
         private ChatRoomAction _defaultAction;
         private ChatRoomResolution _defaultResolution;
+        private int _logSize;
     }
 }
