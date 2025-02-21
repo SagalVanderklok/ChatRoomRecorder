@@ -30,11 +30,11 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             FilesBindingSource = new System.Windows.Forms.BindingSource(components);
             TabControl = new System.Windows.Forms.TabControl();
             WebBrowserTabPage = new System.Windows.Forms.TabPage();
@@ -87,6 +87,7 @@
             FilesContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
             OpenFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             RemoveFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            ShowFileInExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             SettingsTabPage = new System.Windows.Forms.TabPage();
             SettingsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             OutputDirectoryTextBox = new System.Windows.Forms.TextBox();
@@ -115,6 +116,8 @@
             LogSizeLabel = new System.Windows.Forms.Label();
             CamSodaConcurrentUpdatesNumericUpDown = new System.Windows.Forms.NumericUpDown();
             LogSizeNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            Cam4ConcurrentUpdatesLabel = new System.Windows.Forms.Label();
+            Cam4ConcurrentUpdatesNumericUpDown = new System.Windows.Forms.NumericUpDown();
             LogTabPage = new System.Windows.Forms.TabPage();
             LogListBox = new System.Windows.Forms.ListBox();
             LogContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
@@ -124,7 +127,6 @@
             ChatRoomsUpdateTimer = new System.Windows.Forms.Timer(components);
             FormCloseTimer = new System.Windows.Forms.Timer(components);
             SettingsBindingSource = new System.Windows.Forms.BindingSource(components);
-            ShowFileInExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)FilesBindingSource).BeginInit();
             TabControl.SuspendLayout();
             WebBrowserTabPage.SuspendLayout();
@@ -165,6 +167,7 @@
             ((System.ComponentModel.ISupportInitialize)UpdateDelayNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)CamSodaConcurrentUpdatesNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)LogSizeNumericUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)Cam4ConcurrentUpdatesNumericUpDown).BeginInit();
             LogTabPage.SuspendLayout();
             LogContextMenuStrip.SuspendLayout();
             AboutTabPage.SuspendLayout();
@@ -546,38 +549,38 @@
             ChatRoomsDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             ChatRoomsDataGridView.BackgroundColor = System.Drawing.SystemColors.Window;
             ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { WebsiteColumn, NameColumn, ActionColumn, ResolutionColumn, StatusColumn, UpdatedColumn, SeenColumn, UrlColumn });
             ChatRoomsDataGridView.ContextMenuStrip = ChatRoomsContextMenuStrip;
             ChatRoomsDataGridView.DataSource = ChatRoomsBindingSource;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
             ChatRoomsDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             ChatRoomsDataGridView.Location = new System.Drawing.Point(0, 0);
             ChatRoomsDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             ChatRoomsDataGridView.Size = new System.Drawing.Size(647, 351);
             ChatRoomsDataGridView.TabIndex = 6;
@@ -749,8 +752,8 @@
             // FileNameColumn
             // 
             FileNameColumn.DataPropertyName = "Name";
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            FileNameColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            FileNameColumn.DefaultCellStyle = dataGridViewCellStyle4;
             FileNameColumn.FillWeight = 199.8681F;
             FileNameColumn.HeaderText = "File name";
             FileNameColumn.Name = "FileNameColumn";
@@ -758,10 +761,10 @@
             // FileSizeColumn
             // 
             FileSizeColumn.DataPropertyName = "Length";
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle2.Format = "N0";
-            dataGridViewCellStyle2.NullValue = null;
-            FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle5.Format = "N0";
+            dataGridViewCellStyle5.NullValue = null;
+            FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle5;
             FileSizeColumn.FillWeight = 50.25381F;
             FileSizeColumn.HeaderText = "File size";
             FileSizeColumn.Name = "FileSizeColumn";
@@ -770,22 +773,29 @@
             // 
             FilesContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { OpenFileToolStripMenuItem, RemoveFileToolStripMenuItem, ShowFileInExplorerToolStripMenuItem });
             FilesContextMenuStrip.Name = "FilesContextMenuStrip";
-            FilesContextMenuStrip.Size = new System.Drawing.Size(181, 92);
+            FilesContextMenuStrip.Size = new System.Drawing.Size(163, 70);
             FilesContextMenuStrip.Opening += FilesContextMenuStrip_Opening;
             // 
             // OpenFileToolStripMenuItem
             // 
             OpenFileToolStripMenuItem.Name = "OpenFileToolStripMenuItem";
-            OpenFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            OpenFileToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
             OpenFileToolStripMenuItem.Text = "Open";
             OpenFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
             // RemoveFileToolStripMenuItem
             // 
             RemoveFileToolStripMenuItem.Name = "RemoveFileToolStripMenuItem";
-            RemoveFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            RemoveFileToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
             RemoveFileToolStripMenuItem.Text = "Remove";
             RemoveFileToolStripMenuItem.Click += RemoveFileToolStripMenuItem_Click;
+            // 
+            // ShowFileInExplorerToolStripMenuItem
+            // 
+            ShowFileInExplorerToolStripMenuItem.Name = "ShowFileInExplorerToolStripMenuItem";
+            ShowFileInExplorerToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            ShowFileInExplorerToolStripMenuItem.Text = "Show in Explorer";
+            ShowFileInExplorerToolStripMenuItem.Click += ShowFileInExplorerToolStripMenuItem_Click;
             // 
             // SettingsTabPage
             // 
@@ -809,33 +819,36 @@
             SettingsTableLayoutPanel.Controls.Add(FFmpegPathTextBox, 2, 1);
             SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesNumericUpDown, 2, 3);
             SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesNumericUpDown, 2, 4);
-            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalNumericUpDown, 2, 9);
+            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalNumericUpDown, 2, 10);
             SettingsTableLayoutPanel.Controls.Add(OutputDirectoryLabel, 1, 0);
             SettingsTableLayoutPanel.Controls.Add(FFmpegPathLabel, 1, 1);
             SettingsTableLayoutPanel.Controls.Add(ChaturbateConcurrentUpdatesLabel, 1, 3);
             SettingsTableLayoutPanel.Controls.Add(BongaCamsConcurrentUpdatesLabel, 1, 4);
-            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalLabel, 1, 9);
+            SettingsTableLayoutPanel.Controls.Add(UpdateIntervalLabel, 1, 10);
             SettingsTableLayoutPanel.Controls.Add(StripchatConcurrentUpdatesLabel, 1, 5);
             SettingsTableLayoutPanel.Controls.Add(StripchatConcurrentUpdatesNumericUpDown, 2, 5);
-            SettingsTableLayoutPanel.Controls.Add(DefaultActionLabel, 1, 10);
-            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionLabel, 1, 11);
-            SettingsTableLayoutPanel.Controls.Add(DefaultActionComboBox, 2, 10);
-            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionComboBox, 2, 11);
+            SettingsTableLayoutPanel.Controls.Add(DefaultActionLabel, 1, 11);
+            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionLabel, 1, 12);
+            SettingsTableLayoutPanel.Controls.Add(DefaultActionComboBox, 2, 11);
+            SettingsTableLayoutPanel.Controls.Add(DefaultResolutionComboBox, 2, 12);
             SettingsTableLayoutPanel.Controls.Add(StreamlinkPathLabel, 1, 2);
             SettingsTableLayoutPanel.Controls.Add(StreamlinkPathTextBox, 2, 2);
             SettingsTableLayoutPanel.Controls.Add(Flirt4FreeConcurrentUpdatesLabel, 1, 6);
             SettingsTableLayoutPanel.Controls.Add(Flirt4FreeConcurrentUpdatesNumericUpDown, 2, 6);
-            SettingsTableLayoutPanel.Controls.Add(UpdateDelayLabel, 1, 8);
-            SettingsTableLayoutPanel.Controls.Add(UpdateDelayNumericUpDown, 2, 8);
+            SettingsTableLayoutPanel.Controls.Add(UpdateDelayLabel, 1, 9);
+            SettingsTableLayoutPanel.Controls.Add(UpdateDelayNumericUpDown, 2, 9);
             SettingsTableLayoutPanel.Controls.Add(CamSodaConcurrentUpdatesLabel, 1, 7);
-            SettingsTableLayoutPanel.Controls.Add(LogSizeLabel, 1, 12);
+            SettingsTableLayoutPanel.Controls.Add(LogSizeLabel, 1, 13);
             SettingsTableLayoutPanel.Controls.Add(CamSodaConcurrentUpdatesNumericUpDown, 2, 7);
-            SettingsTableLayoutPanel.Controls.Add(LogSizeNumericUpDown, 2, 12);
+            SettingsTableLayoutPanel.Controls.Add(LogSizeNumericUpDown, 2, 13);
+            SettingsTableLayoutPanel.Controls.Add(Cam4ConcurrentUpdatesLabel, 1, 8);
+            SettingsTableLayoutPanel.Controls.Add(Cam4ConcurrentUpdatesNumericUpDown, 2, 8);
             SettingsTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             SettingsTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             SettingsTableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             SettingsTableLayoutPanel.Name = "SettingsTableLayoutPanel";
-            SettingsTableLayoutPanel.RowCount = 14;
+            SettingsTableLayoutPanel.RowCount = 15;
+            SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             SettingsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
@@ -909,13 +922,13 @@
             // 
             UpdateIntervalNumericUpDown.BackColor = System.Drawing.SystemColors.Window;
             UpdateIntervalNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
-            UpdateIntervalNumericUpDown.Location = new System.Drawing.Point(388, 266);
+            UpdateIntervalNumericUpDown.Location = new System.Drawing.Point(388, 295);
             UpdateIntervalNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             UpdateIntervalNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
             UpdateIntervalNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             UpdateIntervalNumericUpDown.Name = "UpdateIntervalNumericUpDown";
             UpdateIntervalNumericUpDown.Size = new System.Drawing.Size(350, 23);
-            UpdateIntervalNumericUpDown.TabIndex = 10;
+            UpdateIntervalNumericUpDown.TabIndex = 11;
             UpdateIntervalNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             UpdateIntervalNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
@@ -967,7 +980,7 @@
             // 
             UpdateIntervalLabel.AutoSize = true;
             UpdateIntervalLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            UpdateIntervalLabel.Location = new System.Drawing.Point(38, 266);
+            UpdateIntervalLabel.Location = new System.Drawing.Point(38, 295);
             UpdateIntervalLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             UpdateIntervalLabel.Name = "UpdateIntervalLabel";
             UpdateIntervalLabel.Size = new System.Drawing.Size(350, 24);
@@ -1003,7 +1016,7 @@
             // 
             DefaultActionLabel.AutoSize = true;
             DefaultActionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            DefaultActionLabel.Location = new System.Drawing.Point(38, 295);
+            DefaultActionLabel.Location = new System.Drawing.Point(38, 324);
             DefaultActionLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultActionLabel.Name = "DefaultActionLabel";
             DefaultActionLabel.Size = new System.Drawing.Size(350, 24);
@@ -1014,7 +1027,7 @@
             // 
             DefaultResolutionLabel.AutoSize = true;
             DefaultResolutionLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            DefaultResolutionLabel.Location = new System.Drawing.Point(38, 324);
+            DefaultResolutionLabel.Location = new System.Drawing.Point(38, 353);
             DefaultResolutionLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultResolutionLabel.Name = "DefaultResolutionLabel";
             DefaultResolutionLabel.Size = new System.Drawing.Size(350, 24);
@@ -1027,22 +1040,22 @@
             DefaultActionComboBox.Dock = System.Windows.Forms.DockStyle.Top;
             DefaultActionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             DefaultActionComboBox.FormattingEnabled = true;
-            DefaultActionComboBox.Location = new System.Drawing.Point(388, 295);
+            DefaultActionComboBox.Location = new System.Drawing.Point(388, 324);
             DefaultActionComboBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultActionComboBox.Name = "DefaultActionComboBox";
             DefaultActionComboBox.Size = new System.Drawing.Size(350, 23);
-            DefaultActionComboBox.TabIndex = 11;
+            DefaultActionComboBox.TabIndex = 12;
             // 
             // DefaultResolutionComboBox
             // 
             DefaultResolutionComboBox.Dock = System.Windows.Forms.DockStyle.Top;
             DefaultResolutionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             DefaultResolutionComboBox.FormattingEnabled = true;
-            DefaultResolutionComboBox.Location = new System.Drawing.Point(388, 324);
+            DefaultResolutionComboBox.Location = new System.Drawing.Point(388, 353);
             DefaultResolutionComboBox.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             DefaultResolutionComboBox.Name = "DefaultResolutionComboBox";
             DefaultResolutionComboBox.Size = new System.Drawing.Size(350, 23);
-            DefaultResolutionComboBox.TabIndex = 12;
+            DefaultResolutionComboBox.TabIndex = 13;
             // 
             // StreamlinkPathLabel
             // 
@@ -1095,7 +1108,7 @@
             // 
             UpdateDelayLabel.AutoSize = true;
             UpdateDelayLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            UpdateDelayLabel.Location = new System.Drawing.Point(38, 237);
+            UpdateDelayLabel.Location = new System.Drawing.Point(38, 266);
             UpdateDelayLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             UpdateDelayLabel.Name = "UpdateDelayLabel";
             UpdateDelayLabel.Size = new System.Drawing.Size(350, 24);
@@ -1105,12 +1118,12 @@
             // UpdateDelayNumericUpDown
             // 
             UpdateDelayNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
-            UpdateDelayNumericUpDown.Location = new System.Drawing.Point(388, 237);
+            UpdateDelayNumericUpDown.Location = new System.Drawing.Point(388, 266);
             UpdateDelayNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             UpdateDelayNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
             UpdateDelayNumericUpDown.Name = "UpdateDelayNumericUpDown";
             UpdateDelayNumericUpDown.Size = new System.Drawing.Size(350, 23);
-            UpdateDelayNumericUpDown.TabIndex = 9;
+            UpdateDelayNumericUpDown.TabIndex = 10;
             UpdateDelayNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // CamSodaConcurrentUpdatesLabel
@@ -1128,7 +1141,7 @@
             // 
             LogSizeLabel.AutoSize = true;
             LogSizeLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            LogSizeLabel.Location = new System.Drawing.Point(38, 353);
+            LogSizeLabel.Location = new System.Drawing.Point(38, 382);
             LogSizeLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             LogSizeLabel.Name = "LogSizeLabel";
             LogSizeLabel.Size = new System.Drawing.Size(350, 24);
@@ -1152,13 +1165,37 @@
             // 
             LogSizeNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
             LogSizeNumericUpDown.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-            LogSizeNumericUpDown.Location = new System.Drawing.Point(388, 353);
+            LogSizeNumericUpDown.Location = new System.Drawing.Point(388, 382);
             LogSizeNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
             LogSizeNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
             LogSizeNumericUpDown.Name = "LogSizeNumericUpDown";
             LogSizeNumericUpDown.Size = new System.Drawing.Size(350, 23);
-            LogSizeNumericUpDown.TabIndex = 13;
+            LogSizeNumericUpDown.TabIndex = 14;
             LogSizeNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // Cam4ConcurrentUpdatesLabel
+            // 
+            Cam4ConcurrentUpdatesLabel.AutoSize = true;
+            Cam4ConcurrentUpdatesLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            Cam4ConcurrentUpdatesLabel.Location = new System.Drawing.Point(38, 237);
+            Cam4ConcurrentUpdatesLabel.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            Cam4ConcurrentUpdatesLabel.Name = "Cam4ConcurrentUpdatesLabel";
+            Cam4ConcurrentUpdatesLabel.Size = new System.Drawing.Size(350, 24);
+            Cam4ConcurrentUpdatesLabel.TabIndex = 50;
+            Cam4ConcurrentUpdatesLabel.Text = "Cam4 concurrent updates";
+            // 
+            // Cam4ConcurrentUpdatesNumericUpDown
+            // 
+            Cam4ConcurrentUpdatesNumericUpDown.Dock = System.Windows.Forms.DockStyle.Top;
+            Cam4ConcurrentUpdatesNumericUpDown.Location = new System.Drawing.Point(388, 237);
+            Cam4ConcurrentUpdatesNumericUpDown.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            Cam4ConcurrentUpdatesNumericUpDown.Maximum = new decimal(new int[] { int.MaxValue, 0, 0, 0 });
+            Cam4ConcurrentUpdatesNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            Cam4ConcurrentUpdatesNumericUpDown.Name = "Cam4ConcurrentUpdatesNumericUpDown";
+            Cam4ConcurrentUpdatesNumericUpDown.Size = new System.Drawing.Size(350, 23);
+            Cam4ConcurrentUpdatesNumericUpDown.TabIndex = 9;
+            Cam4ConcurrentUpdatesNumericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            Cam4ConcurrentUpdatesNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // LogTabPage
             // 
@@ -1235,13 +1272,6 @@
             FormCloseTimer.Interval = 1000;
             FormCloseTimer.Tick += FormCloseTimer_Tick;
             // 
-            // ShowFileInExplorerToolStripMenuItem
-            // 
-            ShowFileInExplorerToolStripMenuItem.Name = "ShowFileInExplorerToolStripMenuItem";
-            ShowFileInExplorerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            ShowFileInExplorerToolStripMenuItem.Text = "Show in Explorer";
-            ShowFileInExplorerToolStripMenuItem.Click += ShowFileInExplorerToolStripMenuItem_Click;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -1298,6 +1328,7 @@
             ((System.ComponentModel.ISupportInitialize)UpdateDelayNumericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)CamSodaConcurrentUpdatesNumericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)LogSizeNumericUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)Cam4ConcurrentUpdatesNumericUpDown).EndInit();
             LogTabPage.ResumeLayout(false);
             LogContextMenuStrip.ResumeLayout(false);
             AboutTabPage.ResumeLayout(false);
@@ -1397,6 +1428,8 @@
         private System.Windows.Forms.NumericUpDown CamSodaConcurrentUpdatesNumericUpDown;
         private System.Windows.Forms.NumericUpDown LogSizeNumericUpDown;
         private System.Windows.Forms.ToolStripMenuItem ShowFileInExplorerToolStripMenuItem;
+        private System.Windows.Forms.Label Cam4ConcurrentUpdatesLabel;
+        private System.Windows.Forms.NumericUpDown Cam4ConcurrentUpdatesNumericUpDown;
     }
 }
 

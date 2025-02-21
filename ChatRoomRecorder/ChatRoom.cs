@@ -24,7 +24,7 @@ namespace ChatRoomRecorder
                 return null;
             }
 
-            url = url.ToLower();
+            url = url.Trim().ToLower();
             if (url[url.Length - 1] != '/')
             {
                 url += '/';
@@ -61,6 +61,12 @@ namespace ChatRoomRecorder
                 (matches = Regex.Matches(url, @"^camsoda[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.CamSoda, matches[0].Groups[1].Value, string.Format("https://www.camsoda.com/{0}/", matches[0].Groups[1].Value));
+            }
+
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?cam4.com/([^/]+)/.*$", RegexOptions.IgnoreCase)).Count > 0 ||
+                (matches = Regex.Matches(url, @"^cam4[ ]+([^ ]+).*/$", RegexOptions.IgnoreCase)).Count > 0)
+            {
+                return Tuple.Create(ChatRoomWebsite.Cam4, matches[0].Groups[1].Value, string.Format("https://cam4.com/{0}/", matches[0].Groups[1].Value));
             }
 
             return null;
@@ -240,6 +246,9 @@ namespace ChatRoomRecorder
                         case ChatRoomWebsite.CamSoda:
                             SendRequestCamSoda();
                             break;
+                        case ChatRoomWebsite.Cam4:
+                            SendRequestCam4();
+                            break;
                     }
                 }
             }
@@ -311,7 +320,15 @@ namespace ChatRoomRecorder
 
         private async void _browser_WebResourceResponseReceived(object sender, CoreWebView2WebResourceResponseReceivedEventArgs e)
         {
-            if (_isUpdating && e.Request.Uri == _uri)
+            string template = @"https://[^/]+/(.*)";
+            MatchCollection matches1;
+            MatchCollection matches2;
+
+            if (_isUpdating &&
+                e.Response.StatusCode == 200 && 
+                (matches1 = Regex.Matches(_uri, template, RegexOptions.IgnoreCase)).Count > 0 &&
+                (matches2 = Regex.Matches(e.Request.Uri, template, RegexOptions.IgnoreCase)).Count > 0 &&
+                matches1[0].Groups[1].Value == matches2[0].Groups[1].Value)
             {
                 try
                 {
@@ -338,6 +355,9 @@ namespace ChatRoomRecorder
                                     break;
                                 case ChatRoomWebsite.CamSoda:
                                     ProcessResponseCamSoda(response);
+                                    break;
+                                case ChatRoomWebsite.Cam4:
+                                    ProcessResponseCam4(response);
                                     break;
                             }
 
@@ -383,15 +403,22 @@ namespace ChatRoomRecorder
             {
                 await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
 
-                _uri = "https://chaturbate.com/get_edge_hls_url_ajax/";
+                if (_browser.Source == new Uri("about:blank"))
+                {
+                    _uri = "https://chaturbate.com/get_edge_hls_url_ajax/";
 
-                string postData = "room_slug=" + _name;
-                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                    _uri,
-                    "POST",
-                    new MemoryStream(Encoding.UTF8.GetBytes(postData)),
-                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                    string postData = "room_slug=" + _name;
+                    CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                        _uri,
+                        "POST",
+                        new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                        "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                    _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                }
+                else
+                {
+                    _browser.Reload();
+                }
             }
             catch
             {
@@ -405,15 +432,22 @@ namespace ChatRoomRecorder
             {
                 await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
 
-                _uri = "https://bongacams.com/tools/listing_v3.php";
+                if (_browser.Source == new Uri("about:blank"))
+                {
+                    _uri = "https://bongacams.com/tools/listing_v3.php";
 
-                string postData = "model_search[display_name]=" + _name;
-                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                    _uri,
-                    "POST",
-                    new MemoryStream(Encoding.UTF8.GetBytes(postData)),
-                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                    string postData = "model_search[display_name]=" + _name;
+                    CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                        _uri,
+                        "POST",
+                        new MemoryStream(Encoding.UTF8.GetBytes(postData)),
+                        "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                    _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                }
+                else
+                {
+                    _browser.Reload();
+                }
             }
             catch
             {
@@ -427,14 +461,21 @@ namespace ChatRoomRecorder
             {
                 await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
 
-                _uri = string.Format("https://stripchat.com/api/front/v2/models/username/{0}/cam", _name);
+                if (_browser.Source == new Uri("about:blank"))
+                {
+                    _uri = string.Format("https://stripchat.com/api/front/v2/models/username/{0}/cam", _name);
 
-                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                    _uri,
-                    "GET",
-                    null,
-                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                    CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                        _uri,
+                        "GET",
+                        null,
+                        "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                    _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                }
+                else
+                {
+                    _browser.Reload();
+                }
             }
             catch
             {
@@ -448,14 +489,21 @@ namespace ChatRoomRecorder
             {
                 await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
 
-                _uri = "https://www.flirt4free.com/?tpl=index2&model=json";
+                if (_browser.Source == new Uri("about:blank"))
+                {
+                    _uri = "https://www.flirt4free.com/?tpl=index2&model=json";
 
-                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                    _uri,
-                    "GET",
-                    null,
-                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                    CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                        _uri,
+                        "GET",
+                        null,
+                        "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                    _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                }
+                else
+                {
+                    _browser.Reload();
+                }
             }
             catch
             {
@@ -469,14 +517,49 @@ namespace ChatRoomRecorder
             {
                 await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
 
-                _uri = string.Format("https://www.camsoda.com/api/v1/video/vtoken/{0}", _name);
+                if (_browser.Source == new Uri("about:blank"))
+                {
+                    _uri = string.Format("https://www.camsoda.com/api/v1/video/vtoken/{0}", _name);
 
-                CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
-                    _uri,
-                    "GET",
-                    null,
-                    "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
-                _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                    CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                        _uri,
+                        "GET",
+                        null,
+                        "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                    _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                }
+                else
+                {
+                    _browser.Reload();
+                }
+            }
+            catch
+            {
+                //do nothing
+            }
+        }
+
+        private async void SendRequestCam4()
+        {
+            try
+            {
+                await Task.Delay(s_random.Next(0, _delay * 1000), _cancellationToken);
+
+                if (_browser.Source == new Uri("about:blank"))
+                {
+                    _uri = string.Format("https://cam4.com/directoryCams?directoryJson=true&online=true&username={0}", _name);
+
+                    CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
+                        _uri,
+                        "GET",
+                        null,
+                        "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                    _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
+                }
+                else
+                {
+                    _browser.Reload();
+                }
             }
             catch
             {
@@ -500,6 +583,9 @@ namespace ChatRoomRecorder
                         status = ChatRoomStatus.Public;
                         break;
                     case "private":
+                        status = ChatRoomStatus.Private;
+                        break;
+                    case "password protected":
                         status = ChatRoomStatus.Private;
                         break;
                     case "hidden":
@@ -719,6 +805,9 @@ namespace ChatRoomRecorder
                         break;
                     case "off":
                         status = ChatRoomStatus.Offline;
+                        break;
+                    case "":
+                        status = ChatRoomStatus.Hidden;
                         break;
                 }
 
@@ -1014,6 +1103,108 @@ namespace ChatRoomRecorder
             }
         }
 
+        private void ProcessResponseCam4(string response)
+        {
+            ChatRoomStatus status = ChatRoomStatus.Unknown;
+            string playlistUrl = string.Empty;
+            List<ChatRoomResolution> availableResolutions = new List<ChatRoomResolution>();
+
+            try
+            {
+                JsonNode chatRoomNode = null;
+
+                JsonArray allNodes = (JsonArray)JsonNode.Parse(response);
+                if (allNodes.Count > 0)
+                {
+                    chatRoomNode = allNodes[0];
+
+                    switch ((string)chatRoomNode["showType"])
+                    {
+                        case "NORMAL":
+                            status = ChatRoomStatus.Public;
+                            break;
+                        case "PRIVATE_SHOW":
+                            status = ChatRoomStatus.Private;
+                            break;
+                        case "GROUP_SHOW":
+                            status = ChatRoomStatus.Group;
+                            break;
+                    }
+                }
+                else
+                {
+                    status = ChatRoomStatus.Offline;
+                }
+
+                if (status == ChatRoomStatus.Public && (string)chatRoomNode["hlsPreviewUrl"] == string.Empty)
+                {
+                    status = ChatRoomStatus.Private;
+                }
+
+                AddLogEntry(string.Format("{0} - {1}", c_statusObtainedLogMessage, status));
+
+                if (status == ChatRoomStatus.Public)
+                {
+                    playlistUrl = (string)chatRoomNode["hlsPreviewUrl"];
+
+                    AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
+
+                    HttpRequestMessage reqMsg = new(HttpMethod.Get, playlistUrl);
+                    HttpResponseMessage respMsg = s_httpClient.Send(reqMsg, _cancellationToken);
+                    string[] playlist = new StreamReader(respMsg.Content.ReadAsStream()).ReadToEnd().Split('\n');
+                    for (int i = 0; i < playlist.Length; i++)
+                    {
+                        MatchCollection matches = Regex.Matches(playlist[i], "^.*RESOLUTION=([0-9]*x[0-9]*).*$", RegexOptions.IgnoreCase);
+                        if (matches.Count > 0)
+                        {
+                            availableResolutions.Add(ChatRoomResolution.Parse(matches[0].Groups[1].Value));
+                        }
+                    }
+
+                    AddLogEntry(string.Format("{0} - {1}", c_resolutionsObtainedLogMessage, string.Join(", ", availableResolutions)));
+                }
+
+                if (status == ChatRoomStatus.Public && _action == ChatRoomAction.Record)
+                {
+                    status = ChatRoomStatus.Record;
+                }
+
+                if (status == ChatRoomStatus.Public || status == ChatRoomStatus.Record)
+                {
+                    int streamIndex = ChatRoomResolution.FindClosest(_preferredResolution, availableResolutions.ToArray());
+
+                    if (streamIndex == -1)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    if (status == ChatRoomStatus.Record)
+                    {
+                        Record(playlistUrl, streamIndex);
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                status = ChatRoomStatus.Error;
+                playlistUrl = String.Empty;
+                availableResolutions.Clear();
+
+                AddLogEntry(string.Format("{0} - {1}", c_errorOccuredLogMessage, exception.Message));
+            }
+            finally
+            {
+                _status = status;
+                _playlistUrl = playlistUrl;
+                _availableResolutions = availableResolutions;
+            }
+
+            if (_status != ChatRoomStatus.Offline && _status != ChatRoomStatus.Error && _status != ChatRoomStatus.Unknown)
+            {
+                _lastSeen = DateTime.Now;
+            }
+        }
+
         private void Record(string playlistUrl, object stream)
         {
             _fileName = string.Format("{0}\\{1} {2} {3}.ts", _outputDirectory, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
@@ -1070,6 +1261,13 @@ namespace ChatRoomRecorder
                     {
                         FileName = _ffmpegPath,
                         Arguments = string.Format("-reconnect 1 -reconnect_at_eof 1 -reconnect_on_network_error 1 -reconnect_on_http_error 1 -reconnect_streamed 1 -i http://127.0.0.1:{0} -c copy \"{1}\"", port, _fileName)
+                    });
+                    break;
+                case ChatRoomWebsite.Cam4:
+                    psis.Add(new ProcessStartInfo()
+                    {
+                        FileName = _ffmpegPath,
+                        Arguments = string.Format("-analyzeduration 16M -i \"{0}\" -map 0:p:{1} -c copy \"{2}\"", playlistUrl, Convert.ToInt32(stream), _fileName)
                     });
                     break;
             }

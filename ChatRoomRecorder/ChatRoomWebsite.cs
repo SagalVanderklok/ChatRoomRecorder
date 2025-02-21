@@ -6,6 +6,7 @@
         Chaturbate,
         Stripchat,
         Flirt4Free,
-        CamSoda
+        CamSoda,
+        Cam4
     }
 }

@@ -16,6 +16,7 @@ namespace ChatRoomRecorder
             settings._stripchatConcurrentUpdates = _stripchatConcurrentUpdates;
             settings._flirt4FreeConcurrentUpdates = _flirt4FreeConcurrentUpdates;
             settings._camSodaConcurrentUpdates = _camSodaConcurrentUpdates;
+            settings._cam4ConcurrentUpdates = _cam4ConcurrentUpdates;
             settings._updateDelay = _updateDelay;
             settings._updateInterval = _updateInterval;
             settings._defaultAction = _defaultAction;
@@ -135,6 +136,19 @@ namespace ChatRoomRecorder
             }
         }
 
+        public int Cam4ConcurrentUpdates
+        {
+            get
+            {
+                return _cam4ConcurrentUpdates;
+            }
+            set
+            {
+                _cam4ConcurrentUpdates = value > 1 ? value : 1;
+                NotifyPropertyChanged(nameof(Cam4ConcurrentUpdates));
+            }
+        }
+
         public int UpdateDelay
         {
             get
@@ -208,6 +222,7 @@ namespace ChatRoomRecorder
         private int _stripchatConcurrentUpdates;
         private int _flirt4FreeConcurrentUpdates;
         private int _camSodaConcurrentUpdates;
+        private int _cam4ConcurrentUpdates;
         private int _updateDelay;
         private int _updateInterval;
         private ChatRoomAction _defaultAction;
