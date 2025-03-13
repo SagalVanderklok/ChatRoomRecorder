@@ -603,7 +603,7 @@ namespace ChatRoomRecorder
 
                 if (status == ChatRoomStatus.Public)
                 {
-                    playlistUrl = (string)chatRoomNode["url"];
+                    playlistUrl = ((string)chatRoomNode["url"]).Replace("live-hls", "live-c-fhls").Replace("playlist.m3u8", "playlist_sfm4s.m3u8");
 
                     AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
 
