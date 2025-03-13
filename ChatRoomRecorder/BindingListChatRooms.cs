@@ -6,14 +6,14 @@ namespace ChatRoomRecorder
 {
     public class BindingListChatRooms : BindingListSortable<ChatRoom>, IBindingListView
     {
-        public void Append(List<ChatRoom> chatRooms)
+        public void Append(ChatRoom[] chatRooms)
         {
             _unfilteredItems.AddRange(chatRooms);
 
             FilterItems();
         }
 
-        public void Delete(List<ChatRoom> chatRooms)
+        public void Delete(ChatRoom[] chatRooms)
         {
             foreach (ChatRoom chatRoom in chatRooms)
             {

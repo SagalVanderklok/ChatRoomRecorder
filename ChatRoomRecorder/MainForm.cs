@@ -113,11 +113,11 @@ namespace ChatRoomRecorder
                     while (cs.Count > 0)
                     {
                         Category parent = cs.Pop();
-                        foreach (Category category in parent.Categories)
+                        foreach (Category category in parent.AllCategories)
                         {
                             cs.Push(category);
                         }
-                        foreach (ChatRoom chatRoom in parent.ChatRooms)
+                        foreach (ChatRoom chatRoom in parent.AllChatRooms)
                         {
                             chatRoom.Dispose();
                         }
@@ -200,11 +200,11 @@ namespace ChatRoomRecorder
                     while (cs.Count > 0)
                     {
                         Category parent = cs.Pop();
-                        foreach (Category category in parent.Categories)
+                        foreach (Category category in parent.AllCategories)
                         {
                             cs.Push(category);
                         }
-                        foreach (ChatRoom chatRoom in parent.ChatRooms)
+                        foreach (ChatRoom chatRoom in parent.AllChatRooms)
                         {
                             if (chatRoom.Action != ChatRoomAction.None)
                             {
@@ -358,7 +358,7 @@ namespace ChatRoomRecorder
 
         private void UrlTextBox_TextChanged(object sender, EventArgs e)
         {
-            FilterChatRooms();
+            //FilterChatRooms(); //TMP
         }
 
         private void UrlTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -377,15 +377,13 @@ namespace ChatRoomRecorder
             {
                 if (!ChatRoomExists(parsedUrl))
                 {
-                    List<ChatRoom> chatRooms = new();
+                    ChatRoom newChatRoom = AddChatRoom(parsedUrl);
 
-                    chatRooms.Add(AddChatRoom(parsedUrl));
-
-                    ShowChatRooms(chatRooms, false);
+                    ShowChatRooms(new ChatRoom[] { newChatRoom }, false);
 
                     UrlTextBox.Text = string.Empty;
 
-                    int index = _chatRoomsList.IndexOf(chatRooms[0]);
+                    int index = _chatRoomsList.IndexOf(newChatRoom);
                     ChatRoomsDataGridView.Rows[index].Selected = true;
                     ChatRoomsDataGridView.FirstDisplayedScrollingRowIndex = index;
                 }
@@ -425,7 +423,7 @@ namespace ChatRoomRecorder
                         }
                     }
 
-                    ShowChatRooms(chatRooms, false);
+                    ShowChatRooms(chatRooms.ToArray(), false);
 
                     MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -462,7 +460,7 @@ namespace ChatRoomRecorder
                         }
                     }
 
-                    ShowChatRooms(chatRooms, false);
+                    ShowChatRooms(chatRooms.ToArray(), false);
 
                     MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -480,14 +478,14 @@ namespace ChatRoomRecorder
             while (cs.Count > 0)
             {
                 Category parent = cs.Pop();
-                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                 {
                     if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
                     {
                         return true;
                     }
                 }
-                foreach (Category child in parent.Categories)
+                foreach (Category child in parent.AllCategories)
                 {
                     cs.Push(child);
                 }
@@ -508,7 +506,7 @@ namespace ChatRoomRecorder
                 chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
 
                 Category category = (Category)CategoriesTreeView.SelectedNode.Tag;
-                category.ChatRooms.Add(chatRoom);
+                category.Add(chatRoom);
 
                 WriteData(c_chatRoomsTableName, 1, chatRoom, category, null);
 
@@ -558,7 +556,7 @@ namespace ChatRoomRecorder
 
         private void CategoriesTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            ShowChatRooms(((Category)CategoriesTreeView.SelectedNode.Tag).ChatRooms, true);
+            ShowChatRooms(((Category)CategoriesTreeView.SelectedNode.Tag).AllChatRooms, true);
         }
 
         private void AddCategoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -594,7 +592,7 @@ namespace ChatRoomRecorder
             RenameCategoryToolStripMenuItem.Enabled = CategoriesTreeView.SelectedNode != null && CategoriesTreeView.SelectedNode.Tag != _root;
         }
 
-        private void ShowChatRooms(List<ChatRoom> chatRooms, bool flush)
+        private void ShowChatRooms(ChatRoom[] chatRooms, bool flush)
         {
             lock (_lock)
             {
@@ -613,7 +611,7 @@ namespace ChatRoomRecorder
             {
                 Category parent = (Category)CategoriesTreeView.SelectedNode.Tag;
                 Category category = new Category(0, "New category");
-                parent.Categories.Add(category);
+                parent.Add(category);
 
                 TreeNode node = new TreeNode() { Text = category.Name, Tag = category };
                 CategoriesTreeView.SelectedNode.Nodes.Add(node);
@@ -633,11 +631,11 @@ namespace ChatRoomRecorder
                 Category currentCategory = (Category)currentNode.Tag;
                 Category parentCategory = (Category)parentNode.Tag;
 
-                if (currentCategory.Categories.Count == 0 && currentCategory.ChatRooms.Count == 0)
+                if (currentCategory.AllCategories.Length == 0 && currentCategory.AllChatRooms.Length == 0)
                 {
                     lock (_lock)
                     {
-                        parentCategory.Categories.Remove(currentCategory);
+                        parentCategory.Remove(currentCategory);
 
                         parentNode.Nodes.Remove(currentNode);
                         if (parentNode.Nodes.Count == 0)
@@ -851,11 +849,11 @@ namespace ChatRoomRecorder
                         chatRooms.Add(_chatRoomsList[row.Index]);
                     }
 
-                    _chatRoomsList.Delete(chatRooms);
+                    _chatRoomsList.Delete(chatRooms.ToArray());
 
                     foreach (ChatRoom chatRoom in chatRooms)
                     {
-                        ((Category)CategoriesTreeView.SelectedNode.Tag).ChatRooms.Remove(chatRoom);
+                        ((Category)CategoriesTreeView.SelectedNode.Tag).Remove(chatRoom);
 
                         WriteData(c_chatRoomsTableName, -1, chatRoom, null, null);
 
@@ -1056,11 +1054,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.OutputDirectory = _settings.OutputDirectory;
                                 }
@@ -1076,11 +1074,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.FFmpegPath = _settings.FFmpegPath;
                                 }
@@ -1096,11 +1094,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.StreamlinkPath = _settings.StreamlinkPath;
                                 }
@@ -1140,11 +1138,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.Delay = _settings.UpdateDelay;
                                 }
@@ -1308,12 +1306,12 @@ namespace ChatRoomRecorder
                         chatRooms.Add(_chatRoomsList[row.Index]);
                     }
 
-                    _chatRoomsList.Delete(chatRooms);
+                    _chatRoomsList.Delete(chatRooms.ToArray());
 
                     foreach (ChatRoom chatRoom in chatRooms)
                     {
-                        ((Category)oldNode.Tag).ChatRooms.Remove(chatRoom);
-                        ((Category)newNode.Tag).ChatRooms.Add(chatRoom);
+                        ((Category)oldNode.Tag).Remove(chatRoom);
+                        ((Category)newNode.Tag).Add(chatRoom);
 
                         WriteData(c_chatRoomsTableName, 0, chatRoom, null, (Category)newNode.Tag);
                     }
@@ -1335,8 +1333,8 @@ namespace ChatRoomRecorder
                     Category dstCategory = (Category)dstNode.Tag;
                     Category parentCategory = (Category)parentNode.Tag;
 
-                    parentCategory.Categories.Remove(curCategory);
-                    dstCategory.Categories.Add(curCategory);
+                    parentCategory.Remove(curCategory);
+                    dstCategory.Add(curCategory);
 
                     if (parentNode.Nodes.Count == 1)
                     {
@@ -1551,7 +1549,7 @@ namespace ChatRoomRecorder
                             curNode.Nodes.Add(newNode);
                             ns.Push(newNode);
 
-                            curCategory.Categories.Add(newCategory);
+                            curCategory.Add(newCategory);
                         }
                     }
 
@@ -1579,7 +1577,7 @@ namespace ChatRoomRecorder
                             chatRoom.LastSeen = seen;
                             chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
 
-                            curCategory.ChatRooms.Add(chatRoom);
+                            curCategory.Add(chatRoom);
                         }
                     }
                 }
@@ -1591,11 +1589,11 @@ namespace ChatRoomRecorder
                 while (cs.Count > 0)
                 {
                     Category parent = cs.Pop();
-                    foreach (Category category in parent.Categories)
+                    foreach (Category category in parent.AllCategories)
                     {
                         cs.Push(category);
                     }
-                    foreach (ChatRoom chatRoom in parent.ChatRooms)
+                    foreach (ChatRoom chatRoom in parent.AllChatRooms)
                     {
                         chatRoom.Dispose();
                     }
