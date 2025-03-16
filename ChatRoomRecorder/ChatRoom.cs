@@ -41,7 +41,7 @@ namespace ChatRoomRecorder
                 return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value, string.Format("https://chaturbate.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?bongacams[0-9]*.com/([^/]+(?=#!/.*$)|[^/]+(?=/.*$))", regexOptions)).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?bongacams[0-9]*.(?:com|cam)/([^/]+(?=#!/.*$)|[^/]+(?=/.*$))", regexOptions)).Count > 0 ||
                 (matches = Regex.Matches(url, @"^bongacams[ ]+([^ ]+).*/$", regexOptions)).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value, string.Format("https://bongacams.com/{0}/", matches[0].Groups[1].Value));
@@ -205,12 +205,14 @@ namespace ChatRoomRecorder
                     _status = ChatRoomStatus.Unknown;
                     _playlistUrl = String.Empty;
                     _availableResolutions.Clear();
+
                     if (_browser != null)
                     {
                         _browser.Dispose();
                         _browser = null;
                         _browserInitialized = false;
                     }
+                    
                     _isUpdating = false;
 
                     return;
@@ -390,7 +392,14 @@ namespace ChatRoomRecorder
                     _status = ChatRoomStatus.Error;
                     _playlistUrl = String.Empty;
                     _availableResolutions.Clear();
+
+                    _browser.Dispose();
+                    _browser = null;
+                    _browserInitialized = false;
+
                     _isUpdating = false;
+
+                    AddLogEntry(string.Format("{0} - {1}", c_errorOccuredLogMessage, e.WebErrorStatus.ToString()));
                 }
             }
             finally
@@ -407,14 +416,13 @@ namespace ChatRoomRecorder
 
                 if (_browser.Source == new Uri("about:blank"))
                 {
-                    _uri = "https://chaturbate.com/get_edge_hls_url_ajax/";
+                    _uri = string.Format("https://chaturbate.com/api/chatvideocontext/{0}/", _name);
 
-                    string postData = "room_slug=" + _name;
                     CoreWebView2WebResourceRequest request = _browser.CoreWebView2.Environment.CreateWebResourceRequest(
                         _uri,
-                        "POST",
-                        new MemoryStream(Encoding.UTF8.GetBytes(postData)),
-                        "Content-Type: application/x-www-form-urlencoded\r\nX-Requested-With: XMLHttpRequest");
+                        "GET",
+                        null,
+                        string.Empty);
                     _browser.CoreWebView2.NavigateWithWebResourceRequest(request);
                 }
                 else
@@ -605,7 +613,7 @@ namespace ChatRoomRecorder
 
                 if (status == ChatRoomStatus.Public)
                 {
-                    playlistUrl = ((string)chatRoomNode["url"]).Replace("live-hls", "live-c-fhls").Replace("playlist.m3u8", "playlist_sfm4s.m3u8");
+                    playlistUrl = (string)chatRoomNode["hls_source"];
 
                     AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
 
