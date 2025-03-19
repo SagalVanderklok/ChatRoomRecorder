@@ -825,7 +825,7 @@ namespace ChatRoomRecorder
 
                 if (status == ChatRoomStatus.Public)
                 {
-                    playlistUrl = string.Format("https://b-hls-{0:00}.doppiocdn.com/hls/{1}/{1}.m3u8", s_random.Next(1, 26), rootNode["cam"]["streamName"]);
+                    playlistUrl = string.Format("https://media-hls.doppiocdn.com/b-hls-{0:00}/{1}/{1}.m3u8", s_random.Next(1, 26), rootNode["cam"]["streamName"]);
 
                     AddLogEntry(string.Format("{0} - {1}", c_playlistObtainedLogMessage, playlistUrl));
 
