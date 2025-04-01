@@ -32,41 +32,39 @@ namespace ChatRoomRecorder
 
             MatchCollection matches;
             
-            RegexOptions regexOptions = RegexOptions.Compiled & RegexOptions.Singleline & RegexOptions.CultureInvariant & RegexOptions.IgnoreCase;
-            
-            if ((matches = Regex.Matches(url, @"^https://chaturbate.com/([^/]+)/.*$", regexOptions)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^chaturbate[ ]+([^ ]+).*/$", regexOptions)).Count > 0)
+            if ((matches = Regex.Matches(url, @"^https://chaturbate.com/([^/]+)/.*$")).Count > 0 ||
+                (matches = Regex.Matches(url, @"^chaturbate[ ]+([^ ]+).*/$")).Count > 0)
 
             {
                 return Tuple.Create(ChatRoomWebsite.Chaturbate, matches[0].Groups[1].Value, string.Format("https://chaturbate.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?bongacams[0-9]*.(?:com|cam)/([^/]+(?=#!/.*$)|[^/]+(?=/.*$))", regexOptions)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^bongacams[ ]+([^ ]+).*/$", regexOptions)).Count > 0)
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?bongacams[0-9]*.(?:com|cam)/([^/]+(?=#!/.*$)|[^/]+(?=/.*$))")).Count > 0 ||
+                (matches = Regex.Matches(url, @"^bongacams[ ]+([^ ]+).*/$")).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value, string.Format("https://bongacams.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?stripchat.com/([^/]+)/.*$", regexOptions)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^stripchat[ ]+([^ ]+).*/$", regexOptions)).Count > 0)
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?stripchat.com/([^/]+)/.*$")).Count > 0 ||
+                (matches = Regex.Matches(url, @"^stripchat[ ]+([^ ]+).*/$")).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.Stripchat, matches[0].Groups[1].Value, string.Format("https://stripchat.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://www.flirt4free.com/\?model=([^/]+)/.*$", regexOptions)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^flirt4free[ ]+([^ ]+).*/$", regexOptions)).Count > 0)
+            if ((matches = Regex.Matches(url, @"^https://www.flirt4free.com/\?model=([^/]+)/.*$")).Count > 0 ||
+                (matches = Regex.Matches(url, @"^flirt4free[ ]+([^ ]+).*/$")).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.Flirt4Free, matches[0].Groups[1].Value, string.Format("https://www.flirt4free.com/?model={0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://www.camsoda.com/([^/]+)/.*$", regexOptions)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^camsoda[ ]+([^ ]+).*/$", regexOptions)).Count > 0)
+            if ((matches = Regex.Matches(url, @"^https://www.camsoda.com/([^/]+)/.*$")).Count > 0 ||
+                (matches = Regex.Matches(url, @"^camsoda[ ]+([^ ]+).*/$")).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.CamSoda, matches[0].Groups[1].Value, string.Format("https://www.camsoda.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?cam4.com/([^/]+)/.*$", regexOptions)).Count > 0 ||
-                (matches = Regex.Matches(url, @"^cam4[ ]+([^ ]+).*/$", regexOptions)).Count > 0)
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?cam4.com/([^/]+)/.*$")).Count > 0 ||
+                (matches = Regex.Matches(url, @"^cam4[ ]+([^ ]+).*/$")).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.Cam4, matches[0].Groups[1].Value, string.Format("https://cam4.com/{0}/", matches[0].Groups[1].Value));
             }
@@ -1217,7 +1215,9 @@ namespace ChatRoomRecorder
 
         private void Record(string playlistUrl, object stream)
         {
-            _fileName = string.Format("{0}\\{1} {2} {3}.ts", _outputDirectory, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
+            Directory.CreateDirectory(string.Format("{0}\\{1} {2}", _outputDirectory, _website, _name).ToLower());
+
+            _fileName = string.Format("{0}\\{1} {2}\\{1} {2} {3}.ts", _outputDirectory, _website, _name, DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss")).ToLower();
             _fileSize = 0;
             
             int port = s_random.Next(16384, 65536);

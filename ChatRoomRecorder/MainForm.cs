@@ -81,6 +81,8 @@ namespace ChatRoomRecorder
                 }
 
                 ReadData();
+
+                MoveFiles();
             }
         }
 
@@ -445,11 +447,9 @@ namespace ChatRoomRecorder
                 {
                     HashSet<Tuple<ChatRoomWebsite, string, string>> parsedUrls = new();
 
-                    DirectoryInfo directory = new(fbd.SelectedPath);
-                    FileInfo[] files = directory.GetFiles("*.ts");
-                    foreach (FileInfo file in files)
+                    foreach (DirectoryInfo directory in new DirectoryInfo(fbd.SelectedPath).GetDirectories())
                     {
-                        parsedUrls.Add(ChatRoom.ParseUrl(file.Name));
+                        parsedUrls.Add(ChatRoom.ParseUrl(directory.Name));
                     }
 
                     List<ChatRoom> chatRooms = new();
@@ -769,13 +769,12 @@ namespace ChatRoomRecorder
 
                 foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
                 {
-                        ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
-                        files.AddRange(new DirectoryInfo(_settings.OutputDirectory).GetFiles(string.Format("{0} {1} *.ts", chatRoom.Website, chatRoom.Name)));
-                }
-
-                foreach (FileInfo file in files)
-                {
-                    file.Refresh();
+                    ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
+                    DirectoryInfo dir = new(string.Format("{0}\\{1} {2}", _settings.OutputDirectory, chatRoom.Website, chatRoom.Name).ToLower());
+                    if (dir.Exists)
+                    {
+                        files.AddRange(dir.GetFiles(string.Format("{0} {1} *.ts", chatRoom.Website, chatRoom.Name).ToLower()));
+                    }
                 }
 
                 _filesList.Append(files);
@@ -1733,6 +1732,24 @@ namespace ChatRoomRecorder
             catch (Exception)
             {
                 //do nothing
+            }
+        }
+
+        #endregion
+
+        #region Supplemental
+
+        private void MoveFiles()
+        {
+            foreach (FileInfo file in new DirectoryInfo(_settings.OutputDirectory).GetFiles())
+            {
+                MatchCollection matches = Regex.Matches(file.Name, "^([^ ]+ [^ ]+) (.*.ts)$");
+                if (matches.Count > 0)
+                {
+                    string dir = string.Format("{0}\\{1}", _settings.OutputDirectory, matches[0].Groups[1].Value);
+                    Directory.CreateDirectory(dir);
+                    File.Move(file.FullName, string.Format("{0}\\{1}", dir, file.Name));
+                }
             }
         }
 
