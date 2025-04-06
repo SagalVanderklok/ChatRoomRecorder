@@ -15,7 +15,7 @@ namespace ChatRoomRecorder
 {
     public partial class MainForm : Form
     {
-        #region MainForm creating and closing
+        #region MainForm
 
         public MainForm()
         {
@@ -82,6 +82,8 @@ namespace ChatRoomRecorder
 
                 ReadData();
 
+                ShowCategories();
+
                 MoveFiles();
             }
         }
@@ -115,11 +117,11 @@ namespace ChatRoomRecorder
                     while (cs.Count > 0)
                     {
                         Category parent = cs.Pop();
-                        foreach (Category category in parent.Categories)
+                        foreach (Category category in parent.AllCategories)
                         {
                             cs.Push(category);
                         }
-                        foreach (ChatRoom chatRoom in parent.ChatRooms)
+                        foreach (ChatRoom chatRoom in parent.AllChatRooms)
                         {
                             chatRoom.Dispose();
                         }
@@ -161,7 +163,7 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region Chat rooms updating
+        #region Updating
 
         private void ChatRoomsUpdateTimer_Tick(object sender, EventArgs e)
         {
@@ -202,11 +204,11 @@ namespace ChatRoomRecorder
                     while (cs.Count > 0)
                     {
                         Category parent = cs.Pop();
-                        foreach (Category category in parent.Categories)
+                        foreach (Category category in parent.AllCategories)
                         {
                             cs.Push(category);
                         }
-                        foreach (ChatRoom chatRoom in parent.ChatRooms)
+                        foreach (ChatRoom chatRoom in parent.AllChatRooms)
                         {
                             if (chatRoom.Action != ChatRoomAction.None)
                             {
@@ -241,12 +243,12 @@ namespace ChatRoomRecorder
         {
             lock (_lock)
             {
-                int index = _chatRoomsList.IndexOf(chatRoom);
-                if (index != -1)
-                {
-                    WriteData(c_chatRoomsTableName, 0, chatRoom, null, null);
+                WriteData(c_chatRoomsTableName, 0, chatRoom, null, null);
 
-                    if (resetItem)
+                if (resetItem)
+                {
+                    int index = _chatRoomsList.IndexOf(chatRoom);
+                    if (index != -1)
                     {
                         _chatRoomsList.ResetItem(index);
                     }
@@ -292,7 +294,7 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region Web browser functioning
+        #region Web browser
 
         private void WebView2_ContentLoading(object sender, Microsoft.Web.WebView2.Core.CoreWebView2ContentLoadingEventArgs e)
         {
@@ -341,194 +343,93 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region Chat rooms adding and filtering
-
-        private void AddChatRoomFromUrlButton_Click(object sender, EventArgs e)
-        {
-            AddChatRoomFromUrl();
-        }
-
-        private void AddChatRoomsFromFileButton_Click(object sender, EventArgs e)
-        {
-            AddChatRoomsFromFile();
-        }
-
-        private void AddChatRoomsFromFolderButton_Click(object sender, EventArgs e)
-        {
-            AddChatRoomsFromFolder();
-        }
+        #region Filtering
 
         private void UrlTextBox_TextChanged(object sender, EventArgs e)
         {
-            FilterChatRooms();
+            FilterCategoriesAndChatRooms();
         }
 
-        private void UrlTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                AddChatRoomFromUrl();
-            }
-        }
-
-        private void AddChatRoomFromUrl()
-        {
-            Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(UrlTextBox.Text);
-
-            if (parsedUrl != null)
-            {
-                if (!ChatRoomExists(parsedUrl))
-                {
-                    List<ChatRoom> chatRooms = new();
-
-                    chatRooms.Add(AddChatRoom(parsedUrl));
-
-                    ShowChatRooms(chatRooms, false);
-
-                    UrlTextBox.Text = string.Empty;
-
-                    int index = _chatRoomsList.IndexOf(chatRooms[0]);
-                    ChatRoomsDataGridView.Rows[index].Selected = true;
-                    ChatRoomsDataGridView.FirstDisplayedScrollingRowIndex = index;
-                }
-                else
-                {
-                    MessageBox.Show(c_duplicateChatRoomMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            else
-            {
-                MessageBox.Show(c_unsupportedWebSiteMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void AddChatRoomsFromFile()
-        {
-            OpenFileDialog ofd = new() { Multiselect = false, Filter = string.Format("{0}|{0}", "*.txt") };
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    HashSet<Tuple<ChatRoomWebsite, string, string>> parsedUrls = new();
-
-                    string[] urls = File.ReadAllLines(ofd.FileName);
-                    foreach (string url in urls)
-                    {
-                        parsedUrls.Add(ChatRoom.ParseUrl(url));
-                    }
-
-                    List<ChatRoom> chatRooms = new();
-
-                    foreach (Tuple<ChatRoomWebsite, string, string> parsedUrl in parsedUrls)
-                    {
-                        if (!ChatRoomExists(parsedUrl))
-                        {
-                            chatRooms.Add(AddChatRoom(parsedUrl));
-                        }
-                    }
-
-                    ShowChatRooms(chatRooms, false);
-
-                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show(c_chatRoomsAddingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void AddChatRoomsFromFolder()
-        {
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
-            if (fbd.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    HashSet<Tuple<ChatRoomWebsite, string, string>> parsedUrls = new();
-
-                    foreach (DirectoryInfo directory in new DirectoryInfo(fbd.SelectedPath).GetDirectories())
-                    {
-                        parsedUrls.Add(ChatRoom.ParseUrl(directory.Name));
-                    }
-
-                    List<ChatRoom> chatRooms = new();
-
-                    foreach (Tuple<ChatRoomWebsite, string, string> parsedUrl in parsedUrls)
-                    {
-                        if (!ChatRoomExists(parsedUrl))
-                        {
-                            chatRooms.Add(AddChatRoom(parsedUrl));
-                        }
-                    }
-
-                    ShowChatRooms(chatRooms, false);
-
-                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show(c_chatRoomsAddingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private bool ChatRoomExists(Tuple<ChatRoomWebsite, string, string> parsedUrl)
-        {
-            Stack<Category> cs = new Stack<Category>();
-            cs.Push(_root);
-            while (cs.Count > 0)
-            {
-                Category parent = cs.Pop();
-                foreach (ChatRoom chatRoom in parent.ChatRooms)
-                {
-                    if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
-                    {
-                        return true;
-                    }
-                }
-                foreach (Category child in parent.Categories)
-                {
-                    cs.Push(child);
-                }
-            }
-            return false;
-        }
-
-        private ChatRoom AddChatRoom(Tuple<ChatRoomWebsite, string, string> parsedUrl)
+        private void FilterCategoriesAndChatRooms()
         {
             lock (_lock)
             {
-                ChatRoom chatRoom = new(parsedUrl.Item3);
-                chatRoom.OutputDirectory = _settings.OutputDirectory;
-                chatRoom.FFmpegPath = _settings.FFmpegPath;
-                chatRoom.StreamlinkPath = _settings.StreamlinkPath;
-                chatRoom.Action = _settings.DefaultAction;
-                chatRoom.PreferredResolution = _settings.DefaultResolution;
-                chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
+                _root.Filter = FilterTextBox.Text;
 
-                Category category = (Category)CategoriesTreeView.SelectedNode.Tag;
-                category.ChatRooms.Add(chatRoom);
+                //filtering categories
 
-                WriteData(c_chatRoomsTableName, 1, chatRoom, category, null);
+                TreeNode root = CategoriesTreeView.Nodes[0];
 
-                return chatRoom;
-            }
-        }
+                Stack<TreeNode> ns = new();
+                ns.Push(root);
+                while (ns.Count > 0)
+                {
+                    TreeNode currentNode = ns.Pop();
+                    Category currentCategory = (Category)currentNode.Tag;
 
-        private void FilterChatRooms()
-        {
-            lock (_lock)
-            {
-                _chatRoomsList.Filter = UrlTextBox.Text;
+                    if (currentCategory.Filter == string.Empty)
+                    {
+                        currentNode.NodeFont = new Font(CategoriesTreeView.Font, FontStyle.Regular);
+                    }
+                    else if (currentCategory.FilteredChatRooms.Length > 0)
+                    {
+                        currentNode.NodeFont = new Font(CategoriesTreeView.Font, FontStyle.Underline);
+                    }
+                    else if (currentCategory.FilteredCategories.Length > 0)
+                    {
+                        currentNode.NodeFont = new Font(CategoriesTreeView.Font, FontStyle.Regular);
+                    }
+                    else
+                    {
+                        currentNode.NodeFont = new Font(CategoriesTreeView.Font, FontStyle.Italic);
+                    }
 
-                ChatRoomsDataGridView.ClearSelection();
+                    foreach (TreeNode subNode in currentNode.Nodes)
+                    {
+                        ns.Push(subNode);
+                    }
+                }
+
+                //filtering chat rooms
+
+                List<ChatRoom> selectedBefore = new();
+
+                foreach (DataGridViewRow row in ChatRoomsDataGridView.SelectedRows)
+                {
+                    selectedBefore.Add(_chatRoomsList[row.Index]);
+                }
+
+                _chatRoomsList.Clear();
+                _chatRoomsList.Append(((Category)CategoriesTreeView.SelectedNode.Tag).FilteredChatRooms.ToList<ChatRoom>());
+
+                List<int> selectedAfter = new();
+
+                foreach (ChatRoom chatRoom in selectedBefore)
+                {
+                    int index = _chatRoomsList.IndexOf(chatRoom);
+                    if (index != -1)
+                    {
+                        selectedAfter.Add(index);
+                    }
+                }
+
+                if (selectedAfter.Count > 0)
+                {
+                    ChatRoomsDataGridView.ClearSelection();
+
+                    foreach (int index in selectedAfter)
+                    {
+                        ChatRoomsDataGridView.Rows[index].Selected = true;
+                    }
+
+                    ChatRoomsDataGridView.FirstDisplayedScrollingRowIndex = selectedAfter.Min();
+                }
             }
         }
 
         #endregion
 
-        #region CategoriesTreeView functioning
+        #region Categories
 
         private void CategoriesTreeView_AfterCollapse(object sender, TreeViewEventArgs e)
         {
@@ -558,13 +459,12 @@ namespace ChatRoomRecorder
 
         private void CategoriesTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            ShowChatRooms(((Category)CategoriesTreeView.SelectedNode.Tag).ChatRooms, true);
+            ShowChatRooms();
         }
 
         private void AddCategoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AddCategory();
-
         }
 
         private void RemoveCategoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -594,17 +494,30 @@ namespace ChatRoomRecorder
             RenameCategoryToolStripMenuItem.Enabled = CategoriesTreeView.SelectedNode != null && CategoriesTreeView.SelectedNode.Tag != _root;
         }
 
-        private void ShowChatRooms(List<ChatRoom> chatRooms, bool flush)
+        private void ShowCategories()
         {
-            lock (_lock)
-            {
-                if (flush)
-                {
-                    _chatRoomsList.Flush();
-                }
+            TreeNode root = new() { Text = _root.Name, Tag = _root };
 
-                _chatRoomsList.Append(chatRooms);
+            Stack<TreeNode> ns = new();
+            ns.Push(root);
+            while (ns.Count > 0)
+            {
+                TreeNode currentNode = ns.Pop();
+                Category currentCategory = (Category)currentNode.Tag;
+
+                foreach (Category subCategory in currentCategory.AllCategories)
+                {
+                    TreeNode subNode = new TreeNode() { Text = subCategory.Name, Tag = subCategory };
+                    currentNode.Nodes.Add(subNode);
+                    ns.Push(subNode);
+                }
             }
+
+            CategoriesTreeView.Nodes.Clear();
+            CategoriesTreeView.Nodes.Add(root);
+            CategoriesTreeView.Sort();
+            CategoriesTreeView.ExpandAll();
+            CategoriesTreeView.SelectedNode = root;
         }
 
         private void AddCategory()
@@ -613,13 +526,15 @@ namespace ChatRoomRecorder
             {
                 Category parent = (Category)CategoriesTreeView.SelectedNode.Tag;
                 Category category = new Category(0, "New category");
-                parent.Categories.Add(category);
+                parent.Add(category);
 
                 TreeNode node = new TreeNode() { Text = category.Name, Tag = category };
                 CategoriesTreeView.SelectedNode.Nodes.Add(node);
                 CategoriesTreeView.SelectedNode = node;
 
                 WriteData(c_categoriesTableName, 1, null, category, parent);
+
+                FilterCategoriesAndChatRooms();
             }
         }
 
@@ -633,11 +548,11 @@ namespace ChatRoomRecorder
                 Category currentCategory = (Category)currentNode.Tag;
                 Category parentCategory = (Category)parentNode.Tag;
 
-                if (currentCategory.Categories.Count == 0 && currentCategory.ChatRooms.Count == 0)
+                if (currentCategory.AllCategories.Length == 0 && currentCategory.AllChatRooms.Length == 0)
                 {
                     lock (_lock)
                     {
-                        parentCategory.Categories.Remove(currentCategory);
+                        parentCategory.Remove(currentCategory);
 
                         parentNode.Nodes.Remove(currentNode);
                         if (parentNode.Nodes.Count == 0)
@@ -675,7 +590,20 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region ChatRoomsDataGridView functioning
+        #region Chat rooms
+
+        private void AddChatRoomFromUrlButton_Click(object sender, EventArgs e)
+        {
+            AddChatRoomFromUrl();
+        }
+
+        private void FilterTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                AddChatRoomFromUrl();
+            }
+        }
 
         private void ChatRoomsDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
@@ -716,34 +644,19 @@ namespace ChatRoomRecorder
             ShowThumbnail();
         }
 
-        private void CopyUrlToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddChatRoomFromURLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            List<string> urls = new();
-            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
-            {
-                urls.Add(_chatRoomsList[selectedRow.Index].ChatRoomUrl);
-            }
-            Clipboard.SetText(string.Join("\r\n", urls));
+            AddChatRoomFromUrl();
         }
 
-        private void SetActionChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddChatRoomFromListToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
-            {
-                _chatRoomsList[selectedRow.Index].Action = (ChatRoomAction)((ToolStripMenuItem)sender).Tag;
-
-                SaveChatRoom(_chatRoomsList[selectedRow.Index], true);
-            }
+            AddChatRoomFromList();
         }
 
-        private void SetResolutionChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddChatRoomFromFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
-            {
-                _chatRoomsList[selectedRow.Index].PreferredResolution = (ChatRoomResolution)((ToolStripMenuItem)sender).Tag;
-
-                SaveChatRoom(_chatRoomsList[selectedRow.Index], true);
-            }
+            AddChatRoomsFromFolder();
         }
 
         private void RemoveChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
@@ -751,89 +664,175 @@ namespace ChatRoomRecorder
             RemoveChatRoom();
         }
 
+        private void CopyUrlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CopyUrl();
+        }
+
+        private void SetActionChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetAction((ChatRoomAction)((ToolStripMenuItem)sender).Tag);
+        }
+
+        private void SetResolutionChatRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetResolution((ChatRoomResolution)((ToolStripMenuItem)sender).Tag);
+        }
+
         private void ChatRoomsContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
+            AddChatRoomFromListToolStripMenuItem.Enabled = true;
+            AddChatRoomFromFolderToolStripMenuItem.Enabled = true;
+            RemoveChatRoomToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
             CopyUrlToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
             SetActionToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
             SetResolutionToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
-            RemoveChatRoomToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count > 0;
         }
 
-        private void ShowFiles()
+        private void ShowChatRooms()
         {
-            try
+            lock (_lock)
             {
-                _filesList.Clear();
+                _chatRoomsList.Clear();
+                _chatRoomsList.Append(((Category)CategoriesTreeView.SelectedNode.Tag).FilteredChatRooms.ToList<ChatRoom>());
+            }
+        }
 
-                List<FileInfo> files = new();
+        private void AddChatRoomFromUrl()
+        {
+            Tuple<ChatRoomWebsite, string, string> parsedUrl = ChatRoom.ParseUrl(FilterTextBox.Text);
 
-                foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+            if (parsedUrl != null)
+            {
+                if (!ChatRoomExists(parsedUrl))
                 {
-                    ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
-                    DirectoryInfo dir = new(string.Format("{0}\\{1} {2}", _settings.OutputDirectory, chatRoom.Website, chatRoom.Name).ToLower());
-                    if (dir.Exists)
-                    {
-                        files.AddRange(dir.GetFiles(string.Format("{0} {1} *.ts", chatRoom.Website, chatRoom.Name).ToLower()));
-                    }
-                }
+                    ChatRoom newChatRoom = AddChatRoom(parsedUrl);
 
-                _filesList.Append(files);
+                    FilterCategoriesAndChatRooms();
+
+                    FilterTextBox.Text = string.Empty;
+                }
+                else
+                {
+                    MessageBox.Show(c_duplicateChatRoomMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            catch (Exception)
+            else
             {
-                //do nothing
+                MessageBox.Show(c_unsupportedWebSiteMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void ShowThumbnail()
+        private void AddChatRoomFromList()
         {
-            ThumbnailPictureBox.Image = null;
-
-            if (ChatRoomsDataGridView.SelectedRows.Count == 1)
+            UrlsForm urlsForm = new UrlsForm();
+            if (urlsForm.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
-                    string thumbnailDirectory = string.Format("{0}\\{1}", new FileInfo(Environment.ProcessPath).Directory.FullName, c_thumbnailsDirectoryName);
-                    string thumbnailPath = string.Format("{0}\\{1} {2}.jpg", thumbnailDirectory, chatRoom.Website, chatRoom.Name);
+                    List<Tuple<ChatRoomWebsite, string, string>> parsedUrls = new();
 
-                    if (!Directory.Exists(thumbnailDirectory))
+                    foreach (string url in urlsForm.Urls)
                     {
-                        Directory.CreateDirectory(thumbnailDirectory);
+                        parsedUrls.Add(ChatRoom.ParseUrl(url));
                     }
 
-                    if (!File.Exists(thumbnailPath))
+                    List<ChatRoom> newChatRooms = new();
+
+                    foreach (Tuple<ChatRoomWebsite, string, string> parsedUrl in parsedUrls)
                     {
-                        if (_filesList.Count > 0)
+                        if (parsedUrl != null && !ChatRoomExists(parsedUrl))
                         {
-                            FileInfo file = _filesList[_random.Next(_filesList.Count)];
-                            DateTime time = DateTime.MinValue.AddSeconds((double)_random.Next((int)(file.Length / 1000000 % 86400)));
-                            string ffmpegPath = _settings.FFmpegPath;
-                            string ffmpegArgs = string.Format("-ss \"{0}\" -i \"{1}\" -frames:v 1 -update 1 -q:v 1 -vf scale=320:-1 -y \"{2}\"",
-                                time.ToString("HH:mm:ss"), file.FullName, thumbnailPath);
-                            Process.Start(new ProcessStartInfo()
-                            {
-                                FileName = ffmpegPath,
-                                Arguments = ffmpegArgs,
-                                UseShellExecute = false,
-                                LoadUserProfile = false,
-                                CreateNoWindow = true
-                            });
+                            newChatRooms.Add(AddChatRoom(parsedUrl));
                         }
                     }
 
-                    if (File.Exists(thumbnailPath))
-                    {
-                        using (FileStream fs = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
-                        {
-                            ThumbnailPictureBox.Image = new Bitmap(fs);
-                        }
-                    }
+                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception)
                 {
-                    //do nothing
+                    MessageBox.Show(c_chatRoomsAddingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
+                FilterCategoriesAndChatRooms();
+            }
+        }
+
+        private void AddChatRoomsFromFolder()
+        {
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    List<Tuple<ChatRoomWebsite, string, string>> parsedUrls = new();
+
+                    foreach (DirectoryInfo directory in new DirectoryInfo(fbd.SelectedPath).GetDirectories())
+                    {
+                        parsedUrls.Add(ChatRoom.ParseUrl(directory.Name));
+                    }
+
+                    List<ChatRoom> newChatRooms = new();
+
+                    foreach (Tuple<ChatRoomWebsite, string, string> parsedUrl in parsedUrls)
+                    {
+                        if (parsedUrl != null && !ChatRoomExists(parsedUrl))
+                        {
+                            newChatRooms.Add(AddChatRoom(parsedUrl));
+                        }
+                    }
+
+                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show(c_chatRoomsAddingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                FilterCategoriesAndChatRooms();
+            }
+        }
+
+        private bool ChatRoomExists(Tuple<ChatRoomWebsite, string, string> parsedUrl)
+        {
+            Stack<Category> cs = new Stack<Category>();
+            cs.Push(_root);
+            while (cs.Count > 0)
+            {
+                Category parent = cs.Pop();
+                foreach (ChatRoom chatRoom in parent.AllChatRooms)
+                {
+                    if (chatRoom.Website == parsedUrl.Item1 && chatRoom.Name == parsedUrl.Item2)
+                    {
+                        return true;
+                    }
+                }
+                foreach (Category category in parent.AllCategories)
+                {
+                    cs.Push(category);
+                }
+            }
+            return false;
+        }
+
+        private ChatRoom AddChatRoom(Tuple<ChatRoomWebsite, string, string> parsedUrl)
+        {
+            lock (_lock)
+            {
+                ChatRoom chatRoom = new(parsedUrl.Item3);
+                chatRoom.OutputDirectory = _settings.OutputDirectory;
+                chatRoom.FFmpegPath = _settings.FFmpegPath;
+                chatRoom.StreamlinkPath = _settings.StreamlinkPath;
+                chatRoom.Action = _settings.DefaultAction;
+                chatRoom.PreferredResolution = _settings.DefaultResolution;
+                chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
+
+                Category category = (Category)CategoriesTreeView.SelectedNode.Tag;
+                category.Add(chatRoom);
+
+                WriteData(c_chatRoomsTableName, 1, chatRoom, category, null);
+
+                return chatRoom;
             }
         }
 
@@ -854,19 +853,51 @@ namespace ChatRoomRecorder
 
                     foreach (ChatRoom chatRoom in chatRooms)
                     {
-                        ((Category)CategoriesTreeView.SelectedNode.Tag).ChatRooms.Remove(chatRoom);
+                        ((Category)CategoriesTreeView.SelectedNode.Tag).Remove(chatRoom);
 
                         WriteData(c_chatRoomsTableName, -1, chatRoom, null, null);
 
                         chatRoom.Dispose();
                     }
+
+                    FilterCategoriesAndChatRooms();
                 }
+            }
+        }
+
+        private void CopyUrl()
+        {
+            List<string> urls = new();
+            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+            {
+                urls.Add(_chatRoomsList[selectedRow.Index].ChatRoomUrl);
+            }
+            Clipboard.SetText(string.Join("\r\n", urls));
+        }
+
+        private void SetAction(ChatRoomAction action)
+        {
+            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+            {
+                _chatRoomsList[selectedRow.Index].Action = action;
+
+                SaveChatRoom(_chatRoomsList[selectedRow.Index], true);
+            }
+        }
+
+        private void SetResolution(ChatRoomResolution resolution)
+        {
+            foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+            {
+                _chatRoomsList[selectedRow.Index].PreferredResolution = resolution;
+
+                SaveChatRoom(_chatRoomsList[selectedRow.Index], true);
             }
         }
 
         #endregion
 
-        #region FilesDataGridView functioning
+        #region Files
 
         private void FilesDataGridView_KeyDown(object sender, KeyEventArgs e)
         {
@@ -908,6 +939,32 @@ namespace ChatRoomRecorder
             OpenFileToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
             RemoveFileToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 0;
             ShowFileInExplorerToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
+        }
+
+        private void ShowFiles()
+        {
+            try
+            {
+                _filesList.Clear();
+
+                List<FileInfo> files = new();
+
+                foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
+                {
+                    ChatRoom chatRoom = _chatRoomsList[selectedRow.Index];
+                    DirectoryInfo dir = new(string.Format("{0}\\{1} {2}", _settings.OutputDirectory, chatRoom.Website, chatRoom.Name).ToLower());
+                    if (dir.Exists)
+                    {
+                        files.AddRange(dir.GetFiles(string.Format("{0} {1} *.ts", chatRoom.Website, chatRoom.Name).ToLower()));
+                    }
+                }
+
+                _filesList.Append(files);
+            }
+            catch (Exception)
+            {
+                //do nothing
+            }
         }
 
         private void OpenFile()
@@ -972,7 +1029,7 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region ThumbnailPictureBox functioning
+        #region Thumbnail
 
         private void RemoveThumbnailToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -982,6 +1039,58 @@ namespace ChatRoomRecorder
         private void ThumbnailContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             RemoveThumbnailToolStripMenuItem.Enabled = ThumbnailPictureBox.Image != null;
+        }
+
+        private void ShowThumbnail()
+        {
+            ThumbnailPictureBox.Image = null;
+
+            if (ChatRoomsDataGridView.SelectedRows.Count == 1)
+            {
+                try
+                {
+                    ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
+                    string thumbnailDirectory = string.Format("{0}\\{1}", new FileInfo(Environment.ProcessPath).Directory.FullName, c_thumbnailsDirectoryName);
+                    string thumbnailPath = string.Format("{0}\\{1} {2}.jpg", thumbnailDirectory, chatRoom.Website, chatRoom.Name);
+
+                    if (!Directory.Exists(thumbnailDirectory))
+                    {
+                        Directory.CreateDirectory(thumbnailDirectory);
+                    }
+
+                    if (!File.Exists(thumbnailPath))
+                    {
+                        if (_filesList.Count > 0)
+                        {
+                            FileInfo file = _filesList[_random.Next(_filesList.Count)];
+                            DateTime time = DateTime.MinValue.AddSeconds((double)_random.Next((int)(file.Length / 1000000 % 86400)));
+                            string ffmpegPath = _settings.FFmpegPath;
+                            string ffmpegArgs = string.Format("-ss \"{0}\" -i \"{1}\" -frames:v 1 -update 1 -q:v 1 -vf scale=320:-1 -y \"{2}\"",
+                                time.ToString("HH:mm:ss"), file.FullName, thumbnailPath);
+                            Process.Start(new ProcessStartInfo()
+                            {
+                                FileName = ffmpegPath,
+                                Arguments = ffmpegArgs,
+                                UseShellExecute = false,
+                                LoadUserProfile = false,
+                                CreateNoWindow = true
+                            });
+                        }
+                    }
+
+                    if (File.Exists(thumbnailPath))
+                    {
+                        using (FileStream fs = new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read))
+                        {
+                            ThumbnailPictureBox.Image = new Bitmap(fs);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    //do nothing
+                }
+            }
         }
 
         private void RemoveThumbnail()
@@ -1007,7 +1116,7 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region Settings managing
+        #region Settings
 
         private void OutputDirectoryTextBox_Click(object sender, EventArgs e)
         {
@@ -1055,11 +1164,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.OutputDirectory = _settings.OutputDirectory;
                                 }
@@ -1075,11 +1184,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.FFmpegPath = _settings.FFmpegPath;
                                 }
@@ -1095,11 +1204,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.StreamlinkPath = _settings.StreamlinkPath;
                                 }
@@ -1139,11 +1248,11 @@ namespace ChatRoomRecorder
                             while (cs.Count > 0)
                             {
                                 Category parent = cs.Pop();
-                                foreach (Category category in parent.Categories)
+                                foreach (Category category in parent.AllCategories)
                                 {
                                     cs.Push(category);
                                 }
-                                foreach (ChatRoom chatRoom in parent.ChatRooms)
+                                foreach (ChatRoom chatRoom in parent.AllChatRooms)
                                 {
                                     chatRoom.Delay = _settings.UpdateDelay;
                                 }
@@ -1174,16 +1283,23 @@ namespace ChatRoomRecorder
 
         #endregion
 
-        #region Logging managing
+        #region Logging
+
         private void CopyLogToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(string.Join("\r\n", LogListBox.SelectedItems.Cast<string>().ToArray()));
+            CopyLog();
         }
 
         private void LogContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             LogContextMenuStrip.Enabled = LogListBox.SelectedItems.Count > 0;
         }
+
+        private void CopyLog()
+        {
+            Clipboard.SetText(string.Join("\r\n", LogListBox.SelectedItems.Cast<string>().ToArray()));
+        }
+
         #endregion
 
         #region Drag and drop
@@ -1311,11 +1427,13 @@ namespace ChatRoomRecorder
 
                     foreach (ChatRoom chatRoom in chatRooms)
                     {
-                        ((Category)oldNode.Tag).ChatRooms.Remove(chatRoom);
-                        ((Category)newNode.Tag).ChatRooms.Add(chatRoom);
+                        ((Category)oldNode.Tag).Remove(chatRoom);
+                        ((Category)newNode.Tag).Add(chatRoom);
 
                         WriteData(c_chatRoomsTableName, 0, chatRoom, null, (Category)newNode.Tag);
                     }
+
+                    FilterCategoriesAndChatRooms();
                 }
             }
         }
@@ -1334,8 +1452,8 @@ namespace ChatRoomRecorder
                     Category dstCategory = (Category)dstNode.Tag;
                     Category parentCategory = (Category)parentNode.Tag;
 
-                    parentCategory.Categories.Remove(curCategory);
-                    dstCategory.Categories.Add(curCategory);
+                    parentCategory.Remove(curCategory);
+                    dstCategory.Add(curCategory);
 
                     if (parentNode.Nodes.Count == 1)
                     {
@@ -1350,13 +1468,15 @@ namespace ChatRoomRecorder
                     CategoriesTreeView.SelectedNode = curNode;
 
                     WriteData(c_categoriesTableName, 0, null, curCategory, dstCategory);
+
+                    FilterCategoriesAndChatRooms();
                 }
             }
         }
 
         #endregion
 
-        #region Database interacting
+        #region Database
 
         private void ReadData()
         {
@@ -1530,15 +1650,13 @@ namespace ChatRoomRecorder
 
             try
             {
-                Stack<TreeNode> ns = new Stack<TreeNode>();
                 _root = new Category(1, c_rootCategoryName);
-                TreeNode root = new TreeNode() { Text = _root.Name, Tag = _root };
-                CategoriesTreeView.Nodes.Add(root);
-                ns.Push(root);
-                while (ns.Count > 0)
+
+                Stack<Category> st = new();
+                st.Push(_root);
+                while (st.Count > 0)
                 {
-                    TreeNode curNode = ns.Pop();
-                    Category curCategory = (Category)curNode.Tag;
+                    Category curCategory = st.Pop();
 
                     _command.CommandText = string.Format("select * from {0} where {1}={2};", c_categoriesTableName, c_categoriesTableCategoryColumnName, curCategory.ID);
                     using (SqliteDataReader reader = _command.ExecuteReader())
@@ -1546,11 +1664,9 @@ namespace ChatRoomRecorder
                         while (reader.Read())
                         {
                             Category newCategory = new Category(reader.GetInt32(c_categoriesTableIdColumnName), reader.GetString(c_categoriesTableNameColumnName));
-                            TreeNode newNode = new TreeNode() { Text = newCategory.Name, Tag = newCategory };
-                            curNode.Nodes.Add(newNode);
-                            ns.Push(newNode);
+                            curCategory.Add(newCategory);
 
-                            curCategory.Categories.Add(newCategory);
+                            st.Push(newCategory);
                         }
                     }
 
@@ -1578,36 +1694,30 @@ namespace ChatRoomRecorder
                             chatRoom.LastSeen = seen;
                             chatRoom.UpdateCompleted += ChatRoom_UpdateCompleted;
 
-                            curCategory.ChatRooms.Add(chatRoom);
+                            curCategory.Add(chatRoom);
                         }
                     }
                 }
             }
             catch (Exception)
             {
-                Stack<Category> cs = new Stack<Category>();
+                Stack<Category> cs = new();
                 cs.Push(_root);
                 while (cs.Count > 0)
                 {
                     Category parent = cs.Pop();
-                    foreach (Category category in parent.Categories)
+                    foreach (Category category in parent.AllCategories)
                     {
                         cs.Push(category);
                     }
-                    foreach (ChatRoom chatRoom in parent.ChatRooms)
+                    foreach (ChatRoom chatRoom in parent.AllChatRooms)
                     {
                         chatRoom.Dispose();
                     }
                 }
 
                 _root = new Category(1, c_rootCategoryName);
-
-                CategoriesTreeView.Nodes.Clear();
-                CategoriesTreeView.Nodes.Add(new TreeNode() { Text = _root.Name, Tag = _root });
             }
-
-            CategoriesTreeView.Sort();
-            CategoriesTreeView.SelectedNode = CategoriesTreeView.Nodes[0];
         }
 
         private void WriteData(string table, int operation, ChatRoom chatRoom, Category category, Category parent)
