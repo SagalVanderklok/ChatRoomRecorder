@@ -38,5 +38,17 @@ namespace ChatRoomRecorder
 
             OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
+
+        public int IndexOf(string path)
+        {
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (Items[i].FullName == path)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
     }
 }

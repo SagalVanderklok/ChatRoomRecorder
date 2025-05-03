@@ -49,7 +49,7 @@
             TableLayoutPanel1.RowCount = 2;
             TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
-            TableLayoutPanel1.Size = new System.Drawing.Size(384, 361);
+            TableLayoutPanel1.Size = new System.Drawing.Size(484, 361);
             TableLayoutPanel1.TabIndex = 0;
             // 
             // TableLayoutPanel2
@@ -65,17 +65,17 @@
             TableLayoutPanel2.Name = "TableLayoutPanel2";
             TableLayoutPanel2.RowCount = 1;
             TableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            TableLayoutPanel2.Size = new System.Drawing.Size(384, 33);
+            TableLayoutPanel2.Size = new System.Drawing.Size(484, 33);
             TableLayoutPanel2.TabIndex = 0;
             // 
             // OkButton
             // 
             OkButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            OkButton.Location = new System.Drawing.Point(288, 2);
+            OkButton.Location = new System.Drawing.Point(388, 2);
             OkButton.Margin = new System.Windows.Forms.Padding(4, 2, 4, 4);
             OkButton.Name = "OkButton";
             OkButton.Size = new System.Drawing.Size(92, 27);
-            OkButton.TabIndex = 0;
+            OkButton.TabIndex = 2;
             OkButton.Text = "OK";
             OkButton.UseVisualStyleBackColor = true;
             OkButton.Click += OkButton_Click;
@@ -88,7 +88,7 @@
             UrlsTextBox.Multiline = true;
             UrlsTextBox.Name = "UrlsTextBox";
             UrlsTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            UrlsTextBox.Size = new System.Drawing.Size(376, 322);
+            UrlsTextBox.Size = new System.Drawing.Size(476, 322);
             UrlsTextBox.TabIndex = 1;
             UrlsTextBox.WordWrap = false;
             // 
@@ -96,7 +96,7 @@
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(384, 361);
+            ClientSize = new System.Drawing.Size(484, 361);
             Controls.Add(TableLayoutPanel1);
             Name = "UrlsForm";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

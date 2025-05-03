@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace ChatRoomRecorder
@@ -337,7 +338,7 @@ namespace ChatRoomRecorder
             }
             else
             {
-                MessageBox.Show(c_unsupportedUrlMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(c_chatRoomUrlUnsupportedErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -540,7 +541,7 @@ namespace ChatRoomRecorder
 
         private void RemoveCategory()
         {
-            if (MessageBox.Show(c_confirmCategoryRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+            if (MessageBox.Show(c_categoryRemovingWarningMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 TreeNode currentNode = CategoriesTreeView.SelectedNode;
                 TreeNode parentNode = currentNode.Parent;
@@ -565,7 +566,7 @@ namespace ChatRoomRecorder
                 }
                 else
                 {
-                    MessageBox.Show(c_categoryNotEmptyMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(c_categoryNotEmptyErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -639,7 +640,7 @@ namespace ChatRoomRecorder
 
         private void ChatRoomsDataGridView_SelectionChanged(object sender, EventArgs e)
         {
-            ShowFiles();
+            ShowFiles(false);
 
             ShowThumbnail();
         }
@@ -714,12 +715,12 @@ namespace ChatRoomRecorder
                 }
                 else
                 {
-                    MessageBox.Show(c_duplicateChatRoomMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(c_chatRoomExistedErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show(c_unsupportedWebSiteMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(c_chatRoomWebsiteUnsupportedErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -747,7 +748,7 @@ namespace ChatRoomRecorder
                         }
                     }
 
-                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(c_chatRoomsAddingSuccessMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception)
                 {
@@ -782,7 +783,7 @@ namespace ChatRoomRecorder
                         }
                     }
 
-                    MessageBox.Show(c_chatRoomsAddedMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(c_chatRoomsAddingSuccessMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception)
                 {
@@ -838,7 +839,7 @@ namespace ChatRoomRecorder
 
         private void RemoveChatRoom()
         {
-            if (MessageBox.Show(c_confirmChatRoomsRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+            if (MessageBox.Show(c_chatRoomsRemovingWarningMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 lock (_lock)
                 {
@@ -908,7 +909,7 @@ namespace ChatRoomRecorder
                     e.Handled = true;
                     break;
                 case Keys.Delete:
-                    RemoveFile();
+                    RemoveFiles();
                     e.Handled = true;
                     break;
             }
@@ -924,9 +925,24 @@ namespace ChatRoomRecorder
             OpenFile();
         }
 
-        private void RemoveFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RemoveFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            RemoveFile();
+            RemoveFiles();
+        }
+
+        private void ExtractFragmentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExtractFragment();
+        }
+
+        private void MergeFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MergeFiles();
+        }
+
+        private void ConvertFilesToMp4ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConvertFilesToMp4();
         }
 
         private void ShowFileInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
@@ -937,17 +953,34 @@ namespace ChatRoomRecorder
         private void FilesContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             OpenFileToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
-            RemoveFileToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 0;
+            RemoveFilesToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 0;
+            ExtractFragmentToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
+            MergeFilesToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 1;
+            ConvertFilesToMp4ToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 0;
             ShowFileInExplorerToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
         }
 
-        private void ShowFiles()
+        private void ShowFiles(bool preserveSelection)
         {
             try
             {
+                //save selection
+
+                List<string> selectedBefore = new();
+
+                if (preserveSelection)
+                {
+                    foreach (DataGridViewRow row in FilesDataGridView.SelectedRows)
+                    {
+                        selectedBefore.Add(_filesList[row.Index].FullName);
+                    }
+                }
+
+                //get all the files
+
                 _filesList.Clear();
 
-                List<FileInfo> files = new();
+                List<FileInfo> allFiles = new();
 
                 foreach (DataGridViewRow selectedRow in ChatRoomsDataGridView.SelectedRows)
                 {
@@ -955,11 +988,36 @@ namespace ChatRoomRecorder
                     DirectoryInfo dir = new(string.Format("{0}\\{1} {2}", _settings.OutputDirectory, chatRoom.Website, chatRoom.Name).ToLower());
                     if (dir.Exists)
                     {
-                        files.AddRange(dir.GetFiles(string.Format("{0} {1} *.ts", chatRoom.Website, chatRoom.Name).ToLower()));
+                        allFiles.AddRange(dir.GetFiles(string.Format("{0} {1} *.ts", chatRoom.Website, chatRoom.Name).ToLower()));
                     }
                 }
 
-                _filesList.Append(files);
+                _filesList.Append(allFiles);
+
+                //restore selection
+
+                List<int> selectedAfter = new();
+
+                foreach (string path in selectedBefore)
+                {
+                    int index = _filesList.IndexOf(path);
+                    if (index != -1)
+                    {
+                        selectedAfter.Add(index);
+                    }
+                }
+
+                if (selectedAfter.Count > 0)
+                {
+                    FilesDataGridView.ClearSelection();
+
+                    foreach (int index in selectedAfter)
+                    {
+                        FilesDataGridView.Rows[index].Selected = true;
+                    }
+
+                    FilesDataGridView.FirstDisplayedScrollingRowIndex = selectedAfter.Min();
+                }
             }
             catch (Exception)
             {
@@ -983,9 +1041,9 @@ namespace ChatRoomRecorder
             }
         }
 
-        private void RemoveFile()
+        private void RemoveFiles()
         {
-            if (MessageBox.Show(c_confirmFilesRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+            if (MessageBox.Show(c_filesRemovingWarningMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 try
                 {
@@ -1005,8 +1063,109 @@ namespace ChatRoomRecorder
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show(c_fileRemovingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(c_filesRemovingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private void ExtractFragment()
+        {
+            try
+            {
+                string srcFilePath = _filesList[FilesDataGridView.SelectedRows[0].Index].FullName;
+
+                ExtractForm extractForm = new(srcFilePath);
+                if (extractForm.ShowDialog() == DialogResult.OK)
+                {
+                    string dstFilePath = string.Format("{0}\\{1} extracted {2}.ts", Path.GetDirectoryName(srcFilePath), Path.GetFileNameWithoutExtension(srcFilePath), DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"));
+
+                    TaskForm taskForm = new(
+                        "Extracting fragment",
+                        new ProcessStartInfo()
+                        {
+                            FileName = _settings.FFmpegPath,
+                            Arguments = string.Format("-i \"{0}\" -ss {1} -to {2} -c copy \"{3}\"", srcFilePath, extractForm.StartTime, extractForm.EndTime, dstFilePath)
+                        });
+                    taskForm.ShowDialog();
+
+                    ShowFiles(true);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(c_fileFragmentExtractingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void MergeFiles()
+        {
+            try
+            {
+                SortedList<int, FileInfo> selectedFiles = new();
+                foreach (DataGridViewRow row in FilesDataGridView.SelectedRows)
+                {
+                    selectedFiles.Add(row.Index, _filesList[row.Index]);
+                }
+
+                MergeForm mergeForm = new(selectedFiles.Values.ToList<FileInfo>());
+                if (mergeForm.ShowDialog() == DialogResult.OK)
+                {
+                    List<FileInfo> orderedFiles = mergeForm.Files;
+                    string dstFilePath = string.Format("{0}\\{1} merged {2}.ts", Path.GetDirectoryName(orderedFiles[0].FullName), Path.GetFileNameWithoutExtension(orderedFiles[0].FullName), DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"));
+                    string tmpFilePath = string.Format("{0}\\ChatRoomRecorder_{1}.txt", Path.GetTempPath(), Guid.NewGuid());
+
+                    using (StreamWriter tmpFile = new StreamWriter(tmpFilePath))
+                    {
+                        foreach (FileInfo file in orderedFiles)
+                        {
+                            tmpFile.WriteLine(string.Format("file '{0}'", file));
+                        }
+                    }
+
+                    TaskForm taskForm = new(
+                        "Merging files",
+                        new ProcessStartInfo()
+                        {
+                            FileName = _settings.FFmpegPath,
+                            Arguments = string.Format("-f concat -safe 0 -i \"{0}\" -c copy \"{1}\"", tmpFilePath, dstFilePath)
+                        });
+                    taskForm.ShowDialog();
+
+                    ShowFiles(true);
+
+                    File.Delete(tmpFilePath);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(c_filesMergingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ConvertFilesToMp4()
+        {
+            try
+            {
+                FolderBrowserDialog fbd = new();
+                if (fbd.ShowDialog() == DialogResult.OK)
+                {
+                    for (int i = 0; i < FilesDataGridView.SelectedRows.Count; i++)
+                    {
+                        FileInfo file = _filesList[FilesDataGridView.SelectedRows[i].Index];
+                        TaskForm taskForm = new(
+                            string.Format("Converting files ({0}/{1})", i + 1, FilesDataGridView.SelectedRows.Count),
+                            new ProcessStartInfo()
+                            {
+                                FileName = _settings.FFmpegPath,
+                                Arguments = string.Format("-i \"{0}\" -c copy \"{1}\\{2}.mp4\"", file.FullName, fbd.SelectedPath, Path.GetFileNameWithoutExtension(file.FullName))
+                            });
+                        taskForm.ShowDialog();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(c_filesConvertingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1095,7 +1254,7 @@ namespace ChatRoomRecorder
 
         private void RemoveThumbnail()
         {
-            if (MessageBox.Show(c_confirmThumbnailRemovingMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+            if (MessageBox.Show(c_thumbnailRemovingWarningMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 try
                 {
@@ -1947,20 +2106,23 @@ namespace ChatRoomRecorder
         private const string c_defaultResolutionSettingName = "DefaultResolution";
         private const string c_logSizeSettingName = "LogSize";
 
-        private const string c_unsupportedUrlMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
-        private const string c_unsupportedWebSiteMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams, Stripchat, Flirt4Free, CamSoda and Cam4!";
-        private const string c_duplicateChatRoomMessage = "The chat room is already existed!";
-        private const string c_confirmCategoryRemovingMessage = "The category will be removed!";
-        private const string c_categoryNotEmptyMessage = "The category is not empty!";
-        private const string c_confirmChatRoomsRemovingMessage = "The selected chat rooms will be removed!";
-        private const string c_fileOpeningErrorMessage = "The file can't be opened!";
-        private const string c_confirmFilesRemovingMessage = "The selected files will be removed!";
-        private const string c_fileRemovingErrorMessage = "The file can't be removed!";
-        private const string c_fileShowingErrorMessage = "The file can't be shown!";
-        private const string c_confirmThumbnailRemovingMessage = "The thumbnail will be removed!";
-        private const string c_thumbnailRemovingErrorMessage = "The thumbnail can't be removed!";
+        private const string c_chatRoomsAddingSuccessMessage = "The chat rooms have been added!";
+        private const string c_categoryRemovingWarningMessage = "The category will be removed!";
+        private const string c_chatRoomsRemovingWarningMessage = "The selected chat rooms will be removed!";
+        private const string c_filesRemovingWarningMessage = "The selected files will be removed!";
+        private const string c_thumbnailRemovingWarningMessage = "The thumbnail will be removed!";
+        private const string c_categoryNotEmptyErrorMessage = "The category is not empty!";
+        private const string c_chatRoomUrlUnsupportedErrorMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
+        private const string c_chatRoomWebsiteUnsupportedErrorMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams, Stripchat, Flirt4Free, CamSoda and Cam4!";
+        private const string c_chatRoomExistedErrorMessage = "The chat room is already existed!";
         private const string c_chatRoomsAddingErrorMessage = "The chat rooms can't be added!";
-        private const string c_chatRoomsAddedMessage = "The chat rooms have been added!";
+        private const string c_fileOpeningErrorMessage = "The file can't be opened!";
+        private const string c_filesRemovingErrorMessage = "The files can't be removed!";
+        private const string c_fileFragmentExtractingErrorMessage = "The fragment can't be extracted!";
+        private const string c_filesMergingErrorMessage = "The files can't be merged!";
+        private const string c_filesConvertingErrorMessage = "The files can't be converted!";
+        private const string c_fileShowingErrorMessage = "The file can't be shown!";
+        private const string c_thumbnailRemovingErrorMessage = "The thumbnail can't be removed!";
 
         #endregion
     }

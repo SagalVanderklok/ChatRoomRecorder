@@ -30,11 +30,11 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             FilesBindingSource = new System.Windows.Forms.BindingSource(components);
             TabControl = new System.Windows.Forms.TabControl();
             WebBrowserTabPage = new System.Windows.Forms.TabPage();
@@ -87,7 +87,10 @@
             FileSizeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             FilesContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
             OpenFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            RemoveFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            RemoveFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            ExtractFragmentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            MergeFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            ConvertFilesToMp4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ShowFileInExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             SettingsTabPage = new System.Windows.Forms.TabPage();
             SettingsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -515,42 +518,44 @@
             // 
             ChatRoomsDataGridView.AllowUserToAddRows = false;
             ChatRoomsDataGridView.AllowUserToDeleteRows = false;
+            ChatRoomsDataGridView.AllowUserToResizeRows = false;
             ChatRoomsDataGridView.AutoGenerateColumns = false;
             ChatRoomsDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             ChatRoomsDataGridView.BackgroundColor = System.Drawing.SystemColors.Window;
             ChatRoomsDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            ChatRoomsDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
             ChatRoomsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             ChatRoomsDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { WebsiteColumn, NameColumn, ActionColumn, ResolutionColumn, StatusColumn, UpdatedColumn, SeenColumn, UrlColumn });
             ChatRoomsDataGridView.ContextMenuStrip = ChatRoomsContextMenuStrip;
             ChatRoomsDataGridView.DataSource = ChatRoomsBindingSource;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            ChatRoomsDataGridView.DefaultCellStyle = dataGridViewCellStyle7;
             ChatRoomsDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             ChatRoomsDataGridView.Location = new System.Drawing.Point(0, 0);
             ChatRoomsDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             ChatRoomsDataGridView.Name = "ChatRoomsDataGridView";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            ChatRoomsDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            ChatRoomsDataGridView.RowHeadersVisible = false;
             ChatRoomsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             ChatRoomsDataGridView.Size = new System.Drawing.Size(647, 351);
             ChatRoomsDataGridView.TabIndex = 6;
@@ -722,6 +727,7 @@
             // 
             FilesDataGridView.AllowUserToAddRows = false;
             FilesDataGridView.AllowUserToDeleteRows = false;
+            FilesDataGridView.AllowUserToResizeRows = false;
             FilesDataGridView.AutoGenerateColumns = false;
             FilesDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             FilesDataGridView.BackgroundColor = System.Drawing.SystemColors.Window;
@@ -734,6 +740,7 @@
             FilesDataGridView.Location = new System.Drawing.Point(0, 0);
             FilesDataGridView.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             FilesDataGridView.Name = "FilesDataGridView";
+            FilesDataGridView.RowHeadersVisible = false;
             FilesDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             FilesDataGridView.Size = new System.Drawing.Size(647, 141);
             FilesDataGridView.TabIndex = 7;
@@ -743,8 +750,8 @@
             // FileNameColumn
             // 
             FileNameColumn.DataPropertyName = "Name";
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            FileNameColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            FileNameColumn.DefaultCellStyle = dataGridViewCellStyle1;
             FileNameColumn.FillWeight = 199.8681F;
             FileNameColumn.HeaderText = "File name";
             FileNameColumn.Name = "FileNameColumn";
@@ -752,19 +759,19 @@
             // FileSizeColumn
             // 
             FileSizeColumn.DataPropertyName = "Length";
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle5.Format = "N0";
-            dataGridViewCellStyle5.NullValue = null;
-            FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle2.Format = "N0";
+            dataGridViewCellStyle2.NullValue = null;
+            FileSizeColumn.DefaultCellStyle = dataGridViewCellStyle2;
             FileSizeColumn.FillWeight = 50.25381F;
             FileSizeColumn.HeaderText = "File size";
             FileSizeColumn.Name = "FileSizeColumn";
             // 
             // FilesContextMenuStrip
             // 
-            FilesContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { OpenFileToolStripMenuItem, RemoveFileToolStripMenuItem, ShowFileInExplorerToolStripMenuItem });
+            FilesContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { OpenFileToolStripMenuItem, RemoveFilesToolStripMenuItem, ExtractFragmentToolStripMenuItem, MergeFilesToolStripMenuItem, ConvertFilesToMp4ToolStripMenuItem, ShowFileInExplorerToolStripMenuItem });
             FilesContextMenuStrip.Name = "FilesContextMenuStrip";
-            FilesContextMenuStrip.Size = new System.Drawing.Size(163, 70);
+            FilesContextMenuStrip.Size = new System.Drawing.Size(163, 136);
             FilesContextMenuStrip.Opening += FilesContextMenuStrip_Opening;
             // 
             // OpenFileToolStripMenuItem
@@ -774,12 +781,33 @@
             OpenFileToolStripMenuItem.Text = "Open";
             OpenFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
-            // RemoveFileToolStripMenuItem
+            // RemoveFilesToolStripMenuItem
             // 
-            RemoveFileToolStripMenuItem.Name = "RemoveFileToolStripMenuItem";
-            RemoveFileToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
-            RemoveFileToolStripMenuItem.Text = "Remove";
-            RemoveFileToolStripMenuItem.Click += RemoveFileToolStripMenuItem_Click;
+            RemoveFilesToolStripMenuItem.Name = "RemoveFilesToolStripMenuItem";
+            RemoveFilesToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            RemoveFilesToolStripMenuItem.Text = "Remove";
+            RemoveFilesToolStripMenuItem.Click += RemoveFilesToolStripMenuItem_Click;
+            // 
+            // ExtractFragmentToolStripMenuItem
+            // 
+            ExtractFragmentToolStripMenuItem.Name = "ExtractFragmentToolStripMenuItem";
+            ExtractFragmentToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            ExtractFragmentToolStripMenuItem.Text = "Extract";
+            ExtractFragmentToolStripMenuItem.Click += ExtractFragmentToolStripMenuItem_Click;
+            // 
+            // MergeFilesToolStripMenuItem
+            // 
+            MergeFilesToolStripMenuItem.Name = "MergeFilesToolStripMenuItem";
+            MergeFilesToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            MergeFilesToolStripMenuItem.Text = "Merge";
+            MergeFilesToolStripMenuItem.Click += MergeFilesToolStripMenuItem_Click;
+            // 
+            // ConvertFilesToMp4ToolStripMenuItem
+            // 
+            ConvertFilesToMp4ToolStripMenuItem.Name = "ConvertFilesToMp4ToolStripMenuItem";
+            ConvertFilesToMp4ToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            ConvertFilesToMp4ToolStripMenuItem.Text = "Convert to MP4";
+            ConvertFilesToMp4ToolStripMenuItem.Click += ConvertFilesToMp4ToolStripMenuItem_Click;
             // 
             // ShowFileInExplorerToolStripMenuItem
             // 
@@ -1392,7 +1420,7 @@
         private System.Windows.Forms.ToolStripMenuItem RemoveThumbnailToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip FilesContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem OpenFileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem RemoveFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RemoveFilesToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip ChatRoomsContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem RemoveChatRoomToolStripMenuItem;
         private System.Windows.Forms.ImageList CategoriesImageList;
@@ -1422,6 +1450,9 @@
         private System.Windows.Forms.ToolStripMenuItem AddChatRoomFromFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddChatRoomFromURLToolStripMenuItem;
         private System.Windows.Forms.Button AddChatRoomFromUrlButton;
+        private System.Windows.Forms.ToolStripMenuItem ExtractFragmentToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem MergeFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ConvertFilesToMp4ToolStripMenuItem;
     }
 }
 
