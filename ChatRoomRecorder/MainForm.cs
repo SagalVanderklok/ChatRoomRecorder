@@ -83,9 +83,9 @@ namespace ChatRoomRecorder
 
                 ReadData();
 
-                ShowCategories();
-
                 MoveFiles();
+
+                ShowCategories();
             }
         }
 
@@ -2010,15 +2010,25 @@ namespace ChatRoomRecorder
 
         private void MoveFiles()
         {
-            foreach (FileInfo file in new DirectoryInfo(_settings.OutputDirectory).GetFiles())
+            try
             {
-                MatchCollection matches = Regex.Matches(file.Name, "^([^ ]+ [^ ]+) (.*.ts)$");
-                if (matches.Count > 0)
+                if (Directory.Exists(_settings.OutputDirectory))
                 {
-                    string dir = string.Format("{0}\\{1}", _settings.OutputDirectory, matches[0].Groups[1].Value);
-                    Directory.CreateDirectory(dir);
-                    File.Move(file.FullName, string.Format("{0}\\{1}", dir, file.Name));
+                    foreach (FileInfo file in new DirectoryInfo(_settings.OutputDirectory).GetFiles())
+                    {
+                        MatchCollection matches = Regex.Matches(file.Name, "^([^ ]+ [^ ]+) (.*.ts)$");
+                        if (matches.Count > 0)
+                        {
+                            string dir = string.Format("{0}\\{1}", _settings.OutputDirectory, matches[0].Groups[1].Value);
+                            Directory.CreateDirectory(dir);
+                            File.Move(file.FullName, string.Format("{0}\\{1}", dir, file.Name));
+                        }
+                    }
                 }
+            }
+            catch
+            {
+                //do nothing
             }
         }
 
