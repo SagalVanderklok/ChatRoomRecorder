@@ -22,5 +22,5 @@
 If you like this application and want it to evolve please consider supporting us
 
 - BTC (BRC20/BTC) 14ekkVXhwG6NSLdW2bJhuPwdCdY9NXo8fu
-- ETH (ERC20) 0x12ed0CDaD7a0698F0Caa4aDe8cb22063e6A00901
-- USDT (TRC20) TBhH93q3kUfNAG3SkUYMoaxcE5NWG4Gx87
+- ETH (ERC20) 0xDb4cA64B1d35973152f6f2DD62FC125503e2Ff96
+- USDT (TRC20) TFCSXy6cJLtq6psUwQ4FaxYYhodhScF6Lm
