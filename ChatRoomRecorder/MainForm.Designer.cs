@@ -80,8 +80,6 @@
             ChatRoomsBindingSource = new System.Windows.Forms.BindingSource(components);
             ChatRoomsSplitContainer2 = new System.Windows.Forms.SplitContainer();
             ThumbnailPictureBox = new System.Windows.Forms.PictureBox();
-            ThumbnailContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(components);
-            RemoveThumbnailToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             FilesDataGridView = new System.Windows.Forms.DataGridView();
             FileNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             FileSizeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -92,6 +90,7 @@
             MergeFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ConvertFilesToMp4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ShowFileInExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            ChangeThumbnailToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             SettingsTabPage = new System.Windows.Forms.TabPage();
             SettingsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             OutputDirectoryTextBox = new System.Windows.Forms.TextBox();
@@ -158,7 +157,6 @@
             ChatRoomsSplitContainer2.Panel2.SuspendLayout();
             ChatRoomsSplitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)ThumbnailPictureBox).BeginInit();
-            ThumbnailContextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)FilesDataGridView).BeginInit();
             FilesContextMenuStrip.SuspendLayout();
             SettingsTabPage.SuspendLayout();
@@ -699,7 +697,6 @@
             // 
             ThumbnailPictureBox.BackColor = System.Drawing.SystemColors.Window;
             ThumbnailPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            ThumbnailPictureBox.ContextMenuStrip = ThumbnailContextMenuStrip;
             ThumbnailPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             ThumbnailPictureBox.Location = new System.Drawing.Point(0, 0);
             ThumbnailPictureBox.Margin = new System.Windows.Forms.Padding(0);
@@ -708,20 +705,6 @@
             ThumbnailPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             ThumbnailPictureBox.TabIndex = 0;
             ThumbnailPictureBox.TabStop = false;
-            // 
-            // ThumbnailContextMenuStrip
-            // 
-            ThumbnailContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { RemoveThumbnailToolStripMenuItem });
-            ThumbnailContextMenuStrip.Name = "ThumbnailContextMenuStrip";
-            ThumbnailContextMenuStrip.Size = new System.Drawing.Size(118, 26);
-            ThumbnailContextMenuStrip.Opening += ThumbnailContextMenuStrip_Opening;
-            // 
-            // RemoveThumbnailToolStripMenuItem
-            // 
-            RemoveThumbnailToolStripMenuItem.Name = "RemoveThumbnailToolStripMenuItem";
-            RemoveThumbnailToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
-            RemoveThumbnailToolStripMenuItem.Text = "Remove";
-            RemoveThumbnailToolStripMenuItem.Click += RemoveThumbnailToolStripMenuItem_Click;
             // 
             // FilesDataGridView
             // 
@@ -769,52 +752,59 @@
             // 
             // FilesContextMenuStrip
             // 
-            FilesContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { OpenFileToolStripMenuItem, RemoveFilesToolStripMenuItem, ExtractFragmentToolStripMenuItem, MergeFilesToolStripMenuItem, ConvertFilesToMp4ToolStripMenuItem, ShowFileInExplorerToolStripMenuItem });
+            FilesContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { OpenFileToolStripMenuItem, RemoveFilesToolStripMenuItem, ExtractFragmentToolStripMenuItem, MergeFilesToolStripMenuItem, ConvertFilesToMp4ToolStripMenuItem, ShowFileInExplorerToolStripMenuItem, ChangeThumbnailToolStripMenuItem });
             FilesContextMenuStrip.Name = "FilesContextMenuStrip";
-            FilesContextMenuStrip.Size = new System.Drawing.Size(163, 136);
+            FilesContextMenuStrip.Size = new System.Drawing.Size(181, 180);
             FilesContextMenuStrip.Opening += FilesContextMenuStrip_Opening;
             // 
             // OpenFileToolStripMenuItem
             // 
             OpenFileToolStripMenuItem.Name = "OpenFileToolStripMenuItem";
-            OpenFileToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            OpenFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             OpenFileToolStripMenuItem.Text = "Open";
             OpenFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
             // RemoveFilesToolStripMenuItem
             // 
             RemoveFilesToolStripMenuItem.Name = "RemoveFilesToolStripMenuItem";
-            RemoveFilesToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            RemoveFilesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             RemoveFilesToolStripMenuItem.Text = "Remove";
             RemoveFilesToolStripMenuItem.Click += RemoveFilesToolStripMenuItem_Click;
             // 
             // ExtractFragmentToolStripMenuItem
             // 
             ExtractFragmentToolStripMenuItem.Name = "ExtractFragmentToolStripMenuItem";
-            ExtractFragmentToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            ExtractFragmentToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             ExtractFragmentToolStripMenuItem.Text = "Extract";
             ExtractFragmentToolStripMenuItem.Click += ExtractFragmentToolStripMenuItem_Click;
             // 
             // MergeFilesToolStripMenuItem
             // 
             MergeFilesToolStripMenuItem.Name = "MergeFilesToolStripMenuItem";
-            MergeFilesToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            MergeFilesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             MergeFilesToolStripMenuItem.Text = "Merge";
             MergeFilesToolStripMenuItem.Click += MergeFilesToolStripMenuItem_Click;
             // 
             // ConvertFilesToMp4ToolStripMenuItem
             // 
             ConvertFilesToMp4ToolStripMenuItem.Name = "ConvertFilesToMp4ToolStripMenuItem";
-            ConvertFilesToMp4ToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            ConvertFilesToMp4ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             ConvertFilesToMp4ToolStripMenuItem.Text = "Convert to MP4";
             ConvertFilesToMp4ToolStripMenuItem.Click += ConvertFilesToMp4ToolStripMenuItem_Click;
             // 
             // ShowFileInExplorerToolStripMenuItem
             // 
             ShowFileInExplorerToolStripMenuItem.Name = "ShowFileInExplorerToolStripMenuItem";
-            ShowFileInExplorerToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            ShowFileInExplorerToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             ShowFileInExplorerToolStripMenuItem.Text = "Show in Explorer";
             ShowFileInExplorerToolStripMenuItem.Click += ShowFileInExplorerToolStripMenuItem_Click;
+            // 
+            // ChangeThumbnailToolStripMenuItem
+            // 
+            ChangeThumbnailToolStripMenuItem.Name = "ChangeThumbnailToolStripMenuItem";
+            ChangeThumbnailToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            ChangeThumbnailToolStripMenuItem.Text = "Change thumbnail";
+            ChangeThumbnailToolStripMenuItem.Click += ChangeThumbnailToolStripMenuItem_Click;
             // 
             // SettingsTabPage
             // 
@@ -1333,7 +1323,6 @@
             ((System.ComponentModel.ISupportInitialize)ChatRoomsSplitContainer2).EndInit();
             ChatRoomsSplitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)ThumbnailPictureBox).EndInit();
-            ThumbnailContextMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)FilesDataGridView).EndInit();
             FilesContextMenuStrip.ResumeLayout(false);
             SettingsTabPage.ResumeLayout(false);
@@ -1416,8 +1405,6 @@
         private System.Windows.Forms.TextBox StreamlinkPathTextBox;
         private System.Windows.Forms.SplitContainer ChatRoomsSplitContainer3;
         private System.Windows.Forms.TreeView CategoriesTreeView;
-        private System.Windows.Forms.ContextMenuStrip ThumbnailContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem RemoveThumbnailToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip FilesContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem OpenFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RemoveFilesToolStripMenuItem;
@@ -1453,6 +1440,7 @@
         private System.Windows.Forms.ToolStripMenuItem ExtractFragmentToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem MergeFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ConvertFilesToMp4ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ChangeThumbnailToolStripMenuItem;
     }
 }
 

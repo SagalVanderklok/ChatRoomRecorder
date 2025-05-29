@@ -203,6 +203,7 @@
             Name = "MergeForm";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Merge";
+            FormClosed += MergeForm_FormClosed;
             TableLayoutPanel1.ResumeLayout(false);
             SplitContainer.Panel1.ResumeLayout(false);
             SplitContainer.Panel2.ResumeLayout(false);

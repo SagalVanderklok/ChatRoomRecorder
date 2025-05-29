@@ -107,7 +107,7 @@
             StartDateTimePicker.ShowUpDown = true;
             StartDateTimePicker.Size = new System.Drawing.Size(96, 24);
             StartDateTimePicker.TabIndex = 2;
-            StartDateTimePicker.Value = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
+            StartDateTimePicker.Value = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
             StartDateTimePicker.ValueChanged += DateTimePicker_ValueChanged;
             // 
             // EndDateTimePicker
@@ -122,7 +122,7 @@
             EndDateTimePicker.ShowUpDown = true;
             EndDateTimePicker.Size = new System.Drawing.Size(96, 24);
             EndDateTimePicker.TabIndex = 3;
-            EndDateTimePicker.Value = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
+            EndDateTimePicker.Value = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
             EndDateTimePicker.ValueChanged += DateTimePicker_ValueChanged;
             // 
             // DashLabel
@@ -176,6 +176,7 @@
             Name = "ExtractForm";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Extract";
+            FormClosed += ExtractForm_FormClosed;
             ((System.ComponentModel.ISupportInitialize)WindowsMediaPlayer).EndInit();
             TableLayoutPanel1.ResumeLayout(false);
             TableLayoutPanel2.ResumeLayout(false);

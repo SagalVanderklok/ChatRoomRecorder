@@ -1,6 +1,6 @@
 ﻿namespace ChatRoomRecorder
 {
-    partial class UrlsForm
+    partial class ThumbnailForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ThumbnailForm));
             TableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            WindowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer();
             TableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            OkButton = new System.Windows.Forms.Button();
-            UrlsTextBox = new System.Windows.Forms.TextBox();
+            OKButton = new System.Windows.Forms.Button();
             TableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)WindowsMediaPlayer).BeginInit();
             TableLayoutPanel2.SuspendLayout();
             SuspendLayout();
             // 
@@ -40,69 +42,73 @@
             // 
             TableLayoutPanel1.ColumnCount = 1;
             TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            TableLayoutPanel1.Controls.Add(WindowsMediaPlayer, 0, 0);
             TableLayoutPanel1.Controls.Add(TableLayoutPanel2, 0, 1);
-            TableLayoutPanel1.Controls.Add(UrlsTextBox, 0, 0);
             TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             TableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             TableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             TableLayoutPanel1.Name = "TableLayoutPanel1";
+            TableLayoutPanel1.Padding = new System.Windows.Forms.Padding(4);
             TableLayoutPanel1.RowCount = 2;
             TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
             TableLayoutPanel1.Size = new System.Drawing.Size(484, 361);
             TableLayoutPanel1.TabIndex = 0;
             // 
+            // WindowsMediaPlayer
+            // 
+            WindowsMediaPlayer.Dock = System.Windows.Forms.DockStyle.Fill;
+            WindowsMediaPlayer.Enabled = true;
+            WindowsMediaPlayer.Location = new System.Drawing.Point(4, 4);
+            WindowsMediaPlayer.Margin = new System.Windows.Forms.Padding(0);
+            WindowsMediaPlayer.Name = "WindowsMediaPlayer";
+            WindowsMediaPlayer.OcxState = (System.Windows.Forms.AxHost.State)resources.GetObject("WindowsMediaPlayer.OcxState");
+            WindowsMediaPlayer.Size = new System.Drawing.Size(476, 320);
+            WindowsMediaPlayer.TabIndex = 1;
+            WindowsMediaPlayer.OpenStateChange += WindowsMediaPlayer_OpenStateChange;
+            // 
             // TableLayoutPanel2
             // 
             TableLayoutPanel2.ColumnCount = 2;
             TableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             TableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            TableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            TableLayoutPanel2.Controls.Add(OkButton, 1, 0);
+            TableLayoutPanel2.Controls.Add(OKButton, 1, 0);
             TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            TableLayoutPanel2.Location = new System.Drawing.Point(0, 328);
+            TableLayoutPanel2.Location = new System.Drawing.Point(4, 324);
             TableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
             TableLayoutPanel2.Name = "TableLayoutPanel2";
+            TableLayoutPanel2.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
             TableLayoutPanel2.RowCount = 1;
             TableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            TableLayoutPanel2.Size = new System.Drawing.Size(484, 33);
-            TableLayoutPanel2.TabIndex = 0;
+            TableLayoutPanel2.Size = new System.Drawing.Size(476, 33);
+            TableLayoutPanel2.TabIndex = 2;
             // 
-            // OkButton
+            // OKButton
             // 
-            OkButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            OkButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            OkButton.Location = new System.Drawing.Point(388, 2);
-            OkButton.Margin = new System.Windows.Forms.Padding(4, 2, 4, 4);
-            OkButton.Name = "OkButton";
-            OkButton.Size = new System.Drawing.Size(92, 27);
-            OkButton.TabIndex = 2;
-            OkButton.Text = "OK";
-            OkButton.UseVisualStyleBackColor = true;
+            OKButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+            OKButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            OKButton.Enabled = false;
+            OKButton.Location = new System.Drawing.Point(378, 4);
+            OKButton.Margin = new System.Windows.Forms.Padding(2, 0, 0, 0);
+            OKButton.Name = "OKButton";
+            OKButton.Size = new System.Drawing.Size(98, 29);
+            OKButton.TabIndex = 2;
+            OKButton.Text = "OK";
+            OKButton.UseVisualStyleBackColor = true;
+            OKButton.Click += OKButton_Click;
             // 
-            // UrlsTextBox
-            // 
-            UrlsTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            UrlsTextBox.Location = new System.Drawing.Point(4, 4);
-            UrlsTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 2);
-            UrlsTextBox.Multiline = true;
-            UrlsTextBox.Name = "UrlsTextBox";
-            UrlsTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            UrlsTextBox.Size = new System.Drawing.Size(476, 322);
-            UrlsTextBox.TabIndex = 1;
-            UrlsTextBox.WordWrap = false;
-            // 
-            // UrlsForm
+            // ThumbnailForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(484, 361);
             Controls.Add(TableLayoutPanel1);
-            Name = "UrlsForm";
+            Name = "ThumbnailForm";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            Text = "URLs";
+            Text = "Create thumbnail";
+            FormClosed += ThumbnailForm_FormClosed;
             TableLayoutPanel1.ResumeLayout(false);
-            TableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)WindowsMediaPlayer).EndInit();
             TableLayoutPanel2.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -110,8 +116,8 @@
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel TableLayoutPanel1;
+        private AxWMPLib.AxWindowsMediaPlayer WindowsMediaPlayer;
         private System.Windows.Forms.TableLayoutPanel TableLayoutPanel2;
-        private System.Windows.Forms.Button OkButton;
-        private System.Windows.Forms.TextBox UrlsTextBox;
+        private System.Windows.Forms.Button OKButton;
     }
 }

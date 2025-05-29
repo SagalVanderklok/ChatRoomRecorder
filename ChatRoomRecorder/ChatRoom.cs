@@ -32,7 +32,7 @@ namespace ChatRoomRecorder
 
             MatchCollection matches;
             
-            if ((matches = Regex.Matches(url, @"^https://chaturbate.com/([^/]+)/.*$")).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?chaturbate.com/([^/]+)/.*$")).Count > 0 ||
                 (matches = Regex.Matches(url, @"^chaturbate[ ]+([^ ]+).*/$")).Count > 0)
 
             {
@@ -45,22 +45,22 @@ namespace ChatRoomRecorder
                 return Tuple.Create(ChatRoomWebsite.BongaCams, matches[0].Groups[1].Value, string.Format("https://bongacams.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?stripchat.com/([^/]+)/.*$")).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?stripchat.(?:com|global)/([^/]+)/.*$")).Count > 0 ||
                 (matches = Regex.Matches(url, @"^stripchat[ ]+([^ ]+).*/$")).Count > 0)
             {
                 return Tuple.Create(ChatRoomWebsite.Stripchat, matches[0].Groups[1].Value, string.Format("https://stripchat.com/{0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://www.flirt4free.com/\?model=([^/]+)/.*$")).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?flirt4free.com/\?model=([^/]+)/.*$")).Count > 0 ||
                 (matches = Regex.Matches(url, @"^flirt4free[ ]+([^ ]+).*/$")).Count > 0)
             {
-                return Tuple.Create(ChatRoomWebsite.Flirt4Free, matches[0].Groups[1].Value, string.Format("https://www.flirt4free.com/?model={0}/", matches[0].Groups[1].Value));
+                return Tuple.Create(ChatRoomWebsite.Flirt4Free, matches[0].Groups[1].Value, string.Format("https://flirt4free.com/?model={0}/", matches[0].Groups[1].Value));
             }
 
-            if ((matches = Regex.Matches(url, @"^https://www.camsoda.com/([^/]+)/.*$")).Count > 0 ||
+            if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?camsoda.com/([^/]+)/.*$")).Count > 0 ||
                 (matches = Regex.Matches(url, @"^camsoda[ ]+([^ ]+).*/$")).Count > 0)
             {
-                return Tuple.Create(ChatRoomWebsite.CamSoda, matches[0].Groups[1].Value, string.Format("https://www.camsoda.com/{0}/", matches[0].Groups[1].Value));
+                return Tuple.Create(ChatRoomWebsite.CamSoda, matches[0].Groups[1].Value, string.Format("https://camsoda.com/{0}/", matches[0].Groups[1].Value));
             }
 
             if ((matches = Regex.Matches(url, @"^https://(?:[a-z0-9-.]+.)?cam4.com/([^/]+)/.*$")).Count > 0 ||

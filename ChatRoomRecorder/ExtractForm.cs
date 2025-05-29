@@ -10,6 +10,26 @@ namespace ChatRoomRecorder
             InitializeComponent();
 
             WindowsMediaPlayer.URL = Url;
+
+            StartDateTimePicker.MinDate = StartDateTimePicker.MaxDate = EndDateTimePicker.MinDate = EndDateTimePicker.MaxDate = new DateTime(2000, 1, 1);
+        }
+
+        private void ExtractForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            WindowsMediaPlayer.close();
+        }
+
+        private void WindowsMediaPlayer_OpenStateChange(object sender, AxWMPLib._WMPOCXEvents_OpenStateChangeEvent e)
+        {
+            if (e.newState == 13)
+            {
+                EndDateTimePicker.Value = StartDateTimePicker.MaxDate = EndDateTimePicker.MaxDate = new DateTime(2000, 1, 1).AddSeconds(Math.Ceiling(WindowsMediaPlayer.currentMedia.duration));
+            }
+        }
+
+        private void DateTimePicker_ValueChanged(object sender, System.EventArgs e)
+        {
+            OKButton.Enabled = StartDateTimePicker.Value < EndDateTimePicker.Value;
         }
 
         public string StartTime
@@ -25,21 +45,6 @@ namespace ChatRoomRecorder
             get
             {
                 return TimeOnly.FromDateTime(EndDateTimePicker.Value).ToString("HH:mm:ss");
-            }
-        }
-
-        private void DateTimePicker_ValueChanged(object sender, System.EventArgs e)
-        {
-            OKButton.Enabled =
-                TimeOnly.FromDateTime(StartDateTimePicker.Value) < TimeOnly.FromDateTime(EndDateTimePicker.Value) &&
-                TimeOnly.FromDateTime(EndDateTimePicker.Value) <= TimeOnly.FromTimeSpan(TimeSpan.FromSeconds((int)Math.Ceiling(WindowsMediaPlayer.currentMedia.duration)));
-        }
-
-        private void WindowsMediaPlayer_OpenStateChange(object sender, AxWMPLib._WMPOCXEvents_OpenStateChangeEvent e)
-        {
-            if (e.newState == 13)
-            {
-                EndDateTimePicker.Value = EndDateTimePicker.Value.AddSeconds(WindowsMediaPlayer.currentMedia.duration);
             }
         }
     }

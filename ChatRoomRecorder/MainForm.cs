@@ -332,14 +332,13 @@ namespace ChatRoomRecorder
 
         private void NavigateToUrl()
         {
-            if (Regex.Matches(AddressBarTextBox.Text, "^(http[s]?:.*)$", RegexOptions.IgnoreCase).Count > 0)
+            string url = AddressBarTextBox.Text.ToLower();
+            if (url.IndexOf("https://") != 0 && url.IndexOf("http://") != 0 && url != "about:blank")
             {
-                WebView2.CoreWebView2.Navigate(AddressBarTextBox.Text);
+                url = "https://" + url;
             }
-            else
-            {
-                MessageBox.Show(c_chatRoomUrlUnsupportedErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
+            WebView2.CoreWebView2.Navigate(url);
         }
 
         #endregion
@@ -641,6 +640,8 @@ namespace ChatRoomRecorder
         private void ChatRoomsDataGridView_SelectionChanged(object sender, EventArgs e)
         {
             ShowFiles(false);
+
+            CreateDefaultThumbnail();
 
             ShowThumbnail();
         }
@@ -950,6 +951,13 @@ namespace ChatRoomRecorder
             ShowFileInExplorer();
         }
 
+        private void ChangeThumbnailToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateCustomThumbnail();
+
+            ShowThumbnail();
+        }
+
         private void FilesContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
             OpenFileToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
@@ -958,6 +966,7 @@ namespace ChatRoomRecorder
             MergeFilesToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 1;
             ConvertFilesToMp4ToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count > 0;
             ShowFileInExplorerToolStripMenuItem.Enabled = FilesDataGridView.SelectedRows.Count == 1;
+            ChangeThumbnailToolStripMenuItem.Enabled = ChatRoomsDataGridView.SelectedRows.Count == 1 && FilesDataGridView.SelectedRows.Count == 1;
         }
 
         private void ShowFiles(bool preserveSelection)
@@ -1190,20 +1199,47 @@ namespace ChatRoomRecorder
 
         #region Thumbnail
 
-        private void RemoveThumbnailToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CreateCustomThumbnail()
         {
-            RemoveThumbnail();
+            try
+            {
+                string srcFilePath = _filesList[FilesDataGridView.SelectedRows[0].Index].FullName;
+
+                ThumbnailForm thumbnailForm = new(srcFilePath);
+                if (thumbnailForm.ShowDialog() == DialogResult.OK)
+                {
+                    ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
+                    string thumbnailDirectory = string.Format("{0}\\{1}", new FileInfo(Environment.ProcessPath).Directory.FullName, c_thumbnailsDirectoryName);
+                    string thumbnailPath = string.Format("{0}\\{1} {2}.jpg", thumbnailDirectory, chatRoom.Website, chatRoom.Name);
+
+                    if (!Directory.Exists(thumbnailDirectory))
+                    {
+                        Directory.CreateDirectory(thumbnailDirectory);
+                    }
+
+                    if (File.Exists(thumbnailPath))
+                    {
+                        File.Delete(thumbnailPath);
+                    }
+
+                    TaskForm taskForm = new(
+                        "Creating thumbnail",
+                        new ProcessStartInfo()
+                        {
+                            FileName = _settings.FFmpegPath,
+                            Arguments = string.Format("-ss \"{0}\" -i \"{1}\" -frames:v 1 -update 1 -q:v 1 -vf scale=320:-1 -y \"{2}\"", thumbnailForm.Time, srcFilePath, thumbnailPath)
+                        });
+                    taskForm.ShowDialog();
+                }
+            }
+            catch (Exception)
+            {
+                //do nothing
+            }
         }
 
-        private void ThumbnailContextMenuStrip_Opening(object sender, CancelEventArgs e)
+        private void CreateDefaultThumbnail()
         {
-            RemoveThumbnailToolStripMenuItem.Enabled = ThumbnailPictureBox.Image != null;
-        }
-
-        private void ShowThumbnail()
-        {
-            ThumbnailPictureBox.Image = null;
-
             if (ChatRoomsDataGridView.SelectedRows.Count == 1)
             {
                 try
@@ -1222,10 +1258,8 @@ namespace ChatRoomRecorder
                         if (_filesList.Count > 0)
                         {
                             FileInfo file = _filesList[_random.Next(_filesList.Count)];
-                            DateTime time = DateTime.MinValue.AddSeconds((double)_random.Next((int)(file.Length / 1000000 % 86400)));
                             string ffmpegPath = _settings.FFmpegPath;
-                            string ffmpegArgs = string.Format("-ss \"{0}\" -i \"{1}\" -frames:v 1 -update 1 -q:v 1 -vf scale=320:-1 -y \"{2}\"",
-                                time.ToString("HH:mm:ss"), file.FullName, thumbnailPath);
+                            string ffmpegArgs = string.Format("-i \"{0}\" -frames:v 1 -update 1 -q:v 1 -vf scale=320:-1 -y \"{1}\"", file.FullName, thumbnailPath);
                             Process.Start(new ProcessStartInfo()
                             {
                                 FileName = ffmpegPath,
@@ -1236,6 +1270,25 @@ namespace ChatRoomRecorder
                             });
                         }
                     }
+                }
+                catch (Exception)
+                {
+                    //do nothing
+                }
+            }
+        }
+
+        private void ShowThumbnail()
+        {
+            ThumbnailPictureBox.Image = null;
+
+            if (ChatRoomsDataGridView.SelectedRows.Count == 1)
+            {
+                try
+                {
+                    ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
+                    string thumbnailDirectory = string.Format("{0}\\{1}", new FileInfo(Environment.ProcessPath).Directory.FullName, c_thumbnailsDirectoryName);
+                    string thumbnailPath = string.Format("{0}\\{1} {2}.jpg", thumbnailDirectory, chatRoom.Website, chatRoom.Name);
 
                     if (File.Exists(thumbnailPath))
                     {
@@ -1248,27 +1301,6 @@ namespace ChatRoomRecorder
                 catch (Exception)
                 {
                     //do nothing
-                }
-            }
-        }
-
-        private void RemoveThumbnail()
-        {
-            if (MessageBox.Show(c_thumbnailRemovingWarningMessage, string.Empty, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
-            {
-                try
-                {
-                    ChatRoom chatRoom = _chatRoomsList[ChatRoomsDataGridView.SelectedRows[0].Index];
-                    string thumbnailDirectory = string.Format("{0}\\{1}", new FileInfo(Environment.ProcessPath).Directory.FullName, c_thumbnailsDirectoryName);
-                    string thumbnailPath = string.Format("{0}\\{1} {2}.jpg", thumbnailDirectory, chatRoom.Website, chatRoom.Name);
-
-                    File.Delete(thumbnailPath);
-
-                    ThumbnailPictureBox.Image = null;
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show(c_thumbnailRemovingErrorMessage, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -1536,7 +1568,8 @@ namespace ChatRoomRecorder
                         {
                             cancel = true;
                         }
-                    };
+                    }
+                    ;
 
                     if (!cancel)
                     {
@@ -2052,17 +2085,17 @@ namespace ChatRoomRecorder
             OutputDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
             FFmpegPath = string.Format("{0}\\Streamlink\\ffmpeg\\{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), c_ffmpegBinaryName),
             StreamlinkPath = string.Format("{0}\\Streamlink\\bin\\{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), c_streamlinkBinaryName),
-            ChaturbateConcurrentUpdates = 1,
-            BongaCamsConcurrentUpdates = 1,
-            StripchatConcurrentUpdates = 1,
-            Flirt4FreeConcurrentUpdates = 1,
-            CamSodaConcurrentUpdates = 1,
-            Cam4ConcurrentUpdates = 1,
+            ChaturbateConcurrentUpdates = 5,
+            BongaCamsConcurrentUpdates = 5,
+            StripchatConcurrentUpdates = 5,
+            Flirt4FreeConcurrentUpdates = 5,
+            CamSodaConcurrentUpdates = 5,
+            Cam4ConcurrentUpdates = 5,
             UpdateDelay = 15,
             UpdateInterval = 60,
-            DefaultAction = ChatRoomAction.None,
-            DefaultResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(new ChatRoomResolution(1920, 1080), ChatRoomResolution.CommonResolutions)],
-            LogSize = 5000
+            DefaultAction = ChatRoomAction.Record,
+            DefaultResolution = ChatRoomResolution.CommonResolutions[ChatRoomResolution.FindClosest(new ChatRoomResolution(1280, 720), ChatRoomResolution.CommonResolutions)],
+            LogSize = 2000
         };
 
         private const string c_databaseFileName = "ChatRoomRecorder.db";
@@ -2120,10 +2153,17 @@ namespace ChatRoomRecorder
         private const string c_categoryRemovingWarningMessage = "The category will be removed!";
         private const string c_chatRoomsRemovingWarningMessage = "The selected chat rooms will be removed!";
         private const string c_filesRemovingWarningMessage = "The selected files will be removed!";
-        private const string c_thumbnailRemovingWarningMessage = "The thumbnail will be removed!";
         private const string c_categoryNotEmptyErrorMessage = "The category is not empty!";
-        private const string c_chatRoomUrlUnsupportedErrorMessage = "The URL is incorrect! Only http://* and https://* URLs are supported!";
-        private const string c_chatRoomWebsiteUnsupportedErrorMessage = "The URL is incorrect! Supported websites are Chaturbate, BongaCams, Stripchat, Flirt4Free, CamSoda and Cam4!";
+        private const string c_chatRoomWebsiteUnsupportedErrorMessage =
+            "The URL is incorrect! Supported URLs (along with any subdomains) are:\r\n" +
+            "https://chaturbate.com/*\r\n" +
+            "https://bongacams.com/*\r\n" +
+            "https://bongacams.cam/*\r\n" +
+            "https://stripchat.com/*\r\n" +
+            "https://stripchat.global/*\r\n" +
+            "https://flirt4free.com/?model=*\r\n" +
+            "https://camsoda.com/*\r\n" +
+            "https://cam4.com/*\r\n";
         private const string c_chatRoomExistedErrorMessage = "The chat room is already existed!";
         private const string c_chatRoomsAddingErrorMessage = "The chat rooms can't be added!";
         private const string c_fileOpeningErrorMessage = "The file can't be opened!";
@@ -2132,7 +2172,6 @@ namespace ChatRoomRecorder
         private const string c_filesMergingErrorMessage = "The files can't be merged!";
         private const string c_filesConvertingErrorMessage = "The files can't be converted!";
         private const string c_fileShowingErrorMessage = "The file can't be shown!";
-        private const string c_thumbnailRemovingErrorMessage = "The thumbnail can't be removed!";
 
         #endregion
     }

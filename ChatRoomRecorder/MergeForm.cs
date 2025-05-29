@@ -18,12 +18,9 @@ namespace ChatRoomRecorder
             FilesDataGridView.DataSource = _filesList;
         }
 
-        public List<FileInfo> Files
+        private void MergeForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            get
-            {
-                return _filesList.Cast<FileInfo>().ToList();
-            }
+            WindowsMediaPlayer.close();
         }
 
         private void FilesDataGridView_DoubleClick(object sender, System.EventArgs e)
@@ -73,6 +70,14 @@ namespace ChatRoomRecorder
             {
                 _filesList.Insert(newIndex, _filesList[oldIndex]);
                 _filesList.RemoveAt(oldIndex + 1);
+            }
+        }
+
+        public List<FileInfo> Files
+        {
+            get
+            {
+                return _filesList.Cast<FileInfo>().ToList();
             }
         }
 

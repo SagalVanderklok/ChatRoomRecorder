@@ -7,9 +7,9 @@
     <IsPublishable>True</IsPublishable>
 	<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	<VersionPrefix>1.6.14</VersionPrefix>
+	<VersionPrefix>1.6.15</VersionPrefix>
 	<Copyright>Copyright (C) 2025 Sagal Vanderklok</Copyright>
-	<Description>https://chatroomrecorder.com | https://github.com/sagalvanderklok/chatroomrecorder</Description>
+	<Description>https://github.com/sagalvanderklok/chatroomrecorder</Description>
 	<Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
